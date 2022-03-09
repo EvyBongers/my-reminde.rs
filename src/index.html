@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting Started</title>
+<style>
+.loggedIn, .loggedOut {display: none;}
+body[data-logged-in="1"] .loggedIn{display: block;}
+body[data-logged-in="0"] .loggedOut{display: block;}
+</style>
+  </head>
+  <body>
+    <div id="signedIn" class="loggedIn">
+      <h1>Hurray!</h1>
+    </div>
+    <div id="signIn" class="loggedOut">
+      <form id="loginForm">
+        <input name="username" type="text">
+        <br>
+        <input name="password" type="password">
+        <br>
+        <button>Submit</button>
+      </form>
+    </div>
+  </body>
+</html>
