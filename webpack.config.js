@@ -12,8 +12,14 @@ module.exports = {
       directory: path.join(__dirname, "src"),
     },
   },
-  devtool: "inline-source-map",
-  entry: path.join(__dirname, "src", "index.ts"),
+  devtool: "cheap-module-source-map",
+  entry: {
+    main: path.join(__dirname, "src", "index.ts"),
+    service_worker: {
+      import: path.join(__dirname, "src", "firebase-messaging-sw.ts"),
+      filename: "firebase-messaging-sw.js",
+    },
+  },
   mode: "development",
   module: {
     rules: [
@@ -47,6 +53,7 @@ module.exports = {
   performance: { hints: false },
   plugins: [
     new HtmlWebpackPlugin({
+      excludeChunks: ["service_worker"],
       template: path.join(__dirname, "src", "index.html"),
       xhtml: true,
     }),

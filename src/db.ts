@@ -1,0 +1,24 @@
+import { firebaseApp } from "./firebase";
+import {
+  doc,
+  getDoc as firestoreGetDoc,
+  getFirestore,
+  setDoc as firestoreSetDoc,
+} from "firebase/firestore";
+
+export const db = getFirestore(firebaseApp);
+export const getDoc = async (path: string) => {
+  let docRef = doc(db, path);
+  let docSnap = await firestoreGetDoc(docRef);
+
+  if (docSnap.exists()) {
+    return docSnap.data();
+  } else {
+    return undefined;
+  }
+};
+
+export const setDoc = async (path: string, values: any, options: any) => {
+  let docRef = doc(db, path);
+  return await firestoreSetDoc(docRef, values, options);
+};
