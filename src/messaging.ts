@@ -4,7 +4,10 @@ import { updateAccount } from "./auth";
 const messaging = getMessaging(firebaseApp);
 
 document.getElementById("enablePush").addEventListener("click", async (e) => {
-  let token = await getToken(messaging, { vapidKey: "" });
+  let token = await getToken(messaging, {
+    vapidKey:
+      "BIOEZ21It271AdGuVaFY3ATZhYc6vNQYCicXAtIJO0nuoMKKKS7_F_byV2b3wLf21RcgwDeUamaMIMM3tbr0jaI",
+  });
   console.log(token);
   await updateAccount({ pushToken: token });
 });
