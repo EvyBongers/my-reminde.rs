@@ -20,11 +20,7 @@ module.exports = {
   },
   devtool: "cheap-module-source-map",
   entry: {
-    main: path.join(__dirname, "src", "index.ts"),
-    service_worker: {
-      import: path.join(__dirname, "src", "firebase-messaging-sw.ts"),
-      filename: "firebase-messaging-sw.js",
-    },
+    main: path.join(__dirname, "src", "index.ts")
   },
   mode: "development",
   module: {
