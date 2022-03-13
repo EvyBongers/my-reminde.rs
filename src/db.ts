@@ -1,5 +1,6 @@
 import { firebaseApp } from "./firebase";
 import {
+  connectFirestoreEmulator,
   doc,
   getDoc as firestoreGetDoc,
   getFirestore,
@@ -7,6 +8,9 @@ import {
 } from "firebase/firestore";
 
 export const db = getFirestore(firebaseApp);
+if (location.hostname === "localhost"){
+  connectFirestoreEmulator(db, 'localhost', 8080);
+}
 export const getDoc = async (path: string) => {
   let docRef = doc(db, path);
   let docSnap = await firestoreGetDoc(docRef);

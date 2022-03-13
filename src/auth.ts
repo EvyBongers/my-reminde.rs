@@ -1,4 +1,5 @@
 import {
+  connectAuthEmulator,
   getAuth,
   onAuthStateChanged,
   signInWithEmailAndPassword,
@@ -9,6 +10,10 @@ import { getDoc, setDoc } from "./db";
 
 let user: any = undefined;
 const auth = getAuth(firebaseApp);
+if (location.hostname === "localhost"){
+  connectAuthEmulator(auth, "http://localhost:9099");
+}
+
 onAuthStateChanged(auth, (_user) => {
   user = _user;
   document.body.dataset.loggedIn = _user ? "1" : "0";
