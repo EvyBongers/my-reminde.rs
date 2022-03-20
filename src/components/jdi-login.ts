@@ -1,15 +1,8 @@
-import { css, html, LitElement } from "lit";
-import { customElement, property } from "lit/decorators.js";
-import { login } from "../auth";
-import { toastWrapper } from "../helpers/Decorators";
+import {css, html, LitElement} from "lit";
+import {customElement, property} from "lit/decorators.js";
+import {login} from "../auth";
+import {toastWrapper} from "../helpers/Decorators";
 
-/**
- * An example element.
- *
- * @fires count-changed - Indicates when the count changes
- * @slot - This element has a slot
- * @csspart button - The button
- */
 @customElement("jdi-login")
 export class JDILogin extends LitElement {
   @property()
@@ -33,11 +26,11 @@ export class JDILogin extends LitElement {
         <h1>Login</h1>
         <input .value="${this.username}"
                @input="${(_: Event) =>
-      this.username = (_.currentTarget as HTMLInputElement).value}"
+                     this.username = (_.currentTarget as HTMLInputElement).value}"
                type="text"><br>
         <input .value="${this.password}"
                @input="${(_: Event) =>
-      this.password = (_.currentTarget as HTMLInputElement).value}"
+                     this.password = (_.currentTarget as HTMLInputElement).value}"
                type="password">
         <button @click=${this._login} part="button">Login</button>
       </form>

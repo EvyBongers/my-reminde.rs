@@ -28,10 +28,6 @@ export const login = async (username: string, password: string)=>{
 }
 
 export const logout = signOut.bind(null, auth);
-let logoutButton = document.getElementById("logout");
-logoutButton.addEventListener("click", async (e) => {
-  await signOut(auth);
-});
 
 export const getAccount = () => {
   return getDoc(`accounts/${user.uid}`);
