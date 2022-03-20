@@ -8,8 +8,8 @@ import {
 } from "firebase/firestore";
 
 export const db = getFirestore(firebaseApp);
-if (location.hostname === "localhost"){
-  connectFirestoreEmulator(db, 'localhost', 8080);
+if (location.hostname === "localhost") {
+  connectFirestoreEmulator(db, "localhost", 8080);
 }
 export const getDoc = async (path: string) => {
   let docRef = doc(db, path);
