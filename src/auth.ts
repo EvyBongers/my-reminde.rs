@@ -19,20 +19,13 @@ onAuthStateChanged(auth, (_user) => {
   document.body.dataset.loggedIn = _user ? "1" : "0";
 });
 
-let loginForm = document.getElementById("loginForm");
-loginForm.addEventListener("submit", async (e) => {
-  e.preventDefault();
-  let formData = new FormData(e.currentTarget as HTMLFormElement);
-  try {
-    let response = await signInWithEmailAndPassword(
+export const login = async (username: string, password: string)=>{
+    return await signInWithEmailAndPassword(
       auth,
-      formData.get("username") as string,
-      formData.get("password") as string,
+      username,
+      password,
     );
-  } catch (e) {
-    alert(e.message);
-  }
-});
+}
 
 let logoutButton = document.getElementById("logout");
 logoutButton.addEventListener("click", async (e) => {

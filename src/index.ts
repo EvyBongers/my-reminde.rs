@@ -1,3 +1,4 @@
+import './components/jdi-login';
 import { firebaseApp } from "./firebase";
 import "./auth";
 import "./db";
