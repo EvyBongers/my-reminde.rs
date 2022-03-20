@@ -1,4 +1,5 @@
 import './components/jdi-login';
+import './components/jdi-logout';
 import { firebaseApp } from "./firebase";
 import "./auth";
 import "./db";
