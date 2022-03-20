@@ -19,14 +19,7 @@ onAuthStateChanged(auth, (_user) => {
   document.body.dataset.loggedIn = _user ? "1" : "0";
 });
 
-export const login = async (username: string, password: string)=>{
-    return await signInWithEmailAndPassword(
-      auth,
-      username,
-      password,
-    );
-}
-
+export const login = signInWithEmailAndPassword.bind(null, auth);
 export const logout = signOut.bind(null, auth);
 
 export const getAccount = () => {
