@@ -3,22 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <title>Getting Started</title>
-    <style>
-      .loggedIn, .loggedOut {display: none;}
-      body[data-logged-in="1"] .loggedIn{display: block;}
-      body[data-logged-in="0"] .loggedOut{display: block;}
-    </style>
     <link href="https://fonts.googleapis.com/css?family=Material+Icons&display=block" rel="stylesheet">
   </head>
   <body>
-    <div id="signedIn" class="loggedIn">
-      <h1>Hurray!</h1>
-      <mwc-button outlined id="enablePush">Enable notifications</mwc-button>
-      <br>
-      <mwc-button outlined id="send">Send a message</mwc-button>
-    </div>
-    <jdi-login class="loggedOut"></jdi-login>
-    <jdi-logout class="loggedIn"></jdi-logout>
-
+    <jdi-app></jdi-app>
   </body>
 </html>
