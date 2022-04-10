@@ -5,6 +5,7 @@ import {toastWrapper} from "../helpers/Decorators";
 import '@material/mwc-button';
 import '@material/mwc-textfield';
 import './jdi-form';
+import '@material/mwc-icon'
 
 @customElement("jdi-login")
 export class JDILogin extends LitElement {
@@ -46,7 +47,7 @@ export class JDILogin extends LitElement {
                              this.password = (_.currentTarget as HTMLInputElement).value}"
                        type="password"></mwc-textfield>
 
-        <mwc-button raised @click="${this._login}">Login</mwc-button>
+        <mwc-button raised icon="login" @click="${this._login}">Login</mwc-button>
       </jdi-form>
     `;
   }
