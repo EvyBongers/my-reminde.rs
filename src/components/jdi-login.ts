@@ -2,6 +2,9 @@ import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {login} from "../auth";
 import {toastWrapper} from "../helpers/Decorators";
+import '@material/mwc-button';
+import '@material/mwc-textfield';
+import './jdi-form';
 
 @customElement("jdi-login")
 export class JDILogin extends LitElement {
@@ -18,22 +21,33 @@ export class JDILogin extends LitElement {
       padding: 16px;
       max-width: 800px;
     }
+    mwc-textfield{
+      margin-bottom: 15px;
+      display: block;
+    }
   `;
 
   override render() {
     return html`
-      <form>
+      <jdi-form @submit="${this.login}">
         <h1>Login</h1>
-        <input .value="${this.username}"
-               @input="${(_: Event) =>
-                     this.username = (_.currentTarget as HTMLInputElement).value}"
-               type="text"><br>
-        <input .value="${this.password}"
-               @input="${(_: Event) =>
-                     this.password = (_.currentTarget as HTMLInputElement).value}"
-               type="password">
-        <button @click=${this._login} part="button">Login</button>
-      </form>
+        <mwc-textfield .value="${this.username}"
+                       label="Username"
+                       required
+                       @input="${(_: Event) =>
+                             this.username = (_.currentTarget as HTMLInputElement).value}"
+                       type="text">
+        </mwc-textfield>
+
+        <mwc-textfield .value="${this.password}"
+                       label="Password"
+                       required
+                       @input="${(_: Event) =>
+                             this.password = (_.currentTarget as HTMLInputElement).value}"
+                       type="password"></mwc-textfield>
+
+        <mwc-button raised @click="${this._login}">Login</mwc-button>
+      </jdi-form>
     `;
   }
 

@@ -1,5 +1,6 @@
 import './components/jdi-login';
 import './components/jdi-logout';
+import '@material/mwc-button'
 import { firebaseApp } from "./firebase";
 import "./auth";
 import "./db";
