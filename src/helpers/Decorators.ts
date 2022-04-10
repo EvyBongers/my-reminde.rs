@@ -1,3 +1,5 @@
+import {showMessage} from "./Snacks";
+
 interface ToastWrapperOptions {
   successMessage?: string;
   failedMessage?: string;
@@ -11,9 +13,10 @@ export function toastWrapper(options: ToastWrapperOptions | null = null) {
     descriptor.value = async function (...args: any[]) {
       let me = this as any;
 
+      let snack;
       try {
         if (options.progressMessage) {
-          alert(options.progressMessage);
+          snack = showMessage(options.progressMessage, {timeoutMs: -1});
         }
 
 
@@ -22,12 +25,12 @@ export function toastWrapper(options: ToastWrapperOptions | null = null) {
         }
 
         if (options.successMessage) {
-          alert(options.successMessage);
+          showMessage(options.successMessage, {timeoutMs: 4000}, snack);
         }
 
       } catch (e) {
         if (options.failedMessage) {
-          alert(options.failedMessage.replace('{{e}}', e.message));
+          showMessage(options.failedMessage.replace('{{e}}', e.message), {timeoutMs: 7000}, snack);
         }
 
         throw e;

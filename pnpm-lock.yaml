@@ -3,6 +3,7 @@ lockfileVersion: 5.3
 specifiers:
   '@material/mwc-button': ^0.25.3
   '@material/mwc-icon': ^0.25.3
+  '@material/mwc-snackbar': ^0.25.3
   '@material/mwc-textfield': ^0.25.3
   firebase: ^9.6.8
   html-webpack-plugin: ^5.5.0
@@ -17,6 +18,7 @@ specifiers:
 dependencies:
   '@material/mwc-button': 0.25.3
   '@material/mwc-icon': 0.25.3
+  '@material/mwc-snackbar': 0.25.3
   '@material/mwc-textfield': 0.25.3
   firebase: 9.6.10
   html-webpack-plugin: 5.5.0_webpack@5.72.0
@@ -532,6 +534,23 @@ packages:
       tslib: 2.3.1
     dev: false
 
+  /@material/button/14.0.0-canary.261f2db59.0:
+    resolution: {integrity: sha512-DB0MAvdIGWKuFwlQ57hjv7ZuHIioT2mnG7RWtL7ZoCWoY45nCrsbJirmX5zZFipm9gIOJ3YnIkIrUyMVSrDX+g==}
+    dependencies:
+      '@material/density': 14.0.0-canary.261f2db59.0
+      '@material/dom': 14.0.0-canary.261f2db59.0
+      '@material/elevation': 14.0.0-canary.261f2db59.0
+      '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      '@material/ripple': 14.0.0-canary.261f2db59.0
+      '@material/rtl': 14.0.0-canary.261f2db59.0
+      '@material/shape': 14.0.0-canary.261f2db59.0
+      '@material/theme': 14.0.0-canary.261f2db59.0
+      '@material/tokens': 14.0.0-canary.261f2db59.0
+      '@material/touch-target': 14.0.0-canary.261f2db59.0
+      '@material/typography': 14.0.0-canary.261f2db59.0
+      tslib: 2.3.1
+    dev: false
+
   /@material/density/14.0.0-canary.261f2db59.0:
     resolution: {integrity: sha512-zOR5wISqPVr8KS/ERNC1jdRV9O832lzclyS9Ea20rDrWfuOiYsQ9bbIk12xWlxpgsn7r9fxQJyd1O2SURoHdRA==}
     dependencies:
@@ -542,6 +561,17 @@ packages:
     resolution: {integrity: sha512-iUpZG6Bb2l/PfNV2Fb/pXfG1p4Bz4PC9A7ATPlKfcU5HioObcnYVc/+Hrtaw8eu28BNIc+VVROtbfpqG/YgKSQ==}
     dependencies:
       '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      tslib: 2.3.1
+    dev: false
+
+  /@material/elevation/14.0.0-canary.261f2db59.0:
+    resolution: {integrity: sha512-AqN/tsTGGyBzZ7CtoSMBY9bDYvCuUt98EUfiGjZGXcf4HgoHV3Cn/JSLrhru5Cq8Nx6HF6AmHh3dQCfNCQduew==}
+    dependencies:
+      '@material/animation': 14.0.0-canary.261f2db59.0
+      '@material/base': 14.0.0-canary.261f2db59.0
+      '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      '@material/rtl': 14.0.0-canary.261f2db59.0
+      '@material/theme': 14.0.0-canary.261f2db59.0
       tslib: 2.3.1
     dev: false
 
@@ -561,6 +591,20 @@ packages:
       '@material/rtl': 14.0.0-canary.261f2db59.0
       '@material/theme': 14.0.0-canary.261f2db59.0
       '@material/typography': 14.0.0-canary.261f2db59.0
+      tslib: 2.3.1
+    dev: false
+
+  /@material/icon-button/14.0.0-canary.261f2db59.0:
+    resolution: {integrity: sha512-9P6cjRqKtjE6ML+r5yz0ExU/f2KLdNabHQxmO6RpKd/FnjTyP1NcWqqj8dsvo/DZ7mOtT1MIThgkQDdiMqcYLg==}
+    dependencies:
+      '@material/base': 14.0.0-canary.261f2db59.0
+      '@material/density': 14.0.0-canary.261f2db59.0
+      '@material/elevation': 14.0.0-canary.261f2db59.0
+      '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      '@material/ripple': 14.0.0-canary.261f2db59.0
+      '@material/rtl': 14.0.0-canary.261f2db59.0
+      '@material/theme': 14.0.0-canary.261f2db59.0
+      '@material/touch-target': 14.0.0-canary.261f2db59.0
       tslib: 2.3.1
     dev: false
 
@@ -635,6 +679,15 @@ packages:
       tslib: 2.3.1
     dev: false
 
+  /@material/mwc-snackbar/0.25.3:
+    resolution: {integrity: sha512-DJyWQl1rksv502qLQta81YQ3q3iy0GlVQcXZq88nBG9o64070qZW92rfZmiQ63MRwGbdNmrUFZ3QBoClY1JpFg==}
+    dependencies:
+      '@material/mwc-base': 0.25.3
+      '@material/snackbar': 14.0.0-canary.261f2db59.0
+      lit: 2.2.2
+      tslib: 2.3.1
+    dev: false
+
   /@material/mwc-textfield/0.25.3:
     resolution: {integrity: sha512-stpZ8sEyo2Mb9fG2XCoTc1Kom8oRXZiVI5rU88GtfcBU7nH0em8S4grq9X1mVfUG6Cfi1G/T+avCSIhzbYtr0w==}
     dependencies:
@@ -689,6 +742,24 @@ packages:
       tslib: 2.3.1
     dev: false
 
+  /@material/snackbar/14.0.0-canary.261f2db59.0:
+    resolution: {integrity: sha512-RLxO0dWBmhU+3y/PCYN0oiQUvzw8cdeFLmiUN9BPn2unwmTPp5nUdaTde7TQ93vRNidyPtDnkEFnflunDCk2Ew==}
+    dependencies:
+      '@material/animation': 14.0.0-canary.261f2db59.0
+      '@material/base': 14.0.0-canary.261f2db59.0
+      '@material/button': 14.0.0-canary.261f2db59.0
+      '@material/dom': 14.0.0-canary.261f2db59.0
+      '@material/elevation': 14.0.0-canary.261f2db59.0
+      '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      '@material/icon-button': 14.0.0-canary.261f2db59.0
+      '@material/ripple': 14.0.0-canary.261f2db59.0
+      '@material/rtl': 14.0.0-canary.261f2db59.0
+      '@material/shape': 14.0.0-canary.261f2db59.0
+      '@material/theme': 14.0.0-canary.261f2db59.0
+      '@material/typography': 14.0.0-canary.261f2db59.0
+      tslib: 2.3.1
+    dev: false
+
   /@material/textfield/14.0.0-canary.261f2db59.0:
     resolution: {integrity: sha512-KBPgpvvVFBfLx9nc6+wWOS2hJ40JVwh5KBjMoYbiOEFLf0O7SgCAVREHaFAXrPsC8AeTyUipx6TReONIGfMCPQ==}
     dependencies:
@@ -712,6 +783,21 @@ packages:
     resolution: {integrity: sha512-bUqyFT0QF8Nxx02fekt3CXIfC9DEPOPdo2hjgdtvhrNP+vftbkI2tKZ5/uRUnVA+zqQAOyIl5z6FOMg4fyemCA==}
     dependencies:
       '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      tslib: 2.3.1
+    dev: false
+
+  /@material/tokens/14.0.0-canary.261f2db59.0:
+    resolution: {integrity: sha512-mgar9gsLv00HTvXIDvNR1vEEXpfKgeWhVTO8a7aWofSNyENNOVc5ImJwBgCAMb5SgLHBi6w8/c1tPzjOewBfCA==}
+    dependencies:
+      '@material/elevation': 14.0.0-canary.261f2db59.0
+    dev: false
+
+  /@material/touch-target/14.0.0-canary.261f2db59.0:
+    resolution: {integrity: sha512-xA6TTHN7aOTXg/+c6mQJlogzTD+Sp8WPC5TK8RBXbQxEykGXGW15p+H9pG+rX/gzD5iehnHRBrDUFmAGoskhcQ==}
+    dependencies:
+      '@material/base': 14.0.0-canary.261f2db59.0
+      '@material/feature-targeting': 14.0.0-canary.261f2db59.0
+      '@material/rtl': 14.0.0-canary.261f2db59.0
       tslib: 2.3.1
     dev: false
 
