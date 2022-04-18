@@ -2,7 +2,7 @@ import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import './components/jdi-login';
 import './components/jdi-logout';
-import {onAuthStateChanged} from "firebase/auth";
+import {onAuthStateChanged, User} from "firebase/auth";
 import {auth} from "./auth";
 import {enablePushNotifications} from "./messaging";
 import {sendNotifications} from "./functions";
@@ -11,7 +11,7 @@ import {sendNotifications} from "./functions";
 export class JDIApp extends LitElement {
 
   @property()
-  user: any;
+  user: User;
 
   static override styles = css`
     :host {
