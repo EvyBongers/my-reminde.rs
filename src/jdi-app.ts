@@ -25,9 +25,9 @@ export class JDIApp extends LitElement {
   renderLoggedIn() {
     return html`
       <h1>Hurray!</h1>
-      <mwc-button outlined @click="${this.togglePush}">Toggle notifications</mwc-button>
+      <mwc-button outlined icon="notifications" @click="${this.togglePush}">Toggle notifications</mwc-button>
       <br>
-      <mwc-button outlined @click="${this.sendNotification}" id="send">Send a message</mwc-button>
+      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
       <br>
       <jdi-logout></jdi-logout>
     `;
