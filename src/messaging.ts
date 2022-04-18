@@ -4,6 +4,12 @@ import {updateAccount} from "./auth";
 
 const messaging = getMessaging(firebaseApp);
 
+export async function enablePushNotifications() {
+  let token = await getToken(messaging, {vapidKey: ""});
+  console.log(token);
+  await updateAccount({pushToken: token});
+}
+
 // TODO: fix foreground notifications
 onMessage(messaging, (payload) => {
   console.log(

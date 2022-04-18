@@ -30,7 +30,7 @@ export class JDILogin extends LitElement {
 
   override render() {
     return html`
-      <jdi-form @submit="${this.login}">
+      <jdi-form @submit="${this._login}">
         <h1>Login</h1>
         <mwc-textfield .value="${this.username}"
                        label="Username"

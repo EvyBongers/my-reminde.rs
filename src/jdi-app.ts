@@ -4,7 +4,8 @@ import './components/jdi-login';
 import './components/jdi-logout';
 import {onAuthStateChanged} from "firebase/auth";
 import {auth} from "./auth";
-import firebase from "firebase/compat";
+import {enablePushNotifications} from "./messaging";
+import {sendNotifications} from "./functions";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -21,9 +22,9 @@ export class JDIApp extends LitElement {
   renderLoggedIn() {
     return html`
       <h1>Hurray!</h1>
-      <mwc-button outlined id="enablePush">Enable notifications</mwc-button>
+      <mwc-button outlined @click="${this.enablePush}" id="enablePush">Enable notifications</mwc-button>
       <br>
-      <mwc-button outlined id="send">Send a message</mwc-button>
+      <mwc-button outlined @click="${this.sendNotification}" id="send">Send a message</mwc-button>
       <br>
       <jdi-logout></jdi-logout>
     `;
@@ -47,6 +48,16 @@ export class JDIApp extends LitElement {
     onAuthStateChanged(auth, (user) => {
       this.user = user;
     });
+  }
+
+  private async enablePush(e: Event) {
+    await enablePushNotifications();
+  }
+
+  private async sendNotification(e: Event) {
+    let t = await sendNotifications();
+    debugger;
+    console.log("ttt", t);
   }
 }
 
