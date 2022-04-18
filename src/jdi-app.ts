@@ -5,7 +5,7 @@ import './components/jdi-logout';
 import {onAuthStateChanged, User} from "firebase/auth";
 import {auth} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotifications} from "./messaging";
-import {sendNotifications} from "./functions";
+import {doSendNotifications} from "./functions";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -73,9 +73,10 @@ export class JDIApp extends LitElement {
   }
 
   private async sendNotification(e: Event) {
-    let t = await sendNotifications();
-    debugger;
-    console.log("ttt", t);
+    await doSendNotifications({
+      title: 'cakes',
+      body: 'your a cute cupcake',
+    });
   }
 }
 

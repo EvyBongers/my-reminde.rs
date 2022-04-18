@@ -6,4 +6,4 @@ if (location.hostname === "localhost") {
   connectFunctionsEmulator(functions, "localhost", 5001);
 }
 
-export const sendNotifications = httpsCallable(functions, "sendNotifications");
+export const doSendNotifications = httpsCallable(functions, "doSendNotifications");
