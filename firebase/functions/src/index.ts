@@ -28,8 +28,10 @@ export const sendNotifications = functions.region("europe-west1")
     for (let account of accounts.docs) {
       let accountData = account.data() as AccountDocument;
       let message = {
-        title: notificationData.title,
-        body: notificationData.body,
+        data: {
+          title: notificationData.title,
+          body: notificationData.body,
+        },
         tokens: accountData.devices.map((_) => _.token),
       };
       let response = await getMessaging().sendMulticast(message);

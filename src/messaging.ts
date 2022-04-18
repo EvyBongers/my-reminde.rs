@@ -27,13 +27,13 @@ export async function isPushNotifications() {
 // TODO: fix foreground notifications
 onMessage(messaging, (payload) => {
   console.log(
-    "[index.ts] Received message ",
+    "[messaging.ts] Received message ",
     payload,
   );
   // Customize notification here
-  const notificationTitle = "Background Message Title";
+  const notificationTitle = `[Foreground] ${payload.data.title}`;
   const notificationOptions = {
-    body: "Foreground Message body.",
+    body: payload.data.body,
     icon: "/firebase-logo.png",
   };
 
