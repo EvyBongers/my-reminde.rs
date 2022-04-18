@@ -9,7 +9,7 @@ import {
 import { firebaseApp } from "./firebase";
 import { getDoc, setDoc } from "./db";
 
-let user: User = undefined;
+export let user: User = undefined;
 export const auth = getAuth(firebaseApp);
 if (location.hostname === "localhost") {
   connectAuthEmulator(auth, "http://localhost:9099");

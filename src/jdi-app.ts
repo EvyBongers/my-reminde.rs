@@ -4,7 +4,7 @@ import './components/jdi-login';
 import './components/jdi-logout';
 import {onAuthStateChanged, User} from "firebase/auth";
 import {auth} from "./auth";
-import {enablePushNotifications} from "./messaging";
+import {disablePushNotifications, enablePushNotifications, isPushNotifications} from "./messaging";
 import {sendNotifications} from "./functions";
 
 @customElement("jdi-app")
@@ -12,6 +12,9 @@ export class JDIApp extends LitElement {
 
   @property()
   user: User;
+
+  @property()
+  pushNoitifications: Promise<boolean>;
 
   static override styles = css`
     :host {
@@ -22,7 +25,7 @@ export class JDIApp extends LitElement {
   renderLoggedIn() {
     return html`
       <h1>Hurray!</h1>
-      <mwc-button outlined @click="${this.enablePush}" id="enablePush">Enable notifications</mwc-button>
+      <mwc-button outlined @click="${this.togglePush}">Toggle notifications</mwc-button>
       <br>
       <mwc-button outlined @click="${this.sendNotification}" id="send">Send a message</mwc-button>
       <br>
@@ -48,10 +51,25 @@ export class JDIApp extends LitElement {
     onAuthStateChanged(auth, (user) => {
       this.user = user;
     });
+
+    this.loadPushNotificationsState();
   }
 
-  private async enablePush(e: Event) {
-    await enablePushNotifications();
+  private loadPushNotificationsState() {
+    this.pushNoitifications = isPushNotifications();
+  }
+
+  private async togglePush(e: Event) {
+    if (await this.pushNoitifications) {
+      debugger
+      await disablePushNotifications();
+
+    } else {
+      debugger
+      await enablePushNotifications();
+    }
+
+    this.loadPushNotificationsState();
   }
 
   private async sendNotification(e: Event) {
