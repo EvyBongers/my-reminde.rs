@@ -33,8 +33,9 @@ export async function isPushNotifications() {
   }
 
   let account = await getAccount();
+  if(!account?.devices) return false;
 
-  return !!(account?.devices[getDeviceId()]);
+  return getDeviceId() in account.devices;
 }
 
 // TODO: fix foreground notifications
