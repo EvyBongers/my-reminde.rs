@@ -61,11 +61,8 @@ export class JDIApp extends LitElement {
 
   private async togglePush(e: Event) {
     if (await this.pushNoitifications) {
-      debugger
       await disablePushNotifications();
-
     } else {
-      debugger
       await enablePushNotifications();
     }
 
