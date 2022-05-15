@@ -33,6 +33,7 @@ export class JDIForm extends LitElement {
       this.form.dispatchEvent(new Event('submit', {
         bubbles: true,
         composed: true,
+        cancelable: true
       }));
     }
   }
