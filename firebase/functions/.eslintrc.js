@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   env: {
-    es6: true,
+    es2021: true,
     node: true,
   },
   extends: [
@@ -25,6 +25,7 @@ module.exports = {
     "import",
   ],
   rules: {
+    "arrow-parens": ["error", "as-needed"],
     "quotes": ["error", "double"],
     "import/no-unresolved": 0,
     "prefer-const": 0,
