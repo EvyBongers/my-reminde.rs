@@ -6,6 +6,9 @@ import {
   getFirestore,
   setDoc as firestoreSetDoc,
 } from "firebase/firestore";
+export {
+  deleteField as firestoreDelete
+} from 'firebase/firestore';
 
 export const db = getFirestore(firebaseApp);
 if (location.hostname === "localhost") {
