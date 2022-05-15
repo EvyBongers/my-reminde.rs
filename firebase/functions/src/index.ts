@@ -6,9 +6,15 @@ import {getMessaging} from "firebase-admin/messaging";
 
 initializeApp();
 
-interface AccountDocument {
-  devices: { name: string; token: string }[];
+interface AccountDevice {
+  name: string;
+  token: string;
 }
+
+interface AccountDocument {
+  devices: { [key: string]: AccountDevice };
+}
+
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
   async (data, context) => {
     let accounts = await db.collection("accounts").get();
@@ -19,6 +25,11 @@ export const doSendNotifications = functions.region("europe-west1").https.onCall
 );
 
 const db = getFirestore();
+
+
+let getPushTokens = (account: AccountDocument) => {
+  return Object.entries(account.devices).map(_ => _[1].token);
+};
 
 export const sendNotifications = functions.region("europe-west1")
   .firestore.document("/accounts/{accountId}/notifications/{notificationId}")
@@ -32,7 +43,7 @@ export const sendNotifications = functions.region("europe-west1")
           title: notificationData.title,
           body: notificationData.body,
         },
-        tokens: accountData.devices.map((_) => _.token),
+        tokens: getPushTokens(accountData),
       };
       let response = await getMessaging().sendMulticast(message);
       console.log(response.successCount + " messages were sent successfully");
