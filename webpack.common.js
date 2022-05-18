@@ -1,4 +1,5 @@
 const path = require("path");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
@@ -34,8 +35,15 @@ module.exports = {
     filename: "[name].[chunkhash:8].js",
     path: path.join(__dirname, "firebase", "public"),
   },
-  performance: { hints: false },
+  performance: {hints: false},
   plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: path.join("src", "firebase-messaging-sw.js")
+        }
+      ]
+    }),
     new HtmlWebpackPlugin({
       excludeChunks: ["service_worker"],
       template: path.join(__dirname, "src", "index.html"),
