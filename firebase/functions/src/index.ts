@@ -10,8 +10,8 @@ initializeApp();
 
 
 const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: () => Date } } = {
-  //TODO write these
-  'hourly': {
+  // TODO write these
+  "hourly": {
     calculateNextSend() {
       let date = new Date();
       date.setHours(date.getHours() + 1);
@@ -22,7 +22,7 @@ const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: () => Date } } =
       return date;
     },
   },
-  'daily': {
+  "daily": {
     calculateNextSend() {
       let date = new Date();
       date.setHours(date.getHours() + 24);
