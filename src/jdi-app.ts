@@ -1,10 +1,10 @@
+import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import './components/jdi-login';
 import './components/jdi-logout';
-import {onAuthStateChanged, User} from "firebase/auth";
 import {auth} from "./auth";
-import {disablePushNotifications, enablePushNotifications, isPushNotifications} from "./messaging";
+import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import {doSendNotifications} from "./functions";
 
 @customElement("jdi-app")
@@ -14,7 +14,7 @@ export class JDIApp extends LitElement {
   user: User;
 
   @property()
-  pushNoitifications: Promise<boolean>;
+  pushNotificationsEnabled: Promise<boolean>;
 
   static override styles = css`
     :host {
@@ -56,11 +56,11 @@ export class JDIApp extends LitElement {
   }
 
   private loadPushNotificationsState() {
-    this.pushNoitifications = isPushNotifications();
+    this.pushNotificationsEnabled = isPushNotificationsEnabled();
   }
 
   private async togglePush(e: Event) {
-    if (await this.pushNoitifications) {
+    if (await this.pushNotificationsEnabled) {
       await disablePushNotifications();
     } else {
       await enablePushNotifications();

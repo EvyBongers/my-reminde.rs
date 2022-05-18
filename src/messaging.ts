@@ -27,7 +27,7 @@ export async function disablePushNotifications() {
   });
 }
 
-export async function isPushNotifications() {
+export async function isPushNotificationsEnabled() {
   while (!user) {
     await new Promise(_ => setTimeout(_, 50));
   }
