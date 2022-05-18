@@ -4,12 +4,13 @@ import {initializeApp} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getMessaging} from "firebase-admin/messaging";
 import {firestore} from "firebase-admin";
+import {parseCronExpression} from "cron-schedule"
 import DocumentReference = firestore.DocumentReference;
 
 initializeApp();
 
 
-const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: () => Date } } = {
+const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?: string) => Date } } = {
   // TODO write these
   "hourly": {
     calculateNextSend() {
@@ -33,6 +34,12 @@ const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: () => Date } } =
       return date;
     },
   },
+  "cron": {
+    calculateNextSend(cronExpression?: string) {
+      let cron = parseCronExpression(cronExpression as string);
+      return cron.getNextDate(new Date());
+    },
+  },
 };
 
 interface AccountDevice {
@@ -50,6 +57,7 @@ interface AccountScheduledNotificationDocument {
   nextSend: any;
   lastSend: any;
   type: string;
+  cronExpression?: string;
 }
 
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
@@ -110,7 +118,7 @@ export const runNotify = functions.region("europe-west1")
 
       await scheduledNotification.ref.update({
         lastSend: FieldValue.serverTimestamp(),
-        nextSend: NOTIFICATION_TYPES[scheduledNotificationData.type].calculateNextSend()
+        nextSend: NOTIFICATION_TYPES[scheduledNotificationData.type].calculateNextSend(scheduledNotificationData.cronExpression)
       });
     }
   });
