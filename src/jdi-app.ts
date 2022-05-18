@@ -14,7 +14,7 @@ export class JDIApp extends LitElement {
   user: User;
 
   @property()
-  pushNotificationsEnabled: Promise<boolean>;
+  pushNotificationsEnabled: boolean;
 
   static override styles = css`
     :host {
@@ -25,7 +25,9 @@ export class JDIApp extends LitElement {
   renderLoggedIn() {
     return html`
       <h1>Hurray!</h1>
-      <mwc-button outlined icon="notifications" @click="${this.togglePush}">Toggle notifications</mwc-button>
+      <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}" @click="${this.togglePush}">
+        ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
+      </mwc-button>
       <br>
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
       <br>
@@ -55,8 +57,8 @@ export class JDIApp extends LitElement {
     this.loadPushNotificationsState();
   }
 
-  private loadPushNotificationsState() {
-    this.pushNotificationsEnabled = isPushNotificationsEnabled();
+  private async loadPushNotificationsState() {
+    this.pushNotificationsEnabled = await isPushNotificationsEnabled();
   }
 
   private async togglePush(e: Event) {
