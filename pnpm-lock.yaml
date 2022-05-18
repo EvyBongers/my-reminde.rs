@@ -6,7 +6,6 @@ specifiers:
   '@material/mwc-snackbar': ^0.25.3
   '@material/mwc-textfield': ^0.25.3
   copy-webpack-plugin: ^10.2.4
-  cron-schedule: ^3.0.6
   firebase: ^9.6.8
   html-webpack-plugin: ^5.5.0
   lit: ^2.2.0
@@ -23,7 +22,6 @@ dependencies:
   '@material/mwc-snackbar': 0.25.3
   '@material/mwc-textfield': 0.25.3
   copy-webpack-plugin: 10.2.4_webpack@5.72.0
-  cron-schedule: 3.0.6
   firebase: 9.6.10
   html-webpack-plugin: 5.5.0_webpack@5.72.0
   lit: 2.2.2
@@ -1502,10 +1500,6 @@ packages:
 
   /core-util-is/1.0.3:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
-    dev: false
-
-  /cron-schedule/3.0.6:
-    resolution: {integrity: sha512-izfGgKyzzIyLaeb1EtZ3KbglkS6AKp9cv7LxmiyoOu+fXfol1tQDC0Cof0enVZGNtudTHW+3lfuW9ZkLQss4Wg==}
     dev: false
 
   /cross-spawn/7.0.3:
