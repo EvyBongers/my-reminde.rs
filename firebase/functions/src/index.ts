@@ -4,7 +4,7 @@ import {initializeApp} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getMessaging} from "firebase-admin/messaging";
 import {firestore} from "firebase-admin";
-import {parseCronExpression} from "cron-schedule"
+import {parseCronExpression} from "cron-schedule";
 import DocumentReference = firestore.DocumentReference;
 
 initializeApp();
@@ -91,7 +91,7 @@ export const sendNotifications = functions.region("europe-west1")
         tokens: getPushTokens(accountData),
       };
       let response = await getMessaging().sendMulticast(message);
-      console.log(response.successCount + " messages were sent successfully");
+      functions.logger.info(response.successCount + " messages were sent successfully");
     }
   });
 
@@ -102,14 +102,14 @@ export const runNotify = functions.region("europe-west1")
   .timeZone("Europe/Amsterdam")
   .onRun(async _context => {
     let scheduledNotifications = await db.collectionGroup("scheduledNotifications")
-      .where('nextSend', '<=', new Date())
+      .where("nextSend", "<=", new Date())
       .get();
 
-    console.log('scheduledNotifications', scheduledNotifications);
+    functions.logger.info("scheduledNotifications", scheduledNotifications);
 
     for (let scheduledNotification of scheduledNotifications.docs) {
       let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
-      console.log('creating', scheduledNotificationData);
+      functions.logger.info("creating", scheduledNotificationData);
       let accountRef = scheduledNotification.ref.parent.parent as DocumentReference;
       await accountRef.collection("notifications").add({
         title: scheduledNotificationData.title,
