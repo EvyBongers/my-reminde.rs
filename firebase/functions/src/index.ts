@@ -112,13 +112,18 @@ export const runNotify = functions.region("europe-west1")
       functions.logger.info("creating", scheduledNotificationData);
       let accountRef = scheduledNotification.ref.parent.parent as DocumentReference;
       await accountRef.collection("notifications").add({
+        notification: scheduledNotification.ref,
         title: scheduledNotificationData.title,
         body: scheduledNotificationData.body,
+        sent: FieldValue.serverTimestamp(),
       });
 
-      await scheduledNotification.ref.update({
+      let data = {
         lastSend: FieldValue.serverTimestamp(),
-        nextSend: NOTIFICATION_TYPES[scheduledNotificationData.type].calculateNextSend(scheduledNotificationData.cronExpression)
-      });
+        nextSend: NOTIFICATION_TYPES[scheduledNotificationData.type]
+          .calculateNextSend(scheduledNotificationData.cronExpression),
+      };
+      functions.logger.debug(`Updating timestamps on notification ${scheduledNotification.ref.id}:`, data);
+      await scheduledNotification.ref.update(data);
     }
   });
