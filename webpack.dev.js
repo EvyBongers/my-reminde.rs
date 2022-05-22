@@ -18,11 +18,6 @@ module.exports = merge(common, {
     static: {
       directory: path.join(__dirname, "src"),
     },
-    // https: {
-    //   minVersion: "TLSv1.2",
-    //   key: fs.readFileSync(path.join(__dirname, "./localhost.key")),
-    //   cert: fs.readFileSync(path.join(__dirname, "./localhost.pem")),
-    // },
   },
   devtool: "cheap-module-source-map",
   mode: "development",
