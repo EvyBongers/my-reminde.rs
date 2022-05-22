@@ -7,6 +7,9 @@ service cloud.firestore {
       match /notifications/{notificationId} {
         allow read, delete: if request.auth != null && accountId == request.auth.uid;
       }
+      match /scheduledNotifications/{scheduledNotificationId} {
+        allow read, delete: if request.auth != null && accountId == request.auth.uid;
+      }
     }
   }
 }
