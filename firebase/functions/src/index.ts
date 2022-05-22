@@ -55,7 +55,7 @@ interface AccountScheduledNotificationDocument {
   title: string;
   body: string;
   nextSend: any;
-  lastSend: any;
+  lastSent: any;
   type: string;
   cronExpression?: string;
 }
