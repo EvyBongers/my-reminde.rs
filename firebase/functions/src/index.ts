@@ -118,12 +118,8 @@ export const runNotify = functions.region("europe-west1")
         sent: FieldValue.serverTimestamp(),
       });
 
-      let data = {
-        lastSend: FieldValue.serverTimestamp(),
-        nextSend: NOTIFICATION_TYPES[scheduledNotificationData.type]
-          .calculateNextSend(scheduledNotificationData.cronExpression),
-      };
-      functions.logger.debug(`Updating timestamps on notification ${scheduledNotification.ref.id}:`, data);
-      await scheduledNotification.ref.update(data);
+      let nextSend = NOTIFICATION_TYPES[scheduledNotificationData.type].calculateNextSend(scheduledNotificationData.cronExpression);
+      functions.logger.debug(`Updating timestamps on notification ${scheduledNotification.ref.id}:`, {nextSend: nextSend});
+      await scheduledNotification.ref.update({lastSent: FieldValue.serverTimestamp(), nextSend: nextSend});
     }
   });
