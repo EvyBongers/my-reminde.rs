@@ -43,8 +43,12 @@ module.exports = {
           from: path.join("src", "*.{js,json}"),
           to: path.join(__dirname, "firebase", "public", "[name][ext]"), // TODO(evy): figure out how to properly handle the dot in [ext]
           toType: "template",
-        }
-      ]
+        },
+        {
+          from: path.join("src", "images"),
+          to: path.join(__dirname, "firebase", "public", "images"),
+        },
+      ],
     }),
     new HtmlWebpackPlugin({
       excludeChunks: ["service_worker"],
