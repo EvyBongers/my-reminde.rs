@@ -4,7 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "devserver": "npx webpack serve --config webpack.dev.js",
+    "functions": "docker run -it --rm -v ${PWD}/firebase/functions:/usr/share/app -w /usr/share/app node:16-alpine npm run build --",
+    "firebase": "cd firebase && firebase",
+    "emulator": "npm run firebase -- emulators:start --export-on-exit .firestore-data --import .firestore-data --inspect-functions",
+    "build": "npx webpack build --config webpack.prod.js & npm run functions & wait",
+    "deploy": "npm run build && npm run firebase -- deploy"
   },
   "keywords": [],
   "author": "",
