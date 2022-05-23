@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "setup": "pnpm install & npm run docker-functions -- npm install & wait",
     "devserver": "npx webpack serve --config webpack.dev.js",
-    "functions": "docker run -it --rm -v ${PWD}/firebase/functions:/usr/share/app -w /usr/share/app node:16-alpine npm run build --",
+    "docker-functions": "docker run -it --rm -v ${PWD}/firebase/functions:/usr/share/app -w /usr/share/app node:16-alpine",
+    "functions": "npm run docker-functions -- npm run build --",
     "firebase": "cd firebase && firebase",
     "emulator": "npm run firebase -- emulators:start --export-on-exit .firestore-data --import .firestore-data --inspect-functions",
     "build": "npx webpack build --config webpack.prod.js & npm run functions & wait",
