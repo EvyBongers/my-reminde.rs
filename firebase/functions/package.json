@@ -14,7 +14,7 @@
   },
   "main": "lib/index.js",
   "dependencies": {
-    "cron-schedule": "^3.0.6",
+    "cron-parser-all": "^0.0.6",
     "firebase-admin": "^10.0.2",
     "firebase-functions": "^3.18.0"
   },

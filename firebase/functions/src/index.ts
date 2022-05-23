@@ -4,7 +4,7 @@ import {initializeApp} from "firebase-admin/app";
 import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getMessaging} from "firebase-admin/messaging";
 import {firestore} from "firebase-admin";
-import {parseCronExpression} from "cron-schedule";
+import {parseExpression} from "cron-parser-all";
 import DocumentReference = firestore.DocumentReference;
 
 initializeApp();
@@ -36,8 +36,11 @@ const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?
   },
   "cron": {
     calculateNextSend(cronExpression?: string) {
-      let cron = parseCronExpression(cronExpression as string);
-      return cron.getNextDate(new Date());
+      let options = {
+        tz: 'Europe/Amsterdam', // TODO(ebongers): use preference in user profile
+      };
+      let cron = parseExpression(cronExpression as string, options);
+      return cron.next().toDate();
     },
   },
 };
