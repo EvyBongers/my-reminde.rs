@@ -1,5 +1,5 @@
-const { merge } = require('webpack-merge');
-const common = require('./webpack.common.js');
+const {merge} = require("webpack-merge");
+const common = require("./webpack.common.js");
 
 const fs = require("fs");
 const path = require("path");
@@ -21,5 +21,4 @@ module.exports = merge(common, {
   },
   devtool: "cheap-module-source-map",
   mode: "development",
-  // watch: true,
 });
