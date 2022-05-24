@@ -11,6 +11,9 @@ import {doSendNotifications} from "./functions";
 export class JDIApp extends LitElement {
 
   @property()
+  userId: String;
+
+  @property()
   user: User;
 
   @property()
@@ -43,7 +46,7 @@ export class JDIApp extends LitElement {
 
   override render() {
     return html`
-      ${this.user ? this.renderLoggedIn() : this.renderLoggedOut()}
+      ${this.userId ? this.renderLoggedIn() : this.renderLoggedOut()}
     `;
   }
 
@@ -52,8 +55,17 @@ export class JDIApp extends LitElement {
 
     onAuthStateChanged(auth, (user) => {
       this.user = user;
+
+      if (user) {
+        this.userId = user.uid;
+        localStorage["loggedInUserId"] = user.uid;
+      } else {
+        this.userId = undefined;
+        delete localStorage["loggedInUserId"];
+      }
     });
 
+    this.userId = localStorage["loggedInUserId"];
     this.loadPushNotificationsState();
   }
 
