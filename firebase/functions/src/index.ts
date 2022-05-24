@@ -86,14 +86,23 @@ export const sendNotifications = functions.region("europe-west1")
     let accounts = await db.collection("accounts").get();
     for (let account of accounts.docs) {
       let accountData = account.data() as AccountDocument;
-      let message = {
-        data: {
+      let response = await getMessaging().sendMulticast({
+        notification: {
           title: notificationData.title,
           body: notificationData.body,
         },
+        webpush: {
+          notification: {
+            actions: [
+              {
+                title: 'aaaa',
+                action: 'aaaify',
+              },
+            ],
+          },
+        },
         tokens: getPushTokens(accountData),
-      };
-      let response = await getMessaging().sendMulticast(message);
+      });
       functions.logger.info(response.successCount + " messages were sent successfully");
     }
   });
