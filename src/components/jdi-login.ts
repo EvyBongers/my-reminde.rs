@@ -37,7 +37,7 @@ export class JDILogin extends LitElement {
                        required
                        @input="${(_: Event) =>
                              this.username = (_.currentTarget as HTMLInputElement).value}"
-                       type="text">
+                       type="email">
         </mwc-textfield>
 
         <mwc-textfield .value="${this.password}"
