@@ -3,7 +3,7 @@
   "start_url": "/",
   "display": "standalone",
   "dir": "ltr",
-  "orientation": "any",
+  "orientation": "natural",
   "scope": "/",
   "theme_color": "#b824f3",
   "icons": [
