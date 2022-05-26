@@ -37,7 +37,7 @@ const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?
   "cron": {
     calculateNextSend(cronExpression?: string) {
       let options = {
-        tz: 'Europe/Amsterdam', // TODO(ebongers): use preference in user profile
+        tz: "Europe/Amsterdam", // TODO(ebongers): use preference in user profile
       };
       let cron = parseExpression(cronExpression as string, options);
       return cron.next().toDate();
@@ -86,7 +86,7 @@ export const sendNotifications = functions.region("europe-west1")
     let accounts = await db.collection("accounts").get();
     for (let account of accounts.docs) {
       let accountData = account.data() as AccountDocument;
-      let response = await getMessaging().sendMulticast({
+      let batchResponse = await getMessaging().sendMulticast({
         notification: {
           title: notificationData.title,
           body: notificationData.body,
@@ -95,15 +95,21 @@ export const sendNotifications = functions.region("europe-west1")
           notification: {
             actions: [
               {
-                title: 'aaaa',
-                action: 'aaaify',
+                title: "aaaa",
+                action: "aaaify",
               },
             ],
           },
         },
         tokens: getPushTokens(accountData),
       });
-      functions.logger.info(response.successCount + " messages were sent successfully");
+      functions.logger.info(batchResponse.successCount + " messages were sent successfully");
+      if (batchResponse.failureCount > 0) {
+        functions.logger.error(batchResponse.failureCount + " messages failed to send");
+        batchResponse.responses.filter(response => !response.success).forEach(response => {
+          functions.logger.debug(response.messageId, response.error?.toJSON());
+        });
+      }
     }
   });
 
