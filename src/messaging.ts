@@ -41,19 +41,3 @@ export async function isPushNotificationsEnabled() {
 
   return getDeviceId() in account.devices;
 }
-
-// TODO: fix foreground notifications
-onMessage(messaging, (payload) => {
-  console.log(
-    "[messaging.ts] Received message ",
-    payload,
-  );
-  // Customize notification here
-  const notificationTitle = `[Foreground] ${payload.data.title}`;
-  const notificationOptions = {
-    body: payload.data.body,
-    icon: "/firebase-logo.png",
-  };
-
-  new Notification(notificationTitle, notificationOptions);
-});
