@@ -66,11 +66,13 @@ export class JDIApp extends LitElement {
     });
 
     this.userId = localStorage["loggedInUserId"];
+    this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
   }
 
   private async loadPushNotificationsState() {
     this.pushNotificationsEnabled = await isPushNotificationsEnabled();
+    localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
   }
 
   private async togglePush(e: Event) {
