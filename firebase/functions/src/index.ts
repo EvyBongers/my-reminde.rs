@@ -86,18 +86,16 @@ export const sendNotifications = functions.region("europe-west1")
     for (let account of accounts.docs) {
       let accountData = account.data() as AccountDocument;
       let batchResponse = await getMessaging().sendMulticast({
-        notification: {
-          title: notificationData.title,
-          body: notificationData.body,
-        },
         webpush: {
           notification: {
+            title: notificationData.title,
             actions: [
               {
                 title: "aaaa",
                 action: "aaaify",
               },
             ],
+            body: notificationData.body,
           },
         },
         tokens: getPushTokens(accountData),
