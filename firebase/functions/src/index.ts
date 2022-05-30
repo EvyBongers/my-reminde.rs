@@ -5,7 +5,6 @@ import {getFirestore, FieldValue} from "firebase-admin/firestore";
 import {getMessaging} from "firebase-admin/messaging";
 import {firestore} from "firebase-admin";
 import {parseExpression} from "cron-parser-all";
-import DocumentReference = firestore.DocumentReference;
 
 initializeApp();
 
@@ -128,7 +127,7 @@ export const runNotify = functions.region("europe-west1")
     for (let scheduledNotification of scheduledNotifications.docs) {
       let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
       functions.logger.info("creating", scheduledNotificationData);
-      let accountRef = scheduledNotification.ref.parent.parent as DocumentReference;
+      let accountRef = scheduledNotification.ref.parent.parent as firestore.DocumentReference;
       await accountRef.collection("notifications").add({
         notification: scheduledNotification.ref,
         title: scheduledNotificationData.title,
