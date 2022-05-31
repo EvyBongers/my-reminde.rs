@@ -85,21 +85,25 @@ export const sendNotifications = functions.region("europe-west1")
     let accounts = await db.collection("accounts").get();
     for (let account of accounts.docs) {
       let accountData = account.data() as AccountDocument;
+      let _notification = {
+        title: notificationData.title,
+        actions: [
+          {
+            title: "aaaa",
+            action: "aaaify",
+          },
+        ],
+        body: notificationData.body,
+      };
       let batchResponse = await getMessaging().sendMulticast({
+        notification: _notification,
         webpush: {
           notification: {
-            title: notificationData.title,
-            actions: [
-              {
-                title: "aaaa",
-                action: "aaaify",
-              },
-            ],
-            body: notificationData.body,
             renotify: true,
             requireInteraction: true,
             tag: notificationData.notification,
             timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
+            ..._notification,
           },
         },
         tokens: getPushTokens(accountData),
