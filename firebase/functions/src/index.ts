@@ -89,8 +89,12 @@ export const sendNotifications = functions.region("europe-west1")
         title: notificationData.title,
         actions: [
           {
-            title: "aaaa",
-            action: "aaaify",
+            title: "OK",
+            action: "void()",
+          },
+          {
+            title: "Dismiss",
+            action: "void()",
           },
         ],
         body: notificationData.body,
