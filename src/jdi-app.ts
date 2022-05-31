@@ -6,6 +6,7 @@ import './components/jdi-logout';
 import {auth} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import {doSendNotifications} from "./functions";
+import './components/notification-preferences';
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -35,6 +36,8 @@ export class JDIApp extends LitElement {
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
       <br>
       <jdi-logout></jdi-logout>
+
+      <notification-preferences></notification-preferences>
     `;
   }
 

@@ -1,8 +1,9 @@
 import { firebaseApp } from "./firebase";
 import {
+  collection,
   connectFirestoreEmulator,
   doc,
-  getDoc as firestoreGetDoc,
+  getDoc as firestoreGetDoc, getDocs,
   getFirestore,
   setDoc as firestoreSetDoc,
 } from "firebase/firestore";
