@@ -109,6 +109,9 @@ export const sendNotifications = functions.region("europe-west1")
             tag: notificationData.notification,
             timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
           },
+          fcmOptions: notificationData.link? {
+            link: notificationData.link,
+          }:{},
         },
         tokens: getPushTokens(accountData),
       });
