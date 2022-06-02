@@ -89,7 +89,7 @@ export const sendNotifications = functions.region("europe-west1")
         title: notificationData.title,
         body: notificationData.body,
       };
-      let multicastMessage = {
+      let batchResponse = await getMessaging().sendMulticast({
         notification: _notification,
         webpush: {
           notification: {
@@ -111,9 +111,7 @@ export const sendNotifications = functions.region("europe-west1")
           },
         },
         tokens: getPushTokens(accountData),
-      };
-      functions.logger.debug("Sending message", multicastMessage);
-      let batchResponse = await getMessaging().sendMulticast(multicastMessage);
+      });
       functions.logger.info(batchResponse.successCount + " messages were sent successfully");
       if (batchResponse.failureCount > 0) {
         functions.logger.error(batchResponse.failureCount + " messages failed to send");
@@ -133,8 +131,6 @@ export const runNotify = functions.region("europe-west1")
     let scheduledNotifications = await db.collectionGroup("scheduledNotifications")
       .where("nextSend", "<=", new Date())
       .get();
-
-    functions.logger.info("scheduledNotifications", scheduledNotifications);
 
     for (let scheduledNotification of scheduledNotifications.docs) {
       let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
