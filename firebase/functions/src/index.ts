@@ -107,7 +107,7 @@ export const sendNotifications = functions.region("europe-west1")
             ],
             renotify: true,
             requireInteraction: true,
-            tag: notificationData.notification,
+            tag: snapshot.id,
             timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
           },
           fcmOptions: notificationData.link? {
