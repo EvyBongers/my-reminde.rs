@@ -87,27 +87,27 @@ export const sendNotifications = functions.region("europe-west1")
       let accountData = account.data() as AccountDocument;
       let _notification = {
         title: notificationData.title,
-        actions: [
-          {
-            title: "OK",
-            action: "void()",
-          },
-          {
-            title: "Dismiss",
-            action: "void()",
-          },
-        ],
         body: notificationData.body,
       };
       let multicastMessage = {
         notification: _notification,
         webpush: {
           notification: {
+            ..._notification,
+            actions: [
+              {
+                title: "OK",
+                action: "void()",
+              },
+              {
+                title: "Dismiss",
+                action: "void()",
+              },
+            ],
             renotify: true,
             requireInteraction: true,
             tag: notificationData.notification,
             timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
-            ..._notification,
           },
         },
         tokens: getPushTokens(accountData),
