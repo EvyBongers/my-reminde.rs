@@ -35,6 +35,8 @@ export class JDIApp extends LitElement {
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
       <br>
       <jdi-logout></jdi-logout>
+      <br>
+      <jdi-devices></jdi-devices>
     `;
   }
 
