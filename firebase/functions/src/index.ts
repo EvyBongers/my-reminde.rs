@@ -56,6 +56,7 @@ interface AccountDocument {
 interface AccountScheduledNotificationDocument {
   title: string;
   body: string;
+  link: string;
   nextSend: any;
   lastSent: any;
   type: string;
@@ -143,6 +144,7 @@ export const runNotify = functions.region("europe-west1")
         notification: scheduledNotification.ref,
         title: scheduledNotificationData.title,
         body: scheduledNotificationData.body,
+        link: scheduledNotificationData.link||"",
         sent: FieldValue.serverTimestamp(),
       });
 
