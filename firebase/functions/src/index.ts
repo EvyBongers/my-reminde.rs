@@ -99,7 +99,7 @@ export const sendNotifications = functions.region("europe-west1")
         ],
         body: notificationData.body,
       };
-      let batchResponse = await getMessaging().sendMulticast({
+      let multicastMessage = {
         notification: _notification,
         webpush: {
           notification: {
@@ -111,12 +111,14 @@ export const sendNotifications = functions.region("europe-west1")
           },
         },
         tokens: getPushTokens(accountData),
-      });
+      };
+      functions.logger.debug("Sending message", multicastMessage);
+      let batchResponse = await getMessaging().sendMulticast(multicastMessage);
       functions.logger.info(batchResponse.successCount + " messages were sent successfully");
       if (batchResponse.failureCount > 0) {
         functions.logger.error(batchResponse.failureCount + " messages failed to send");
         batchResponse.responses.filter(response => !response.success).forEach(response => {
-          functions.logger.debug(response.messageId, response.error?.toJSON());
+          functions.logger.debug(response.messageId, response.error);
         });
       }
     }
