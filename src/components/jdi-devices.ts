@@ -21,19 +21,19 @@ export class JDIDevices extends BunnyElement {
 
   renderDevice(deviceId: string, device: any) {
     return html`
-      ${deviceId} -
-      <pre>
-        ${JSON.stringify(device, null, 4)}
-      </pre>
+      <li data-id="${deviceId}" data-token="${device.token}">${device.name}</li>
     `;
   }
 
   override render() {
     return html`
       <div>
-        ${renderItem(this.account, item => html`
-          ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
-        `, html`Loading devices`)}
+        <h3>Subscribed devices</h3>
+        <ul>
+          ${renderItem(this.account, item => html`
+            ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
+          `, html`Loading devices`)}
+        </ul>
       </div>
     `;
   }
