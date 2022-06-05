@@ -56,6 +56,7 @@ interface AccountDocument {
 interface AccountScheduledNotificationDocument {
   title: string;
   body: string;
+  link: string;
   nextSend: any;
   lastSent: any;
   type: string;
@@ -87,28 +88,31 @@ export const sendNotifications = functions.region("europe-west1")
       let accountData = account.data() as AccountDocument;
       let _notification = {
         title: notificationData.title,
-        actions: [
-          {
-            title: "OK",
-            action: "void()",
-          },
-          {
-            title: "Dismiss",
-            action: "void()",
-          },
-        ],
         body: notificationData.body,
       };
       let batchResponse = await getMessaging().sendMulticast({
         notification: _notification,
         webpush: {
           notification: {
+            ..._notification,
+            actions: [
+              {
+                title: "OK",
+                action: "void()",
+              },
+              {
+                title: "Dismiss",
+                action: "void()",
+              },
+            ],
             renotify: true,
             requireInteraction: true,
-            tag: notificationData.notification,
+            tag: snapshot.id,
             timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
-            ..._notification,
           },
+          fcmOptions: notificationData.link? {
+            link: notificationData.link,
+          }:{},
         },
         tokens: getPushTokens(accountData),
       });
@@ -116,7 +120,7 @@ export const sendNotifications = functions.region("europe-west1")
       if (batchResponse.failureCount > 0) {
         functions.logger.error(batchResponse.failureCount + " messages failed to send");
         batchResponse.responses.filter(response => !response.success).forEach(response => {
-          functions.logger.debug(response.messageId, response.error?.toJSON());
+          functions.logger.debug(response.messageId, response.error);
         });
       }
     }
@@ -132,8 +136,6 @@ export const runNotify = functions.region("europe-west1")
       .where("nextSend", "<=", new Date())
       .get();
 
-    functions.logger.info("scheduledNotifications", scheduledNotifications);
-
     for (let scheduledNotification of scheduledNotifications.docs) {
       let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
       functions.logger.info("creating", scheduledNotificationData);
@@ -142,6 +144,7 @@ export const runNotify = functions.region("europe-west1")
         notification: scheduledNotification.ref,
         title: scheduledNotificationData.title,
         body: scheduledNotificationData.body,
+        link: scheduledNotificationData.link||"",
         sent: FieldValue.serverTimestamp(),
       });
 

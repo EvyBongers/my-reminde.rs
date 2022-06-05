@@ -10,7 +10,7 @@ export async function enablePushNotifications() {
   let token = await getToken(messaging, {vapidKey: ""});
   console.log(token);
 
-  let deviceName =  prompt('Device name?', navigator.userAgent);
+  let deviceName = prompt('Device name?', navigator.userAgent);
   if (!deviceName) return;
 
   await updateAccount({
