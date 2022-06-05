@@ -1,11 +1,12 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
+import {auth} from "./auth";
+import {doSendNotifications} from "./functions";
+import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import './components/jdi-login';
 import './components/jdi-logout';
-import {auth} from "./auth";
-import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {doSendNotifications} from "./functions";
+import './components/jdi-devices';
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -35,6 +36,8 @@ export class JDIApp extends LitElement {
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
       <br>
       <jdi-logout></jdi-logout>
+      <br>
+      <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
 
