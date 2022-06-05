@@ -1,8 +1,8 @@
 import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {BunnyElement, observe} from "./bunny-element";
-import {DataCollectionSupplier, DataSupplier, db, loadCollection, loadDocument} from "../db";
-import {renderItem, renderItems} from "../helpers/Rendering";
+import {DataSupplier, loadDocument} from "../db";
+import {renderItem} from "../helpers/Rendering";
 
 @customElement("jdi-devices")
 export class JDIDevices extends BunnyElement {
