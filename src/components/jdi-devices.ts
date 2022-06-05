@@ -32,7 +32,7 @@ export class JDIDevices extends LitElement {
       <div>
         ${renderItem(this.account, item => html`
           ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
-        `)}
+        `, html`Loading devices`)}
       </div>
     `;
   }
