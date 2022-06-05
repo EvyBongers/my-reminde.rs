@@ -1,10 +1,11 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
+import {BunnyElement, observe} from "./bunny-element";
 import {DataCollectionSupplier, DataSupplier, db, loadCollection, loadDocument} from "../db";
 import {renderItem, renderItems} from "../helpers/Rendering";
 
 @customElement("jdi-devices")
-export class JDIDevices extends LitElement {
+export class JDIDevices extends BunnyElement {
 
   @property()
   account: DataSupplier<any>;
@@ -37,10 +38,9 @@ export class JDIDevices extends LitElement {
     `;
   }
 
-  updated(changedProperties: any) {
-    if (changedProperties.has('accountId')) {
-      this.account = loadDocument<any>(`accounts/${this.accountId}`);
-    }
+  @observe('accountId')
+  accountChanged(accountId: string) {
+    this.account = loadDocument<any>(`accounts/${accountId}`);
   }
 }
 

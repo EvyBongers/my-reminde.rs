@@ -1,12 +1,12 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
+import {auth} from "./auth";
+import {doSendNotifications} from "./functions";
+import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
-import {auth} from "./auth";
-import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {doSendNotifications} from "./functions";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
