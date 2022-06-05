@@ -3,6 +3,7 @@ import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import './components/jdi-login';
 import './components/jdi-logout';
+import './components/jdi-devices';
 import {auth} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import {doSendNotifications} from "./functions";
@@ -36,7 +37,7 @@ export class JDIApp extends LitElement {
       <br>
       <jdi-logout></jdi-logout>
       <br>
-      <jdi-devices></jdi-devices>
+      <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
 
