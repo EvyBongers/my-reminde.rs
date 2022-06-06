@@ -1,6 +1,5 @@
 import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
-import {query, where, getDocs} from "firebase/firestore";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
