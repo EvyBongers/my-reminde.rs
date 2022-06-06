@@ -22,11 +22,12 @@ export class NotificationPreferences extends BunnyElement {
 
   override render() {
     return html`
-      <div>
+      <section>
+        <h3>Scheduled notifications</h3>
         ${renderItems(this.scheduledNotifications, item => html`
           <notification-preference-item .item="${item}"></notification-preference-item>
         `)}
-      </div>
+      </section>
     `;
   }
 
