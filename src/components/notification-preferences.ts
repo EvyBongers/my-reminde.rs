@@ -1,29 +1,9 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
-import {asyncReplace} from 'lit/directives/async-replace.js';
 import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
 import {db} from "../db";
+import {renderItems} from "../helpers/Rendering";
 import './notification-preference-item'
-
-let renderItems = (items: AsyncGenerator<any[]>, render: (item: any) => any, loading?: any) => {
-  return asyncReplace((async function* () {
-    if (loading) yield loading;
-
-    for await(let subItems of items) {
-      yield subItems.map(_ => render(_));
-    }
-  })());
-};
-
-let renderItem = (items: AsyncGenerator<any>, render: (item: any) => any, loading?: any) => {
-  return asyncReplace((async function* () {
-    if (loading) yield loading;
-
-    for await(let item of items) {
-      yield render(item);
-    }
-  })());
-};
 
 type DataSupplier<T> = AsyncGenerator<T, void, any>;
 type DataCollectionSupplier<T> = AsyncGenerator<T[], void, any>;
