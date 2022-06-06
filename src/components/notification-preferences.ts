@@ -1,12 +1,9 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
-import {db} from "../db";
+import {db, DataCollectionSupplier} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import './notification-preference-item'
-
-type DataSupplier<T> = AsyncGenerator<T, void, any>;
-type DataCollectionSupplier<T> = AsyncGenerator<T[], void, any>;
 
 @customElement("notification-preferences")
 export class NotificationPreferences extends LitElement {
