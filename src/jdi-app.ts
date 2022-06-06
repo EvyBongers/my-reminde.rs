@@ -40,7 +40,7 @@ export class JDIApp extends LitElement {
       <br>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
 
-      <notification-preferences></notification-preferences>
+      <notification-preferences .accountId="${this.userId}"></notification-preferences>
     `;
   }
 

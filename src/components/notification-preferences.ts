@@ -1,15 +1,19 @@
-import {css, html, LitElement} from "lit";
+import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {query, where, getDocs} from "firebase/firestore";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
+import {BunnyElement, observe} from "./bunny-element";
 import './notification-preference-item'
 
 @customElement("notification-preferences")
-export class NotificationPreferences extends LitElement {
+export class NotificationPreferences extends BunnyElement {
 
   @property()
   scheduledNotifications: DataCollectionSupplier<{ test: number }>;
+
+  @property({type: String})
+  accountId: string;
 
   static override styles = css`
     :host {
@@ -27,12 +31,10 @@ export class NotificationPreferences extends LitElement {
     `;
   }
 
-  connectedCallback() {
-    super.connectedCallback();
-
-    this.scheduledNotifications = this.loadCollection<{ test: number }>('accounts/QILOd8sLS6Z1Vtr7xuTJCeo4Si19/scheduledNotifications');
+  @observe('accountId')
+  accountChanged(accountId: string) {
+    this.scheduledNotifications = loadCollection<{ test: number }>(`accounts/${this.accountId}/scheduledNotifications`);
   }
-
 }
 
 declare global {
