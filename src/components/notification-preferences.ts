@@ -3,6 +3,7 @@ import {customElement, property} from "lit/decorators.js";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
+import '@material/mwc-list';
 import './notification-preference-item'
 
 @customElement("notification-preferences")
@@ -18,15 +19,20 @@ export class NotificationPreferences extends BunnyElement {
     :host {
       display: block;
     }
+    mwc-list {
+      --mdc-list-vertical-padding: 0;
+    }
   `;
 
   override render() {
     return html`
       <section>
         <h3>Scheduled notifications</h3>
+        <mwc-list>
         ${renderItems(this.scheduledNotifications, item => html`
           <notification-preference-item .item="${item}"></notification-preference-item>
         `)}
+        </mwc-list>
       </section>
     `;
   }
