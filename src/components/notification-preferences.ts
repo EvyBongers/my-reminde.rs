@@ -20,6 +20,7 @@ export class NotificationPreferences extends BunnyElement {
       display: block;
     }
     mwc-list {
+      border: 1px solid #d3d3d3;
       --mdc-list-vertical-padding: 0;
     }
   `;
@@ -29,7 +30,8 @@ export class NotificationPreferences extends BunnyElement {
       <section>
         <h3>Scheduled notifications</h3>
         <mwc-list>
-        ${renderItems(this.scheduledNotifications, item => html`
+        ${renderItems(this.scheduledNotifications, (item, index) => html`
+          ${index>0?html`<li divider padded role="separator"></li>`:""}
           <notification-preference-item .item="${item}"></notification-preference-item>
         `)}
         </mwc-list>
