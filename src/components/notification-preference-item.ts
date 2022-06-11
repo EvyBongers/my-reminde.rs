@@ -1,8 +1,5 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
-import {asyncReplace} from 'lit/directives/async-replace.js';
-import {collection, onSnapshot, query, where, getDocs} from "firebase/firestore";
-import {db} from "../db";
 import '@material/mwc-list';
 
 @customElement("notification-preference-item")
