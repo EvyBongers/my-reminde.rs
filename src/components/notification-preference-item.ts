@@ -38,16 +38,15 @@ export class NotificationPreferenceItem extends LitElement {
 
   override render() {
     return html`
-      <mwc-list-item data-id="${this.item._ref.id}" hasMeta graphic="control">
+      <mwc-list-item data-id="${this.item._ref.id}" hasMeta graphic="control" @click="${() => this.collapsed = !this.collapsed}">
         <details ?open="${!this.collapsed}">
-          <summary>${this.item.title}</summary>
-          <p>
-            ${this.item.body}
-          </p>
-          <footer>${this.item.type == "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
+          <summary onclick="return false">${this.item.title}</summary>
+          <p>${this.item.body}</p>
+          <footer>
+            ${this.item.type == "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
           </footer>
         </details>
-        <mwc-icon slot="graphic" @click="${() => this.collapsed = !this.collapsed}">
+        <mwc-icon slot="graphic">
           ${this.collapsed ? "expand_more" : "expand_less"}
         </mwc-icon>
       </mwc-list-item>
