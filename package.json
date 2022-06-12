@@ -32,7 +32,7 @@
   "dependencies": {
     "@material/mwc-button": "^0.26.1",
     "@material/mwc-icon": "^0.26.1",
-    "@material/mwc-list": "^0.26.1",
+    "@material/mwc-ripple": "^0.26.1",
     "@material/mwc-snackbar": "^0.26.1",
     "@material/mwc-textfield": "^0.26.1",
     "lit": "^2.2.5"
