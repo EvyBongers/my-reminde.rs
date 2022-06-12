@@ -33,7 +33,7 @@ export class NotificationPreferences extends BunnyElement {
         ${renderItems(this.scheduledNotifications, (item, index) => html`
           ${index>0?html`<li divider padded role="separator"></li>`:""}
           <notification-preference-item .item="${item}"></notification-preference-item>
-        `)}
+        `, "Loading notifications...")}
         </mwc-list>
       </section>
     `;
