@@ -7,6 +7,7 @@ import {disablePushNotifications, enablePushNotifications, isPushNotificationsEn
 import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
+import './components/notification-preferences';
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -38,6 +39,8 @@ export class JDIApp extends LitElement {
       <jdi-logout></jdi-logout>
       <br>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
+
+      <notification-preferences .accountId="${this.userId}"></notification-preferences>
     `;
   }
 
