@@ -18,26 +18,28 @@ export class JDIDevices extends BunnyElement {
     :host {
       display: block;
     }
+
+    .devices-container {
+      display: flex;
+      flex-direction: column;
+    }
   `;
 
   renderDevice(deviceId: string, device: any) {
     return html`
-      <li data-id="${deviceId}" data-token="${device.token}">
+      <span data-id="${deviceId}" data-token="${device.token}">
         ${device.name}${deviceId == getDeviceId() ? " (this device)" : ""}
-      </li>
+      </span>
     `;
   }
 
   override render() {
-    // TODO: Move wrapping element (ul) inside renderItem...?
     return html`
-      <div>
-        <h3>Subscribed devices</h3>
-        <ul>
-          ${renderItem(this.account, item => html`
-            ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
-          `, html`Loading devices`)}
-        </ul>
+      <h3>Subscribed devices</h3>
+      <div class="devices-container">
+        ${renderItem(this.account, item => html`
+          ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
+        `, html`Loading devices`)}
       </div>
     `;
   }
