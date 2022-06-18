@@ -1,4 +1,5 @@
 const LOCALSTORAGE_DEVICE_ID = '__deviceId';
+const LOCALSTORAGE_DEVICE_NAME = '__deviceName';
 
 export const getDeviceId = () => {
   localStorage[LOCALSTORAGE_DEVICE_ID]??= crypto.randomUUID().replace(/-/g, '_');
@@ -7,4 +8,13 @@ export const getDeviceId = () => {
   // }
 
   return localStorage[LOCALSTORAGE_DEVICE_ID];
+}
+
+export const getDeviceName = () => {
+  let proposedDeviceName = localStorage[LOCALSTORAGE_DEVICE_NAME] || navigator.userAgent;
+  let deviceName = prompt('Device name?', proposedDeviceName);
+  if(!deviceName) return null;
+
+  localStorage[LOCALSTORAGE_DEVICE_NAME] = deviceName;
+  return deviceName;
 }
