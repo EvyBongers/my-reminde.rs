@@ -41,7 +41,6 @@ export class NotificationPreferenceItem extends LitElement {
 
     div.notification[collapsed] p {
       display: none;
-
     }
 
     div.notification[collapsed] footer {
