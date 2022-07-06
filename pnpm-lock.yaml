@@ -3,6 +3,8 @@ lockfileVersion: 5.4
 specifiers:
   '@material/mwc-button': ^0.26.1
   '@material/mwc-icon': ^0.26.1
+  '@material/mwc-icon-button': ^0.26.1
+  '@material/mwc-icon-button-toggle': ^0.26.1
   '@material/mwc-ripple': ^0.26.1
   '@material/mwc-snackbar': ^0.26.1
   '@material/mwc-textfield': ^0.26.1
@@ -20,6 +22,8 @@ specifiers:
 dependencies:
   '@material/mwc-button': 0.26.1
   '@material/mwc-icon': 0.26.1
+  '@material/mwc-icon-button': 0.26.1
+  '@material/mwc-icon-button-toggle': 0.26.1
   '@material/mwc-ripple': 0.26.1
   '@material/mwc-snackbar': 0.26.1
   '@material/mwc-textfield': 0.26.1
@@ -688,6 +692,24 @@ packages:
     resolution: {integrity: sha512-iPKOWAgypL+UNZWa0jNE2P/929QEbHqrxr7BFNKpSvO/t6pX7672g1gOny7+8Dnnt+a4kVlYjWTMAw9qjOkLlg==}
     dependencies:
       '@material/floating-label': 14.0.0-canary.53b3cad2f.0
+      lit: 2.2.5
+      tslib: 2.4.0
+    dev: false
+
+  /@material/mwc-icon-button-toggle/0.26.1:
+    resolution: {integrity: sha512-M7U1GQUzqhqipHs7ODRdLkoe8oiZWk2AAFIvfrPVWvn/7o4mCjbZdafOlAnOR5iTg2RTie7g8oJHMqESlq3ziw==}
+    dependencies:
+      '@material/mwc-base': 0.26.1
+      '@material/mwc-icon-button': 0.26.1
+      '@material/mwc-ripple': 0.26.1
+      lit: 2.2.5
+      tslib: 2.4.0
+    dev: false
+
+  /@material/mwc-icon-button/0.26.1:
+    resolution: {integrity: sha512-pa3zFSH1wV7j8dH1i5NfKL0mKqQsan+SiD+lkW39Al4NeCrNoWN9wJY0mSiwrlbVnxOub8r2kWINCpTHBoluJg==}
+    dependencies:
+      '@material/mwc-ripple': 0.26.1
       lit: 2.2.5
       tslib: 2.4.0
     dev: false
