@@ -115,11 +115,23 @@ export class NotificationPreferenceItem extends LitElement {
 
   private renderEditing() {
     return html`
-        <h4 id="title" contenteditable="${this.editing}">${this.item.title}</h4>
-        <p id="body" contenteditable="${this.editing}">${this.item.body}</p>
-        <footer>
-          Schedule: ${this.item.type == "cron" ? html`cron: <code id="cronExpression" contenteditable="${this.editing}">${this.item.cronExpression}</code>` : this.item.type}
-        </footer>
+      <label>
+        Title
+        <input value="${this.item.title}"
+               @change="${(_: Event) => this.item.title = (_.currentTarget as HTMLInputElement).value}"/>
+      </label>
+      <label>
+        Body
+        <input value="${this.item.body}"
+               @change="${(_: Event) => this.item.body = (_.currentTarget as HTMLInputElement).value}"/>
+      </label>
+      <label>
+        Schedule
+        ${this.item.type === "cron" ?
+              html`cron: <input value="${this.item.cronExpression}"
+                                @change="${(_: Event) => this.item.cronExpression = (_.currentTarget as HTMLInputElement).value}"/>` :
+              html`${this.item.type} (Editing schedule not yet supported)`}
+      </label>
     `;
   }
 
@@ -151,10 +163,6 @@ export class NotificationPreferenceItem extends LitElement {
 
   save(e: Event) {
     this.editing = false;
-    for(let attr in this.item) {
-      let _value = this.shadowRoot.getElementById(attr)?.textContent;
-      if(_value) this.item[attr] = _value;
-    }
     setDocByRef(this.item._ref, this.item, {merge: true});
   }
 
