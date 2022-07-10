@@ -8,6 +8,7 @@ import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
+import {parseExpression} from "cron-parser-all";
 import {setDocByRef} from "../db";
 
 @customElement("notification-preference-item")
@@ -135,8 +136,12 @@ export class NotificationPreferenceItem extends LitElement {
                          type="text"></mwc-textfield>
           <br>
           <mwc-textfield .value="${this.editingItem?.cronExpression}" label="Schedule" required
-                         @input="${(_: Event) => this.editingItem.cronExpression = (_.currentTarget as HTMLInputElement).value}"
+                         @input="${(_: Event) => {
+                           this.editingItem.cronExpression = (_.currentTarget as HTMLInputElement).value;
+                           this.requestUpdate('editingItem');
+                         }}"
                          type="text"></mwc-textfield>
+          ${this.renderNextOccurrence(this.editingItem)}
         </div>
         <mwc-button slot="primaryAction" @click="${this.save}" dialogAction="close">Save</mwc-button>
         <mwc-button slot="secondaryAction" @click="${this.cancel}" dialogAction="close">Cancel</mwc-button>
@@ -162,9 +167,32 @@ export class NotificationPreferenceItem extends LitElement {
       </div>
       <div class="buttons">
         <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
+          <!--
+        <mwc-icon-button icon="more_vert" @click="${() => {
+          this.showMenu = !this.showMenu;
+        }}"></mwc-icon-button>
+        <mwc-menu absolute menuCorner="END" corner="BOTTOM_END" id="menu" ?open="${this.showMenu}">
+          <mwc-list-item>Edit</mwc-list-item>
+          <mwc-list-item>Disable</mwc-list-item>
+          <mwc-list-item>Delete</mwc-list-item>
+        </mwc-menu>
+        -->
       </div>
       ${this.renderEditing()}
     `;
+  }
+
+  private renderNextOccurrence(item: any) {
+    console.log(`Calculating next occurrence for ${item.cronExpression}`);
+    // debugger;
+    try {
+      let cron = parseExpression(item.cronExpression);
+      return html`
+        <span>Next: ${cron.next().toString()}</span>
+      `;
+    } catch {
+      return "";
+    }
   }
 
   delete(e: Event) {

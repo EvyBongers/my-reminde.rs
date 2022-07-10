@@ -10,6 +10,7 @@ specifiers:
   '@material/mwc-snackbar': ^0.26.1
   '@material/mwc-textfield': ^0.26.1
   copy-webpack-plugin: ^11.0.0
+  cron-parser-all: ^0.0.6
   firebase: ^9.8.3
   html-webpack-plugin: ^5.5.0
   lit: ^2.2.5
@@ -29,6 +30,7 @@ dependencies:
   '@material/mwc-ripple': 0.26.1
   '@material/mwc-snackbar': 0.26.1
   '@material/mwc-textfield': 0.26.1
+  cron-parser-all: 0.0.6
   lit: 2.2.5
 
 devDependencies:
@@ -1617,6 +1619,13 @@ packages:
     resolution: {integrity: sha512-ZQBvi1DcpJ4GDqanjucZ2Hj3wEO5pZDS89BWbkcrvdxksJorwUDDZamX9ldFkp9aw2lmBDLgkObEA4DWNJ9FYQ==}
     dev: true
 
+  /cron-parser-all/0.0.6:
+    resolution: {integrity: sha512-jkdbGkrIqFhrNfhdKY/mDP9OLUjh28GAPVKwHyUsel2LunfHWB1l5cejkehKKnVmet03eS90ci9y2nvT8F5yfQ==}
+    engines: {node: '>=0.8'}
+    dependencies:
+      luxon: 1.28.0
+    dev: false
+
   /cross-spawn/7.0.3:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
@@ -2472,6 +2481,10 @@ packages:
     dependencies:
       yallist: 4.0.0
     dev: true
+
+  /luxon/1.28.0:
+    resolution: {integrity: sha512-TfTiyvZhwBYM/7QdAVDh+7dBTBA29v4ik0Ce9zda3Mnf8on1S5KJI8P2jKFZ8+5C0jhmr0KwJEO/Wdpm0VeWJQ==}
+    dev: false
 
   /media-typer/0.3.0:
     resolution: {integrity: sha1-hxDXrwqmJvj/+hzgAWhUUmMlV0g=}
