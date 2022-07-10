@@ -167,16 +167,6 @@ export class NotificationPreferenceItem extends LitElement {
       </div>
       <div class="buttons">
         <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
-          <!--
-        <mwc-icon-button icon="more_vert" @click="${() => {
-          this.showMenu = !this.showMenu;
-        }}"></mwc-icon-button>
-        <mwc-menu absolute menuCorner="END" corner="BOTTOM_END" id="menu" ?open="${this.showMenu}">
-          <mwc-list-item>Edit</mwc-list-item>
-          <mwc-list-item>Disable</mwc-list-item>
-          <mwc-list-item>Delete</mwc-list-item>
-        </mwc-menu>
-        -->
       </div>
       ${this.renderEditing()}
     `;
