@@ -27,6 +27,10 @@ export const setDocByPath = async (path: string, values: any, options: any) => {
   return await setDoc(docRef, values, options);
 };
 
+export const setDocByRef = async (docRef: any, values: any, options: any) => {
+  return await setDoc(docRef, values, options);
+};
+
 export async function* loadCollection<T = any>(path: string): DataCollectionSupplier<T> {
   let lastCallback: (docs: any[]) => void;
   let nextItems = new Promise<T[]>((s) => {

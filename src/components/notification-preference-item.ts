@@ -6,6 +6,7 @@ import '@material/mwc-icon-button';
 import '@material/mwc-icon-button-toggle';
 import {IconButton} from "@material/mwc-icon-button";
 import {IconButtonToggle} from "@material/mwc-icon-button-toggle";
+import {setDocByRef} from "../db";
 
 @customElement("notification-preference-item")
 export class NotificationPreferenceItem extends LitElement {
@@ -102,8 +103,8 @@ export class NotificationPreferenceItem extends LitElement {
     return html`
       <mwc-ripple></mwc-ripple>
       <div class="notification" ?collapsed="${this.collapsed}">
-        <h4 contenteditable="${this.editing}">${this.item.title}</h4>
-        <p contenteditable="${this.editing}">${this.item.body}</p>
+        <h4 id="title" contenteditable="${this.editing}">${this.item.title}</h4>
+        <p id="body" contenteditable="${this.editing}">${this.item.body}</p>
         <footer>
           Schedule: ${this.item.type == "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
         </footer>
@@ -126,7 +127,11 @@ export class NotificationPreferenceItem extends LitElement {
 
   save(e: Event) {
     this.editing = false;
-    console.log("TODO(ebongers): actually save changes to database");
+    for(let attr in this.item) {
+      let _value = this.shadowRoot.getElementById(attr)?.textContent;
+      if(_value) this.item[attr] = _value;
+    }
+    setDocByRef(this.item._ref, this.item, {merge: true});
   }
 
   toggleEdit(e: Event) {
