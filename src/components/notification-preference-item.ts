@@ -99,21 +99,45 @@ export class NotificationPreferenceItem extends LitElement {
     });
   }
 
-  override render() {
+  private renderButtons() {
+    let saveButton = this.editing ? html`
+      <mwc-icon-button outlined icon="check" @click="${this.save}"></mwc-icon-button>
+    ` : null;
     return html`
-      <mwc-ripple></mwc-ripple>
-      <div class="notification" ?collapsed="${this.collapsed}">
+      <aside>
+        ${saveButton}
+        <mwc-icon-button-toggle outlined onIcon="clear" offIcon="edit" .on="${this.editing}" @click="${this.toggleEdit}"></mwc-icon-button-toggle>
+        <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
+        <mwc-icon-button-toggle outlined onIcon="notifications_active" offIcon="notifications_off" on></mwc-icon-button-toggle>
+      </aside>
+    `
+  }
+
+  private renderEditing() {
+    return html`
         <h4 id="title" contenteditable="${this.editing}">${this.item.title}</h4>
         <p id="body" contenteditable="${this.editing}">${this.item.body}</p>
         <footer>
-          Schedule: ${this.item.type == "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
+          Schedule: ${this.item.type == "cron" ? html`cron: <code id="cronExpression" contenteditable="${this.editing}">${this.item.cronExpression}</code>` : this.item.type}
         </footer>
-        <aside>
-          ${this.editing ? html`<mwc-icon-button outlined icon="check" @click="${this.save}"></mwc-icon-button>` : null}
-          <mwc-icon-button-toggle outlined .on="${this.editing}" onIcon="clear" offIcon="edit" @click="${this.toggleEdit}"></mwc-icon-button-toggle>
-          <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
-          <mwc-icon-button-toggle outlined on onIcon="notifications_active" offIcon="notifications_off"></mwc-icon-button-toggle>
-        </aside>
+    `;
+  }
+
+  private renderPreview() {
+    return html`
+      <h4 id="title">${this.item.title}</h4>
+      <p id="body">${this.item.body}</p>
+      <footer>
+        Schedule: ${this.item.type === "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
+      </footer>
+    `;
+  }
+
+  override render() {
+    return html`
+      <div class="notification" ?collapsed="${this.collapsed}">
+        ${this.editing ? this.renderEditing() : this.renderPreview()}
+        ${this.renderButtons()}
       </div>
       <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
     `;
