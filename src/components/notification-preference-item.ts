@@ -13,6 +13,8 @@ export class NotificationPreferenceItem extends LitElement {
 
   @property()
   item: any;
+  @property()
+  originalItem: any;
 
   @property({type: Boolean})
   protected collapsed: boolean = true;
@@ -168,8 +170,12 @@ export class NotificationPreferenceItem extends LitElement {
 
   toggleEdit(e: Event) {
     this.editing = !this.editing;
-    if (!this.editing) {
-      // TODO(ebongers): restore DOM from component properties
+    if (this.editing) {
+      this.originalItem = structuredClone(this.item);
+    } else {
+      let changedItem = structuredClone(this.item);
+      this.item = this.originalItem;
+      this.requestUpdate("item", changedItem);
     }
   }
 }
