@@ -7,7 +7,7 @@ import {
   User,
 } from "firebase/auth";
 import { firebaseApp } from "./firebase";
-import { getDoc, setDoc } from "./db";
+import { getDocByPath, setDocByPath } from "./db";
 
 export let user: User = undefined;
 export const auth = getAuth(firebaseApp);
@@ -23,9 +23,9 @@ onAuthStateChanged(auth, (_user) => {
 });
 
 export const getAccount = () => {
-  return getDoc(`accounts/${user.uid}`);
+  return getDocByPath(`accounts/${user.uid}`);
 };
 
 export const updateAccount = (values: any) => {
-  return setDoc(`accounts/${user.uid}`, values, { merge: true });
+  return setDocByPath(`accounts/${user.uid}`, values, { merge: true });
 };

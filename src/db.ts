@@ -1,15 +1,7 @@
-import { firebaseApp } from "./firebase";
-import {
-  collection,
-  connectFirestoreEmulator,
-  doc,
-  getDoc as firestoreGetDoc,
-  getFirestore, onSnapshot,
-  setDoc as firestoreSetDoc,
-} from "firebase/firestore";
-export {
-  deleteField as firestoreDelete
-} from 'firebase/firestore';
+import {firebaseApp} from "./firebase";
+import {collection, connectFirestoreEmulator, doc, getDoc, getFirestore, onSnapshot, setDoc} from "firebase/firestore";
+
+export {deleteField as firestoreDelete} from 'firebase/firestore';
 
 export type DataSupplier<T> = AsyncGenerator<T, void, any>;
 export type DataCollectionSupplier<T> = AsyncGenerator<T[], void, any>;
@@ -18,9 +10,10 @@ export const db = getFirestore(firebaseApp);
 if (location.hostname === "localhost") {
   connectFirestoreEmulator(db, "localhost", 8080);
 }
-export const getDoc = async (path: string) => {
+
+export const getDocByPath = async (path: string) => {
   let docRef = doc(db, path);
-  let docSnap = await firestoreGetDoc(docRef);
+  let docSnap = await getDoc(docRef);
 
   if (docSnap.exists()) {
     return docSnap.data();
@@ -29,9 +22,9 @@ export const getDoc = async (path: string) => {
   }
 };
 
-export const setDoc = async (path: string, values: any, options: any) => {
+export const setDocByPath = async (path: string, values: any, options: any) => {
   let docRef = doc(db, path);
-  return await firestoreSetDoc(docRef, values, options);
+  return await setDoc(docRef, values, options);
 };
 
 export async function* loadCollection<T = any>(path: string): DataCollectionSupplier<T> {
