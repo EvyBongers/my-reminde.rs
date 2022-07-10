@@ -90,7 +90,7 @@ export class NotificationPreferenceItem extends LitElement {
   }
 
   updated() {
-    this.editButtons.forEach(btn=> {
+    this.editButtons.forEach(btn => {
       btn.addEventListener('click', (e: Event) => {
         e.stopPropagation();
         (e.target as HTMLElement).blur()
@@ -98,29 +98,21 @@ export class NotificationPreferenceItem extends LitElement {
     });
   }
 
-  private renderEditing() {
-    if (this.editing) {
-      return html`<mwc-icon-button outlined icon="check_circle_outline" @click="${this.save}"></mwc-icon-button>`;
-    } else {
-      return html`<mwc-icon-button outlined icon="edit" @click="${this.edit}"></mwc-icon-button>`;
-    }
-  }
-
   override render() {
     return html`
       <mwc-ripple></mwc-ripple>
-      <div class="notification" data-id="${this.item._ref.id}" ?collapsed="${this.collapsed}">
-        <mwc-ripple></mwc-ripple>
+      <div class="notification" ?collapsed="${this.collapsed}">
         <h4 contenteditable="${this.editing}">${this.item.title}</h4>
         <p contenteditable="${this.editing}">${this.item.body}</p>
-        <aside>
-          ${this.renderEditing()}
-          <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
-          <mwc-icon-button-toggle outlined on onIcon="notifications_active" offIcon="notifications_off"></mwc-icon-button-toggle>
-        </aside>
         <footer>
           Schedule: ${this.item.type == "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
         </footer>
+        <aside>
+          ${this.editing ? html`<mwc-icon-button outlined icon="check" @click="${this.save}"></mwc-icon-button>` : null}
+          <mwc-icon-button-toggle outlined .on="${this.editing}" onIcon="clear" offIcon="edit" @click="${this.toggleEdit}"></mwc-icon-button-toggle>
+          <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
+          <mwc-icon-button-toggle outlined on onIcon="notifications_active" offIcon="notifications_off"></mwc-icon-button-toggle>
+        </aside>
       </div>
       <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
     `;
@@ -132,13 +124,16 @@ export class NotificationPreferenceItem extends LitElement {
     }
   }
 
-  edit(e: Event) {
-    this.editing = true;
-  }
-
   save(e: Event) {
     this.editing = false;
     console.log("TODO(ebongers): actually save changes to database");
+  }
+
+  toggleEdit(e: Event) {
+    this.editing = !this.editing;
+    if (!this.editing) {
+      // TODO(ebongers): restore DOM from component properties
+    }
   }
 }
 
