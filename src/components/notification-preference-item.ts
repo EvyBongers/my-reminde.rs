@@ -185,8 +185,13 @@ export class NotificationPreferenceItem extends LitElement {
     }
   }
 
+  // TODO(ebongers): Implement option to mute/pause notifications
+
+  // TODO(ebongers): Add option to create new notifications
+
   delete(e: Event) {
     if (confirm("Delete this notification?")) {
+      // TODO(ebongers): implement deleting notifications
       console.log("TODO(ebongers): implement deleting notifications")
     }
   }
