@@ -1,11 +1,13 @@
 import {css, html, LitElement} from "lit";
-import {customElement, property, queryAll, state} from "lit/decorators.js";
-import '@material/mwc-icon';
-import '@material/mwc-ripple';
-import '@material/mwc-icon-button';
-import '@material/mwc-icon-button-toggle';
+import {customElement, property, query, queryAll, state} from "lit/decorators.js";
+import {Dialog} from "@material/mwc-dialog";
 import {IconButton} from "@material/mwc-icon-button";
 import {IconButtonToggle} from "@material/mwc-icon-button-toggle";
+import "@material/mwc-dialog";
+import "@material/mwc-icon";
+import "@material/mwc-ripple";
+import "@material/mwc-icon-button";
+import "@material/mwc-icon-button-toggle";
 import {setDocByRef} from "../db";
 
 @customElement("notification-preference-item")
@@ -14,16 +16,16 @@ export class NotificationPreferenceItem extends LitElement {
   @property()
   item: any;
   @property()
-  originalItem: any;
+  editingItem: any;
 
   @property({type: Boolean})
   protected collapsed: boolean = true;
 
-  @state()
-  protected editing: boolean = false;
-
   @queryAll('mwc-icon-button, mwc-icon-button-toggle')
   private editButtons: NodeListOf<IconButton | IconButtonToggle>;
+
+  @query('mwc-dialog#editing')
+  private editDialog: Dialog;
 
   static override styles = css`
     :host {
@@ -34,7 +36,7 @@ export class NotificationPreferenceItem extends LitElement {
       position: relative;
     }
 
-    :host > mwc-icon {
+    .buttons {
       margin: 12px 0 12px auto;
     }
 
@@ -78,9 +80,12 @@ export class NotificationPreferenceItem extends LitElement {
       margin-bottom: 0;
     }
 
-    [contenteditable='true'] {
-      border-bottom: 1px solid black;
-      cursor: text;
+    #editing {
+      --mdc-dialog-min-width: 300px;
+    }
+
+    #editing mwc-textfield {
+      display: block;
     }
   `;
 
@@ -88,7 +93,7 @@ export class NotificationPreferenceItem extends LitElement {
     super.connectedCallback();
 
     this.addEventListener('click', _ => {
-      if (!this.editing) this.collapsed = !this.collapsed;
+      if (!this.editDialog.open) this.collapsed = !this.collapsed;
     });
   }
 
@@ -99,41 +104,43 @@ export class NotificationPreferenceItem extends LitElement {
         (e.target as HTMLElement).blur()
       })
     });
+    this.editDialog.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+    });
   }
 
   private renderButtons() {
-    let saveButton = this.editing ? html`
-      <mwc-icon-button outlined icon="check" @click="${this.save}"></mwc-icon-button>
-    ` : null;
     return html`
       <aside>
-        ${saveButton}
-        <mwc-icon-button-toggle outlined onIcon="clear" offIcon="edit" .on="${this.editing}" @click="${this.toggleEdit}"></mwc-icon-button-toggle>
+        <mwc-icon-button outlined icon="edit" @click="${this.edit}"></mwc-icon-button>
         <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
-        <mwc-icon-button-toggle outlined onIcon="notifications_active" offIcon="notifications_off" on></mwc-icon-button-toggle>
+        <mwc-icon-button-toggle outlined onIcon="notifications_active" offIcon="notifications_off"
+                                on></mwc-icon-button-toggle>
       </aside>
     `
   }
 
   private renderEditing() {
+    this.editingItem = structuredClone(this.item);
     return html`
-      <label>
-        Title
-        <input value="${this.item.title}"
-               @change="${(_: Event) => this.item.title = (_.currentTarget as HTMLInputElement).value}"/>
-      </label>
-      <label>
-        Body
-        <input value="${this.item.body}"
-               @change="${(_: Event) => this.item.body = (_.currentTarget as HTMLInputElement).value}"/>
-      </label>
-      <label>
-        Schedule
-        ${this.item.type === "cron" ?
-              html`cron: <input value="${this.item.cronExpression}"
-                                @change="${(_: Event) => this.item.cronExpression = (_.currentTarget as HTMLInputElement).value}"/>` :
-              html`${this.item.type} (Editing schedule not yet supported)`}
-      </label>
+      <mwc-dialog id="editing" heading="Editing notification: ${this.item.title}" escapeKeyAction="${this.cancel}"
+                  scrimClickAction="${this.cancel}">
+        <div>
+          <mwc-textfield .value="${this.editingItem?.title}" label="Title" required
+                         @input="${(_: Event) => this.editingItem.title = (_.currentTarget as HTMLInputElement).value}"
+                         type="text"></mwc-textfield>
+          <br>
+          <mwc-textfield .value="${this.editingItem?.body}" label="Body"
+                         @input="${(_: Event) => this.editingItem.body = (_.currentTarget as HTMLInputElement).value}"
+                         type="text"></mwc-textfield>
+          <br>
+          <mwc-textfield .value="${this.editingItem?.cronExpression}" label="Schedule" required
+                         @input="${(_: Event) => this.editingItem.cronExpression = (_.currentTarget as HTMLInputElement).value}"
+                         type="text"></mwc-textfield>
+        </div>
+        <mwc-button slot="primaryAction" @click="${this.save}" dialogAction="close">Save</mwc-button>
+        <mwc-button slot="secondaryAction" @click="${this.cancel}" dialogAction="close">Cancel</mwc-button>
+      </mwc-dialog>
     `;
   }
 
@@ -150,10 +157,13 @@ export class NotificationPreferenceItem extends LitElement {
   override render() {
     return html`
       <div class="notification" ?collapsed="${this.collapsed}">
-        ${this.editing ? this.renderEditing() : this.renderPreview()}
+        ${this.renderPreview()}
         ${this.renderButtons()}
       </div>
-      <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
+      <div class="buttons">
+        <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
+      </div>
+      ${this.renderEditing()}
     `;
   }
 
@@ -164,19 +174,17 @@ export class NotificationPreferenceItem extends LitElement {
   }
 
   save(e: Event) {
-    this.editing = false;
-    setDocByRef(this.item._ref, this.item, {merge: true});
+    setDocByRef(this.item._ref, this.editingItem, {merge: true});
+    this.editDialog.close();
   }
 
-  toggleEdit(e: Event) {
-    this.editing = !this.editing;
-    if (this.editing) {
-      this.originalItem = structuredClone(this.item);
-    } else {
-      let changedItem = structuredClone(this.item);
-      this.item = this.originalItem;
-      this.requestUpdate("item", changedItem);
-    }
+  cancel(e: Event) {
+    this.editDialog.close();
+  }
+
+  edit(e: Event) {
+    this.editingItem = structuredClone(this.item);
+    this.editDialog.show();
   }
 }
 

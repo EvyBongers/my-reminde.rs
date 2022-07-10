@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@material/mwc-button': ^0.26.1
+  '@material/mwc-dialog': ^0.26.1
   '@material/mwc-icon': ^0.26.1
   '@material/mwc-icon-button': ^0.26.1
   '@material/mwc-icon-button-toggle': ^0.26.1
@@ -21,6 +22,7 @@ specifiers:
 
 dependencies:
   '@material/mwc-button': 0.26.1
+  '@material/mwc-dialog': 0.26.1
   '@material/mwc-icon': 0.26.1
   '@material/mwc-icon-button': 0.26.1
   '@material/mwc-icon-button-toggle': 0.26.1
@@ -599,6 +601,26 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@material/dialog/14.0.0-canary.53b3cad2f.0:
+    resolution: {integrity: sha512-yiG2nlVKTW0Ro3CF8Z/MVpTwSyG/8Kio3AaTUbeQdbjt5r692s4x5Yhd8m1IjEQKUeulY4CndvIbCUwZ8/G2PA==}
+    dependencies:
+      '@material/animation': 14.0.0-canary.53b3cad2f.0
+      '@material/base': 14.0.0-canary.53b3cad2f.0
+      '@material/button': 14.0.0-canary.53b3cad2f.0
+      '@material/dom': 14.0.0-canary.53b3cad2f.0
+      '@material/elevation': 14.0.0-canary.53b3cad2f.0
+      '@material/feature-targeting': 14.0.0-canary.53b3cad2f.0
+      '@material/icon-button': 14.0.0-canary.53b3cad2f.0
+      '@material/ripple': 14.0.0-canary.53b3cad2f.0
+      '@material/rtl': 14.0.0-canary.53b3cad2f.0
+      '@material/shape': 14.0.0-canary.53b3cad2f.0
+      '@material/theme': 14.0.0-canary.53b3cad2f.0
+      '@material/tokens': 14.0.0-canary.53b3cad2f.0
+      '@material/touch-target': 14.0.0-canary.53b3cad2f.0
+      '@material/typography': 14.0.0-canary.53b3cad2f.0
+      tslib: 2.4.0
+    dev: false
+
   /@material/dom/14.0.0-canary.53b3cad2f.0:
     resolution: {integrity: sha512-aR+rfncF6oi2ivdOlKSJI4UXwNzWV5rXM88MLDoSJF1D7lXxhAKhge+tMUBodWGV/q0+FnXLuVAa0WYTrKjo+A==}
     dependencies:
@@ -686,6 +708,19 @@ packages:
       '@material/mwc-ripple': 0.26.1
       lit: 2.2.5
       tslib: 2.4.0
+    dev: false
+
+  /@material/mwc-dialog/0.26.1:
+    resolution: {integrity: sha512-QI9OkD0ZXZRyxA9I3ZbRjn4iRdDh/u+ZtcfZtIhKKgm3S0pkHAxndNlygq8DHQgwCO5HxMcmEot7voAdDtpfoQ==}
+    dependencies:
+      '@material/dialog': 14.0.0-canary.53b3cad2f.0
+      '@material/dom': 14.0.0-canary.53b3cad2f.0
+      '@material/mwc-base': 0.26.1
+      '@material/mwc-button': 0.26.1
+      blocking-elements: 0.1.1
+      lit: 2.2.5
+      tslib: 2.4.0
+      wicg-inert: 3.1.2
     dev: false
 
   /@material/mwc-floating-label/0.26.1:
@@ -1329,6 +1364,10 @@ packages:
     resolution: {integrity: sha512-jDctJ/IVQbZoJykoeHbhXpOlNBqGNcwXJKJog42E5HDPUwQTSdjCHdihjj0DlnheQ7blbT6dHOafNAiS8ooQKA==}
     engines: {node: '>=8'}
     dev: true
+
+  /blocking-elements/0.1.1:
+    resolution: {integrity: sha512-/SLWbEzMoVIMZACCyhD/4Ya2M1PWP1qMKuiymowPcI+PdWDARqeARBjhj73kbUBCxEmTZCUu5TAqxtwUO9C1Ig==}
+    dev: false
 
   /body-parser/1.20.0:
     resolution: {integrity: sha512-DfJ+q6EPcGKZD1QWUjSpqp+Q7bDQTsQIF4zfUAtZ6qk+H/3/QRhg9CEp39ss+/T2vw0+HaidC0ecJj/DRLIaKg==}
@@ -3512,6 +3551,10 @@ packages:
     dependencies:
       isexe: 2.0.0
     dev: true
+
+  /wicg-inert/3.1.2:
+    resolution: {integrity: sha512-Ba9tGNYxXwaqKEi9sJJvPMKuo063umUPsHN0JJsjrs2j8KDSzkWLMZGZ+MH1Jf1Fq4OWZ5HsESJID6nRza2ang==}
+    dev: false
 
   /wildcard/2.0.0:
     resolution: {integrity: sha512-JcKqAHLPxcdb9KM49dufGXn2x3ssnfjbcaQdLlfZsL9rH9wgDQjUtDxbo8NE0F6SFvydeu1VhZe7hZuHsB2/pw==}
