@@ -121,7 +121,7 @@ export class NotificationPreferenceItem extends LitElement {
   }
 
   private renderEditing() {
-    this.editingItem = structuredClone(this.item);
+    this.editingItem ||= structuredClone(this.item);
     return html`
       <mwc-dialog id="editing" heading="Editing notification: ${this.item.title}" escapeKeyAction="${this.cancel}"
                   scrimClickAction="${this.cancel}">
