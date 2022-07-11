@@ -3,8 +3,7 @@ import {customElement, property} from "lit/decorators.js";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
-import './notification-preference-item'
-import {NotificationPreferenceItem} from "./notification-preference-item";
+import {NotificationPreferenceItemEdit} from "./notification-preference-item-edit";
 
 @customElement("notification-preferences")
 export class NotificationPreferences extends BunnyElement {
@@ -58,7 +57,7 @@ export class NotificationPreferences extends BunnyElement {
   }
 
   public add() {
-    let notification = new NotificationPreferenceItem();
+    let notification = new NotificationPreferenceItemEdit();
     this.shadowRoot.querySelector(".notifications-container").appendChild(notification);
   }
 }
