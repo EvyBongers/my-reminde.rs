@@ -1,5 +1,5 @@
 import {css, html, LitElement} from "lit";
-import {customElement, property, query, queryAll, state} from "lit/decorators.js";
+import {customElement, property, query, queryAll} from "lit/decorators.js";
 import {Dialog} from "@material/mwc-dialog";
 import {IconButton} from "@material/mwc-icon-button";
 import {IconButtonToggle} from "@material/mwc-icon-button-toggle";
@@ -110,6 +110,28 @@ export class NotificationPreferenceItem extends LitElement {
     });
   }
 
+  private renderItem() {
+    return html`
+      <div class="notification" ?collapsed="${this.collapsed}">
+        ${this.renderPreview()}
+        ${this.renderButtons()}
+      </div>
+      <div class="buttons">
+        <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
+      </div>
+    `
+  }
+
+  private renderPreview() {
+    return html`
+      <h4 id="title">${this.item.title}</h4>
+      <p id="body">${this.item.body}</p>
+      <footer>
+        Schedule: ${this.item.type === "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
+      </footer>
+    `;
+  }
+
   private renderButtons() {
     return html`
       <aside>
@@ -149,25 +171,9 @@ export class NotificationPreferenceItem extends LitElement {
     `;
   }
 
-  private renderPreview() {
-    return html`
-      <h4 id="title">${this.item.title}</h4>
-      <p id="body">${this.item.body}</p>
-      <footer>
-        Schedule: ${this.item.type === "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
-      </footer>
-    `;
-  }
-
   override render() {
     return html`
-      <div class="notification" ?collapsed="${this.collapsed}">
-        ${this.renderPreview()}
-        ${this.renderButtons()}
-      </div>
-      <div class="buttons">
-        <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
-      </div>
+      ${this.renderItem()}
       ${this.renderEditing()}
     `;
   }
