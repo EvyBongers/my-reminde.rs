@@ -10,6 +10,8 @@ import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
 import './components/notification-preferences';
+import {query} from "lit/decorators.js";
+import {NotificationPreferences} from "./components/notification-preferences";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -22,6 +24,9 @@ export class JDIApp extends LitElement {
 
   @property()
   pushNotificationsEnabled: boolean;
+
+  @query('notification-preferences')
+  private notifications: NotificationPreferences;
 
   static override styles = css`
     :host {
@@ -108,7 +113,7 @@ export class JDIApp extends LitElement {
   }
 
   private async addNotification(e: Event) {
-    // TODO(ebongers): implement adding a notification
+    await this.notifications.add();
   }
 }
 

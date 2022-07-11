@@ -4,6 +4,7 @@ import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
 import './notification-preference-item'
+import {NotificationPreferenceItem} from "./notification-preference-item";
 
 @customElement("notification-preferences")
 export class NotificationPreferences extends BunnyElement {
@@ -54,6 +55,11 @@ export class NotificationPreferences extends BunnyElement {
   @observe('accountId')
   accountChanged(accountId: string) {
     this.scheduledNotifications = loadCollection<{ test: number }>(`accounts/${this.accountId}/scheduledNotifications`);
+  }
+
+  public add() {
+    let notification = new NotificationPreferenceItem();
+    this.shadowRoot.querySelector(".notifications-container").appendChild(notification);
   }
 }
 
