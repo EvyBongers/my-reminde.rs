@@ -3,6 +3,7 @@ lockfileVersion: 5.4
 specifiers:
   '@material/mwc-button': ^0.26.1
   '@material/mwc-dialog': ^0.26.1
+  '@material/mwc-fab': ^0.26.1
   '@material/mwc-icon': ^0.26.1
   '@material/mwc-icon-button': ^0.26.1
   '@material/mwc-icon-button-toggle': ^0.26.1
@@ -24,6 +25,7 @@ specifiers:
 dependencies:
   '@material/mwc-button': 0.26.1
   '@material/mwc-dialog': 0.26.1
+  '@material/mwc-fab': 0.26.1
   '@material/mwc-icon': 0.26.1
   '@material/mwc-icon-button': 0.26.1
   '@material/mwc-icon-button-toggle': 0.26.1
@@ -723,6 +725,14 @@ packages:
       lit: 2.2.5
       tslib: 2.4.0
       wicg-inert: 3.1.2
+    dev: false
+
+  /@material/mwc-fab/0.26.1:
+    resolution: {integrity: sha512-JmeoGb9WJbu8B0fdDo4bx72Mo17F+wOnMC19ofUM/6XkpbPNEgI+HppE4j/e4i5vGEd7pxswWNqGg1LFPLCV7w==}
+    dependencies:
+      '@material/mwc-ripple': 0.26.1
+      lit: 2.2.5
+      tslib: 2.4.0
     dev: false
 
   /@material/mwc-floating-label/0.26.1:

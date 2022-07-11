@@ -4,6 +4,8 @@ import {customElement, property} from "lit/decorators.js";
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
+import "@material/mwc-button";
+import "@material/mwc-fab";
 import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
@@ -26,6 +28,10 @@ export class JDIApp extends LitElement {
       display: block;
       font-family: "Roboto";
     }
+
+    mwc-fab {
+      --mdc-icon-size: 36px;
+    }
   `;
 
   renderLoggedIn() {
@@ -42,6 +48,8 @@ export class JDIApp extends LitElement {
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
 
       <notification-preferences .accountId="${this.userId}"></notification-preferences>
+
+      <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>
     `;
   }
 
@@ -97,6 +105,10 @@ export class JDIApp extends LitElement {
       title: 'cakes',
       body: 'your a cute cupcake',
     });
+  }
+
+  private async addNotification(e: Event) {
+    // TODO(ebongers): implement adding a notification
   }
 }
 
