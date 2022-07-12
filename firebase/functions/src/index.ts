@@ -53,14 +53,15 @@ interface AccountDocument {
   devices: { [key: string]: AccountDevice };
 }
 
-interface AccountScheduledNotificationDocument {
+export interface AccountScheduledNotificationDocument {
   title: string;
   body: string;
-  link: string;
   nextSend: any;
   lastSent: any;
   type: string;
   cronExpression?: string;
+
+  [x: string]: any
 }
 
 export const doSendNotifications = functions.region("europe-west1").https.onCall(

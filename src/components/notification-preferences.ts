@@ -3,7 +3,8 @@ import {customElement, property} from "lit/decorators.js";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
-import {NotificationPreferenceItemEdit} from "./notification-preference-item-edit";
+import "./notification-preference-item";
+import "./notification-preference-item-edit";
 
 @customElement("notification-preferences")
 export class NotificationPreferences extends BunnyElement {
@@ -51,14 +52,15 @@ export class NotificationPreferences extends BunnyElement {
     `;
   }
 
-  @observe('accountId')
+  @observe("accountId")
   accountChanged(accountId: string) {
     this.scheduledNotifications = loadCollection<{ test: number }>(`accounts/${this.accountId}/scheduledNotifications`);
   }
 
   public add() {
-    let notification = new NotificationPreferenceItemEdit();
-    this.shadowRoot.querySelector(".notifications-container").appendChild(notification);
+    let notification = document.createElement("notification-preference-item-edit");
+    notification.setAttribute("create", "true");
+    this.shadowRoot.append(notification);
   }
 }
 

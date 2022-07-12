@@ -1,6 +1,5 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property, query, queryAll} from "lit/decorators.js";
-import {Dialog} from "@material/mwc-dialog";
 import {IconButton} from "@material/mwc-icon-button";
 import {IconButtonToggle} from "@material/mwc-icon-button-toggle";
 import "@material/mwc-dialog";
@@ -8,22 +7,19 @@ import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
-import {parseExpression} from "cron-parser-all";
-import {setDocByRef} from "../db";
+import {AccountScheduledNotificationDocument} from "../../firebase/functions/src/index"
 
 @customElement("notification-preference-item")
 export class NotificationPreferenceItem extends LitElement {
 
   @property()
-  item: any;
-  @property()
-  editingItem: any;
+  item: Partial<AccountScheduledNotificationDocument> = {};
 
   @property({type: Boolean})
   protected collapsed: boolean = true;
 
-  @queryAll('mwc-icon-button, mwc-icon-button-toggle')
-  private editButtons: NodeListOf<IconButton | IconButtonToggle>;
+  @queryAll("mwc-icon-button, mwc-icon-button-toggle")
+  private editButtons!: NodeListOf<IconButton | IconButtonToggle>;
 
   static override styles = css`
     :host {
@@ -32,6 +28,10 @@ export class NotificationPreferenceItem extends LitElement {
       flex-direction: row;
       padding: 0 16px;
       position: relative;
+    }
+
+    notification-preference-item-edit {
+      position: absolute;
     }
 
     .buttons {
@@ -87,12 +87,11 @@ export class NotificationPreferenceItem extends LitElement {
     }
   `;
 
-  updated() {
-    this.editButtons.forEach(btn => {
-      btn.addEventListener('click', (e: Event) => {
-        e.stopPropagation();
-        (e.target as HTMLElement).blur()
-      })
+  connectedCallback() {
+    super.connectedCallback();
+
+    this.addEventListener('click', _ => {
+      this.collapsed = !this.collapsed;
     });
   }
 
@@ -132,6 +131,8 @@ export class NotificationPreferenceItem extends LitElement {
   // TODO(ebongers): Implement option to mute/pause notifications
 
   delete(e: Event) {
+    e.stopPropagation();
+    (e.target as HTMLElement).blur()
     if (confirm("Delete this notification?")) {
       // TODO(ebongers): implement deleting notifications
       console.log("TODO(ebongers): implement deleting notifications")
@@ -139,8 +140,12 @@ export class NotificationPreferenceItem extends LitElement {
   }
 
   edit(e: Event) {
-    this.editingItem = structuredClone(this.item);
-    // TODO(ebongers): create new DOM node NotificationPreferenceItemEdit
+    e.stopPropagation();
+    (e.target as HTMLElement).blur()
+    let notification = document.createElement("notification-preference-item-edit");
+    notification.item = structuredClone(this.item);
+    notification.documentRef = this.item._ref;
+    this.shadowRoot.append(notification);
   }
 }
 
