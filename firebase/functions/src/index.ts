@@ -91,30 +91,30 @@ export const sendNotifications = functions.region("europe-west1")
         body: notificationData.body,
       };
       let batchResponse = await getMessaging().sendMulticast({
-        notification: _notification,
-        webpush: {
-          notification: {
+        "notification": _notification,
+        "webpush": {
+          "notification": {
             ..._notification,
-            // actions: [
+            // "actions": [
             //   {
-            //     title: "OK",
-            //     action: "void()",
+            //     "title": "OK",
+            //     "action": "void()",
             //   },
             //   {
-            //     title: "Dismiss",
-            //     action: "void()",
+            //     "title": "Dismiss",
+            //     "action": "void()",
             //   },
             // ],
-            renotify: true,
-            requireInteraction: true,
-            tag: snapshot.id,
-            timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
+            "renotify": true,
+            "requireInteraction": true,
+            "tag": snapshot.id,
+            "timestamp": (notificationData.sent as firestore.Timestamp).toMillis(),
           },
-          fcmOptions: notificationData.link? {
-            link: notificationData.link,
-          }:{},
+          // "fcmOptions": notificationData.link ? {
+          //   "link": notificationData.link,
+          // } : {},
         },
-        tokens: getPushTokens(accountData),
+        "tokens": getPushTokens(accountData),
       });
       functions.logger.info(batchResponse.successCount + " messages were sent successfully");
       if (batchResponse.failureCount > 0) {
@@ -144,7 +144,7 @@ export const runNotify = functions.region("europe-west1")
         notification: scheduledNotification.ref,
         title: scheduledNotificationData.title,
         body: scheduledNotificationData.body,
-        link: scheduledNotificationData.link||"",
+        link: scheduledNotificationData.link || "",
         sent: FieldValue.serverTimestamp(),
       });
 
