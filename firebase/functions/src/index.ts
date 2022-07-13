@@ -9,6 +9,26 @@ import {parseExpression} from "cron-parser-all";
 initializeApp();
 
 
+interface AccountDevice {
+  name: string;
+  token: string;
+}
+
+interface AccountDocument {
+  devices: { [key: string]: AccountDevice };
+}
+
+export interface AccountScheduledNotificationDocument {
+  title: string;
+  body: string;
+  nextSend: any;
+  lastSent: any;
+  type: string;
+  cronExpression?: string;
+
+  [x: string]: any
+}
+
 const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?: string) => Date } } = {
   // TODO write these
   "hourly": {
@@ -44,25 +64,7 @@ const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?
   },
 };
 
-interface AccountDevice {
-  name: string;
-  token: string;
-}
-
-interface AccountDocument {
-  devices: { [key: string]: AccountDevice };
-}
-
-export interface AccountScheduledNotificationDocument {
-  title: string;
-  body: string;
-  nextSend: any;
-  lastSent: any;
-  type: string;
-  cronExpression?: string;
-
-  [x: string]: any
-}
+const db = getFirestore();
 
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
   async (data, context) => {
@@ -72,9 +74,6 @@ export const doSendNotifications = functions.region("europe-west1").https.onCall
     }
   },
 );
-
-const db = getFirestore();
-
 
 let getPushTokens = (account: AccountDocument) => {
   return Object.entries(account.devices).map(_ => _[1].token);
