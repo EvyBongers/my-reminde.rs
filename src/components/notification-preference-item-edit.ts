@@ -31,7 +31,7 @@ export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
     let originalTitle = this.item?.title;
     return html`
       <mwc-dialog id="editing"
-                  heading="${originalTitle ? `Editing notification: ${originalTitle}` : "New notification"}"
+                  heading="${this.documentRef ? `Editing notification: ${originalTitle}` : "New notification"}"
                   escapeKeyAction="${this.cancel}"
                   scrimClickAction="${this.cancel}" open>
         <div>
