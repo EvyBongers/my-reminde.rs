@@ -37,6 +37,7 @@
     "@material/mwc-icon-button": "^0.26.1",
     "@material/mwc-icon-button-toggle": "^0.26.1",
     "@material/mwc-ripple": "^0.26.1",
+    "@material/mwc-select": "^0.26.1",
     "@material/mwc-snackbar": "^0.26.1",
     "@material/mwc-textfield": "^0.26.1",
     "cron-parser-all": "^0.0.6",

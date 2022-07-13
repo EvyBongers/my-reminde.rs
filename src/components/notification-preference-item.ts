@@ -1,5 +1,5 @@
 import {css, html, LitElement} from "lit";
-import {customElement, property, query, queryAll} from "lit/decorators.js";
+import {customElement, property, queryAll} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {IconButtonToggle} from "@material/mwc-icon-button-toggle";
 import "@material/mwc-dialog";
@@ -82,7 +82,7 @@ export class NotificationPreferenceItem extends LitElement {
       --mdc-dialog-min-width: 300px;
     }
 
-    #editing mwc-textfield {
+    #editing mwc-textfield, #editing mwc-select {
       display: block;
     }
   `;

@@ -1,6 +1,6 @@
 import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
-import {DataCollectionSupplier, loadCollection} from "../db";
+import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
 import "./notification-preference-item";
@@ -57,9 +57,9 @@ export class NotificationPreferences extends BunnyElement {
     this.scheduledNotifications = loadCollection<{ test: number }>(`accounts/${this.accountId}/scheduledNotifications`);
   }
 
-  public add() {
+  public async add() {
     let notification = document.createElement("notification-preference-item-edit");
-    notification.setAttribute("create", "true");
+    notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/scheduledNotifications`);
     this.shadowRoot.append(notification);
   }
 }
