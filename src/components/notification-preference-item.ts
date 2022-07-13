@@ -8,6 +8,7 @@ import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {AccountScheduledNotificationDocument} from "../../firebase/functions/src/index"
+import {deleteDocByRef} from "../db";
 
 @customElement("notification-preference-item")
 export class NotificationPreferenceItem extends LitElement {
@@ -133,9 +134,9 @@ export class NotificationPreferenceItem extends LitElement {
   delete(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
+    // mwc-dialog? https://github.com/material-components/material-web/tree/mwc/packages/dialog#example-usage
     if (confirm("Delete this notification?")) {
-      // TODO(ebongers): implement deleting notifications
-      console.log("TODO(ebongers): implement deleting notifications")
+      deleteDocByRef(this.item._ref);
     }
   }
 

@@ -1,5 +1,5 @@
 import {firebaseApp} from "./firebase";
-import {addDoc, collection, connectFirestoreEmulator, doc, getDoc, getFirestore, onSnapshot, setDoc} from "firebase/firestore";
+import {addDoc, collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, getFirestore, onSnapshot, setDoc} from "firebase/firestore";
 
 export {deleteField as firestoreDelete} from 'firebase/firestore';
 
@@ -13,6 +13,10 @@ if (location.hostname === "localhost") {
 
 export const addDocByRef = async (collectionRef: any, values: any) => {
   return await addDoc(collectionRef, values);
+}
+
+export const deleteDocByRef = async (docRef: any) => {
+  return await deleteDoc(docRef);
 }
 
 export const getCollectionByPath = async (path: string) => {
