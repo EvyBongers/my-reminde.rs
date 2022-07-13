@@ -79,6 +79,34 @@ let getPushTokens = (account: AccountDocument) => {
   return Object.entries(account.devices).map(_ => _[1].token);
 };
 
+export const updateNextSend = functions.region("europe-west1")
+  .firestore.document("/accounts/{accountId}/scheduledNotifications/{notificationId}")
+  .onWrite(async (change, context) => {
+    let oldNotification = change.before;
+    let oldNotificationData = oldNotification.data() as AccountScheduledNotificationDocument;
+
+    let notification = change.after;
+    let notificationData = notification.data() as AccountScheduledNotificationDocument;
+
+    try {
+      switch (notificationData.type) {
+        case "cron":
+          if (notification.get("nextSend") === undefined || oldNotificationData.cronExpression != notificationData.cronExpression) {
+            let nextSend = NOTIFICATION_TYPES[notificationData.type].calculateNextSend(notificationData.cronExpression);
+            functions.logger.debug(`Updating timestamps on notification ${notification.ref.id}:`, {nextSend: nextSend});
+            await notification.ref.update({nextSend: nextSend});
+          }
+          break;
+        default:
+          functions.logger.error(`Unknown notification type ${notificationData.type} on document ${notification.ref}`);
+          break;
+      }
+    } catch (e) {
+      functions.logger.error(`Failed to update nextSend on document ${notification.ref}`);
+      functions.logger.error((e as Error).message);
+    }
+  });
+
 export const sendNotifications = functions.region("europe-west1")
   .firestore.document("/accounts/{accountId}/notifications/{notificationId}")
   .onCreate(async (snapshot, context) => {
