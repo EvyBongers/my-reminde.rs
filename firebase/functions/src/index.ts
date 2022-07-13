@@ -9,41 +9,6 @@ import {parseExpression} from "cron-parser-all";
 initializeApp();
 
 
-const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?: string) => Date } } = {
-  // TODO write these
-  "hourly": {
-    calculateNextSend() {
-      let date = new Date();
-      date.setHours(date.getHours() + 1);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
-
-      return date;
-    },
-  },
-  "daily": {
-    calculateNextSend() {
-      let date = new Date();
-      date.setHours(date.getHours() + 24);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
-
-      return date;
-    },
-  },
-  "cron": {
-    calculateNextSend(cronExpression?: string) {
-      let options = {
-        tz: "Europe/Amsterdam", // TODO(ebongers): use preference in user profile
-      };
-      let cron = parseExpression(cronExpression as string, options);
-      return cron.next().toDate();
-    },
-  },
-};
-
 interface AccountDevice {
   name: string;
   token: string;
@@ -64,6 +29,43 @@ export interface AccountScheduledNotificationDocument {
   [x: string]: any
 }
 
+const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?: string) => Date } } = {
+  // TODO write these
+  // "hourly": {
+  //   calculateNextSend() {
+  //     let date = new Date();
+  //     date.setHours(date.getHours() + 1);
+  //     date.setMinutes(0);
+  //     date.setSeconds(0);
+  //     date.setMilliseconds(0);
+  //
+  //     return date;
+  //   },
+  // },
+  // "daily": {
+  //   calculateNextSend() {
+  //     let date = new Date();
+  //     date.setHours(date.getHours() + 24);
+  //     date.setMinutes(0);
+  //     date.setSeconds(0);
+  //     date.setMilliseconds(0);
+  //
+  //     return date;
+  //   },
+  // },
+  "cron": {
+    calculateNextSend(cronExpression?: string) {
+      let options = {
+        tz: "Europe/Amsterdam", // TODO(ebongers): use preference in user profile
+      };
+      let cron = parseExpression(cronExpression as string, options);
+      return cron.next().toDate();
+    },
+  },
+};
+
+const db = getFirestore();
+
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
   async (data, context) => {
     let accounts = await db.collection("accounts").get();
@@ -73,12 +75,37 @@ export const doSendNotifications = functions.region("europe-west1").https.onCall
   },
 );
 
-const db = getFirestore();
-
-
 let getPushTokens = (account: AccountDocument) => {
   return Object.entries(account.devices).map(_ => _[1].token);
 };
+
+export const updateNextSend = functions.region("europe-west1")
+  .firestore.document("/accounts/{accountId}/scheduledNotifications/{notificationId}")
+  .onWrite(async (change, context) => {
+    let oldNotification = change.before;
+    let oldNotificationData = oldNotification.data() as AccountScheduledNotificationDocument;
+
+    let notification = change.after;
+    let notificationData = notification.data() as AccountScheduledNotificationDocument;
+
+    try {
+      switch (notificationData.type) {
+        case "cron":
+          if (notification.get("nextSend") === undefined || oldNotificationData.cronExpression != notificationData.cronExpression) {
+            let nextSend = NOTIFICATION_TYPES[notificationData.type].calculateNextSend(notificationData.cronExpression);
+            functions.logger.debug(`Updating timestamps on notification ${notification.ref.id}:`, {nextSend: nextSend});
+            await notification.ref.update({nextSend: nextSend});
+          }
+          break;
+        default:
+          functions.logger.error(`Unknown notification type ${notificationData.type} on document ${notification.ref}`);
+          break;
+      }
+    } catch (e) {
+      functions.logger.error(`Failed to update nextSend on document ${notification.ref}`);
+      functions.logger.error((e as Error).message);
+    }
+  });
 
 export const sendNotifications = functions.region("europe-west1")
   .firestore.document("/accounts/{accountId}/notifications/{notificationId}")
@@ -92,30 +119,30 @@ export const sendNotifications = functions.region("europe-west1")
         body: notificationData.body,
       };
       let batchResponse = await getMessaging().sendMulticast({
-        notification: _notification,
-        webpush: {
-          notification: {
+        "notification": _notification,
+        "webpush": {
+          "notification": {
             ..._notification,
-            actions: [
-              {
-                title: "OK",
-                action: "void()",
-              },
-              {
-                title: "Dismiss",
-                action: "void()",
-              },
-            ],
-            renotify: true,
-            requireInteraction: true,
-            tag: snapshot.id,
-            timestamp: (notificationData.sent as firestore.Timestamp).toMillis(),
+            // "actions": [
+            //   {
+            //     "title": "OK",
+            //     "action": "void()",
+            //   },
+            //   {
+            //     "title": "Dismiss",
+            //     "action": "void()",
+            //   },
+            // ],
+            "renotify": true,
+            "requireInteraction": true,
+            "tag": snapshot.id,
+            "timestamp": (notificationData.sent as firestore.Timestamp).toMillis(),
           },
-          fcmOptions: notificationData.link? {
-            link: notificationData.link,
-          }:{},
+          // "fcmOptions": notificationData.link ? {
+          //   "link": notificationData.link,
+          // } : {},
         },
-        tokens: getPushTokens(accountData),
+        "tokens": getPushTokens(accountData),
       });
       functions.logger.info(batchResponse.successCount + " messages were sent successfully");
       if (batchResponse.failureCount > 0) {
@@ -145,7 +172,7 @@ export const runNotify = functions.region("europe-west1")
         notification: scheduledNotification.ref,
         title: scheduledNotificationData.title,
         body: scheduledNotificationData.body,
-        link: scheduledNotificationData.link||"",
+        link: scheduledNotificationData.link || "",
         sent: FieldValue.serverTimestamp(),
       });
 
