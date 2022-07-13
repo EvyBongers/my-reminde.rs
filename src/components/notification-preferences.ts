@@ -39,6 +39,13 @@ export class NotificationPreferences extends BunnyElement {
     notification-preference-item:last-child:after {
       display: none;
     }
+
+    mwc-fab {
+      --mdc-icon-size: 36px;
+      position: fixed;
+      right: 50px;
+      bottom: 50px;
+    }
   `;
 
   override render() {
@@ -49,6 +56,8 @@ export class NotificationPreferences extends BunnyElement {
         <notification-preference-item .item="${item}"></notification-preference-item>
       `, "Loading notifications...")}
       </div>
+
+      <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>
     `;
   }
 
@@ -57,7 +66,7 @@ export class NotificationPreferences extends BunnyElement {
     this.scheduledNotifications = loadCollection<{ test: number }>(`accounts/${this.accountId}/scheduledNotifications`);
   }
 
-  public async add() {
+  public async addNotification(e: Event) {
     let notification = document.createElement("notification-preference-item-edit");
     notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/scheduledNotifications`);
     this.shadowRoot.append(notification);

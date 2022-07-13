@@ -33,10 +33,6 @@ export class JDIApp extends LitElement {
       display: block;
       font-family: "Roboto";
     }
-
-    mwc-fab {
-      --mdc-icon-size: 36px;
-    }
   `;
 
   renderLoggedIn() {
@@ -53,8 +49,6 @@ export class JDIApp extends LitElement {
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
 
       <notification-preferences .accountId="${this.userId}"></notification-preferences>
-
-      <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>
     `;
   }
 
@@ -110,10 +104,6 @@ export class JDIApp extends LitElement {
       title: 'cakes',
       body: 'your a cute cupcake',
     });
-  }
-
-  private async addNotification(e: Event) {
-    await this.notifications.add();
   }
 }
 
