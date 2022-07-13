@@ -31,28 +31,28 @@ export interface AccountScheduledNotificationDocument {
 
 const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?: string) => Date } } = {
   // TODO write these
-  "hourly": {
-    calculateNextSend() {
-      let date = new Date();
-      date.setHours(date.getHours() + 1);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
-
-      return date;
-    },
-  },
-  "daily": {
-    calculateNextSend() {
-      let date = new Date();
-      date.setHours(date.getHours() + 24);
-      date.setMinutes(0);
-      date.setSeconds(0);
-      date.setMilliseconds(0);
-
-      return date;
-    },
-  },
+  // "hourly": {
+  //   calculateNextSend() {
+  //     let date = new Date();
+  //     date.setHours(date.getHours() + 1);
+  //     date.setMinutes(0);
+  //     date.setSeconds(0);
+  //     date.setMilliseconds(0);
+  //
+  //     return date;
+  //   },
+  // },
+  // "daily": {
+  //   calculateNextSend() {
+  //     let date = new Date();
+  //     date.setHours(date.getHours() + 24);
+  //     date.setMinutes(0);
+  //     date.setSeconds(0);
+  //     date.setMilliseconds(0);
+  //
+  //     return date;
+  //   },
+  // },
   "cron": {
     calculateNextSend(cronExpression?: string) {
       let options = {
@@ -95,16 +95,16 @@ export const sendNotifications = functions.region("europe-west1")
         webpush: {
           notification: {
             ..._notification,
-            actions: [
-              {
-                title: "OK",
-                action: "void()",
-              },
-              {
-                title: "Dismiss",
-                action: "void()",
-              },
-            ],
+            // actions: [
+            //   {
+            //     title: "OK",
+            //     action: "void()",
+            //   },
+            //   {
+            //     title: "Dismiss",
+            //     action: "void()",
+            //   },
+            // ],
             renotify: true,
             requireInteraction: true,
             tag: snapshot.id,
