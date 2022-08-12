@@ -29,39 +29,18 @@ export interface AccountScheduledNotificationDocument {
   [x: string]: any
 }
 
-const NOTIFICATION_TYPES: { [key: string]: { calculateNextSend: (cronExpression?: string) => Date } } = {
-  // TODO write these
-  // "hourly": {
-  //   calculateNextSend() {
-  //     let date = new Date();
-  //     date.setHours(date.getHours() + 1);
-  //     date.setMinutes(0);
-  //     date.setSeconds(0);
-  //     date.setMilliseconds(0);
-  //
-  //     return date;
-  //   },
-  // },
-  // "daily": {
-  //   calculateNextSend() {
-  //     let date = new Date();
-  //     date.setHours(date.getHours() + 24);
-  //     date.setMinutes(0);
-  //     date.setSeconds(0);
-  //     date.setMilliseconds(0);
-  //
-  //     return date;
-  //   },
-  // },
-  "cron": {
-    calculateNextSend(cronExpression?: string) {
-      let options = {
-        tz: "Europe/Amsterdam", // TODO(ebongers): use preference in user profile
-      };
-      let cron = parseExpression(cronExpression as string, options);
-      return cron.next().toDate();
-    },
-  },
+const calculateNextSend = (notificationType: string, cronExpression?: string) => {
+    switch (notificationType) {
+        case "cron": {
+            // TODO(ebongers): use preference in user profile
+            let options = {tz: "Europe/Amsterdam"};
+            let cron = parseExpression(cronExpression as string, options);
+            return cron.next().toDate();
+        }
+        default: {
+            return null;
+        }
+    }
 };
 
 const db = getFirestore();
@@ -92,7 +71,7 @@ export const updateNextSend = functions.region("europe-west1")
       switch (notificationData.type) {
         case "cron":
           if (notification.get("nextSend") === undefined || oldNotificationData.cronExpression != notificationData.cronExpression) {
-            let nextSend = NOTIFICATION_TYPES[notificationData.type].calculateNextSend(notificationData.cronExpression);
+            let nextSend = calculateNextSend(notificationData.type, notificationData.cronExpression);
             functions.logger.debug(`Updating timestamps on notification ${notification.ref.id}:`, {nextSend: nextSend});
             await notification.ref.update({nextSend: nextSend});
           }
@@ -176,7 +155,7 @@ export const runNotify = functions.region("europe-west1")
         sent: FieldValue.serverTimestamp(),
       });
 
-      let nextSend = NOTIFICATION_TYPES[scheduledNotificationData.type].calculateNextSend(scheduledNotificationData.cronExpression);
+      let nextSend = calculateNextSend(scheduledNotificationData.type, scheduledNotificationData.cronExpression);
       functions.logger.debug(`Updating timestamps on notification ${scheduledNotification.ref.id}:`, {nextSend: nextSend});
       await scheduledNotification.ref.update({lastSent: FieldValue.serverTimestamp(), nextSend: nextSend});
     }
