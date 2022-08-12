@@ -9,6 +9,7 @@ import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {AccountScheduledNotificationDocument} from "../../firebase/functions/src/index"
 import {deleteDocByRef} from "../db";
+import {calculateNextSend} from "../helpers/Scheduling";
 
 @customElement("notification-preference-item")
 export class NotificationPreferenceItem extends LitElement {
@@ -53,13 +54,15 @@ export class NotificationPreferenceItem extends LitElement {
       margin-block-end: 0.5em;
     }
 
+    .notification footer {
+      color: rgba(0, 0, 0, 0.54);
+      font-size: 0.875rem;
+      margin-bottom: 0;
+    }
+
     .notification mwc-icon-button, .notification mwc-icon-button-toggle {
       --mdc-icon-button-size: 30px;
       --mdc-icon-size: 18px;
-    }
-
-    .notification footer {
-      margin-bottom: 12px;
     }
 
     .notification aside {
@@ -71,12 +74,6 @@ export class NotificationPreferenceItem extends LitElement {
 
     .notification[collapsed] aside, .notification[collapsed] p {
       display: none;
-    }
-
-    .notification[collapsed] footer {
-      color: rgba(0, 0, 0, 0.54);
-      font-size: 0.875rem;
-      margin-bottom: 0;
     }
 
     #editing {
@@ -100,8 +97,11 @@ export class NotificationPreferenceItem extends LitElement {
     return html`
       <h4 id="title">${this.item.title}</h4>
       <p id="body">${this.item.body}</p>
+      <p id="schedule">
+        Cron schedule: <code>${this.item.cronExpression}</code>
+      </p>
       <footer>
-        Schedule: ${this.item.type === "cron" ? html`cron: <code>${this.item.cronExpression}</code>` : this.item.type}
+        Next notification: ${calculateNextSend(this.item.type, this.item.cronExpression).toLocaleString()}
       </footer>
     `;
   }

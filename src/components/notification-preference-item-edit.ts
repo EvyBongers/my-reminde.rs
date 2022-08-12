@@ -7,10 +7,10 @@ import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import "@material/mwc-ripple";
 import "@material/mwc-select";
-import {parseExpression} from "cron-parser-all";
 import {addDocByRef, setDocByRef} from "../db";
 import {NotificationPreferenceItem} from "./notification-preference-item";
 import "./notification-preference-item";
+import {calculateNextSend} from "../helpers/Scheduling";
 
 @customElement("notification-preference-item-edit")
 export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
@@ -72,9 +72,8 @@ export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
   private renderNextOccurrence(item: any) {
     try {
       console.log(`Calculating next occurrence for ${item.cronExpression}`);
-      let cron = parseExpression(item.cronExpression);
       return html`
-        <span>Next: ${cron.next().toString()}</span>
+        <span>Next: ${calculateNextSend(item.type, item.cronExpression).toLocaleString()}</span>
       `;
     } catch {
       return "";
