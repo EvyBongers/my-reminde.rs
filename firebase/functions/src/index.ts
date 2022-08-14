@@ -7,6 +7,7 @@ import {firestore} from "firebase-admin";
 import {parseExpression} from "cron-parser-all";
 
 initializeApp();
+const messaging = getMessaging();
 
 
 interface AccountDevice {
@@ -107,7 +108,7 @@ export const sendNotifications = functions.region("europe-west1")
         title: notificationData.title,
         body: notificationData.body,
       };
-      let batchResponse = await getMessaging().sendMulticast({
+      let batchResponse = await messaging.sendMulticast({
         "notification": _notification,
         "webpush": {
           "notification": {
