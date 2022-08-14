@@ -46,13 +46,23 @@ const calculateNextSend = (notificationType: string, cronExpression?: string) =>
 const db = getFirestore();
 
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
-  async (data, context) => {
-    let accounts = await db.collection("accounts").get();
-    for (let account of accounts.docs) {
-      await account.ref.collection("notifications").add(data);
-    }
+  async (path: string, context) => {
+    let notificationDocumentRef = await db.doc(path);
+    let notificationDocument = await notificationDocumentRef.get();
+    await triggerNotification(notificationDocumentRef, notificationDocument.data() as AccountScheduledNotificationDocument);
   },
 );
+
+const triggerNotification = async (ref: firestore.DocumentReference, data: AccountScheduledNotificationDocument) => {
+  let accountRef = ref.parent.parent as firestore.DocumentReference;
+  await accountRef.collection("notifications").add({
+    notification: ref,
+    title: data.title,
+    body: data.body,
+    link: data.link || "",
+    sent: FieldValue.serverTimestamp(),
+  });
+};
 
 let getPushTokens = (account: AccountDocument) => {
   return Object.entries(account.devices).map(_ => _[1].token);
@@ -145,17 +155,11 @@ export const runNotify = functions.region("europe-west1")
 
     for (let scheduledNotification of scheduledNotifications.docs) {
       let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
-      functions.logger.info("creating", scheduledNotificationData);
-      let accountRef = scheduledNotification.ref.parent.parent as firestore.DocumentReference;
-      await accountRef.collection("notifications").add({
-        notification: scheduledNotification.ref,
-        title: scheduledNotificationData.title,
-        body: scheduledNotificationData.body,
-        link: scheduledNotificationData.link || "",
-        sent: FieldValue.serverTimestamp(),
-      });
-
       let nextSend = calculateNextSend(scheduledNotificationData.type, scheduledNotificationData.cronExpression);
+
+      functions.logger.info("creating", scheduledNotificationData);
+      await triggerNotification(scheduledNotification.ref, scheduledNotificationData);
+
       functions.logger.debug(`Updating timestamps on notification ${scheduledNotification.ref.id}:`, {nextSend: nextSend});
       await scheduledNotification.ref.update({lastSent: FieldValue.serverTimestamp(), nextSend: nextSend});
     }

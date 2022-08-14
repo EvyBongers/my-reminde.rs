@@ -26,7 +26,7 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @query('notification-preferences')
-  private notifications: NotificationPreferences;
+  private notificationPreferences: NotificationPreferences;
 
   static override styles = css`
     :host {
@@ -100,10 +100,11 @@ export class JDIApp extends LitElement {
   }
 
   private async sendNotification(e: Event) {
-    await doSendNotifications({
-      title: 'cakes',
-      body: 'your a cute cupcake',
-    });
+    // TODO(ebongers): select notification to schedule
+    let scheduledNotifications = [...this.notificationPreferences.notifications.values()].map(_=>_.item);
+    let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random()*scheduledNotifications.length)];
+
+    await doSendNotifications(selectedNotification._ref._key.path.toString());
   }
 }
 

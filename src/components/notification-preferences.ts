@@ -1,15 +1,31 @@
 import {css, html} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import {customElement, property, queryAll} from "lit/decorators.js";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
 import "./notification-preference-item";
 import "./notification-preference-item-edit";
+import {query} from "lit/decorators";
+import {NotificationPreferenceItem} from "./notification-preference-item";
+
+export interface ScheduledNotificationDocument {
+  title: string;
+  body: string;
+  nextSend: any;
+  lastSent: any;
+  type: string;
+  cronExpression?: string;
+
+  [key: string]: any
+}
 
 @customElement("notification-preferences")
 export class NotificationPreferences extends BunnyElement {
   @property()
-  scheduledNotifications: DataCollectionSupplier<{ test: number }>;
+  scheduledNotifications: DataCollectionSupplier<ScheduledNotificationDocument>;
+
+  @queryAll('notification-preference-item')
+  notifications: NodeListOf<NotificationPreferenceItem>;
 
   @property({type: String})
   accountId: string;
@@ -63,7 +79,7 @@ export class NotificationPreferences extends BunnyElement {
 
   @observe("accountId")
   accountChanged(accountId: string) {
-    this.scheduledNotifications = loadCollection<{ test: number }>(`accounts/${this.accountId}/scheduledNotifications`);
+    this.scheduledNotifications = loadCollection<ScheduledNotificationDocument>(`accounts/${this.accountId}/scheduledNotifications`);
   }
 
   public async addNotification(e: Event) {
