@@ -49,8 +49,9 @@ const db = getFirestore();
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
   async (path: string, context) => {
     let notificationDocumentRef = await db.doc(path);
-    let notificationDocument = await notificationDocumentRef.get();
-    await triggerNotification(notificationDocumentRef, notificationDocument.data() as AccountScheduledNotificationDocument);
+    let notificationDocumentData = (await notificationDocumentRef.get()).data() as AccountScheduledNotificationDocument;
+    notificationDocumentData.title = `[forced] ${notificationDocumentData.title}`;
+    await triggerNotification(notificationDocumentRef, notificationDocumentData);
   },
 );
 
