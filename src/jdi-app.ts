@@ -12,6 +12,7 @@ import './components/jdi-devices';
 import './components/notification-preferences';
 import {query} from "lit/decorators.js";
 import {NotificationPreferences} from "./components/notification-preferences";
+import {showMessage} from "./helpers/Snacks";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -104,6 +105,7 @@ export class JDIApp extends LitElement {
     let scheduledNotifications = [...this.notificationPreferences.notifications.values()].map(_=>_.item);
     let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random()*scheduledNotifications.length)];
 
+    showMessage(`Sending notification ${selectedNotification.title}`, {timeoutMs: 7500});
     await doSendNotifications(selectedNotification._ref._key.path.toString());
   }
 }
