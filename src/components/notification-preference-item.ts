@@ -8,7 +8,7 @@ import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {AccountScheduledNotificationDocument} from "../../firebase/functions/src/index"
-import {deleteDocByRef} from "../db";
+import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
 
 @customElement("notification-preference-item")
@@ -112,7 +112,8 @@ export class NotificationPreferenceItem extends LitElement {
         <mwc-icon-button outlined icon="edit" @click="${this.edit}"></mwc-icon-button>
         <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
         <mwc-icon-button-toggle outlined onIcon="notifications_active" offIcon="notifications_off"
-                                on></mwc-icon-button-toggle>
+                                ?on="${this.item.enabled === true}"
+                                @click="${this.toggleActive}"></mwc-icon-button-toggle>
       </aside>
     `
   }
@@ -128,8 +129,6 @@ export class NotificationPreferenceItem extends LitElement {
       </div>
     `
   }
-
-  // TODO(ebongers): Implement option to mute/pause notifications
 
   delete(e: Event) {
     e.stopPropagation();
@@ -147,6 +146,13 @@ export class NotificationPreferenceItem extends LitElement {
     notification.item = structuredClone(this.item);
     notification.documentRef = this.item._ref;
     this.shadowRoot.append(notification);
+  }
+
+  toggleActive(e: Event) {
+    e.stopPropagation();
+    (e.target as HTMLElement).blur()
+    this.item.enabled = !this.item.enabled;
+    setDocByRef(this.item._ref, this.item, {merge: true});
   }
 }
 

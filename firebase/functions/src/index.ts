@@ -25,6 +25,7 @@ export interface AccountScheduledNotificationDocument {
   nextSend: any;
   lastSent: any;
   type: string;
+  enabled?: boolean;
   cronExpression?: string;
 
   [x: string]: any
@@ -153,6 +154,7 @@ export const runNotify = functions.region("europe-west1")
   .onRun(async _context => {
     let scheduledNotifications = await db.collectionGroup("scheduledNotifications")
       .where("nextSend", "<=", new Date())
+      .where("enabled", "==", true)
       .get();
 
     for (let scheduledNotification of scheduledNotifications.docs) {

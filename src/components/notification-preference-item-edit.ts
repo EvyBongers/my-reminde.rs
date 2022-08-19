@@ -84,6 +84,7 @@ export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
     if (this.documentRef) {
       setDocByRef(this.documentRef, this.item, {merge: true});
     } else {
+      this.item.enabled = true;
       addDocByRef(this.collectionRef, this.item);
     }
     // TODO(ebongers): Remove this component from DOM
