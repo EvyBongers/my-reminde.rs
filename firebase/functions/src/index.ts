@@ -31,15 +31,16 @@ export interface AccountScheduledNotificationDocument {
   [x: string]: any
 }
 
-const calculateNextSend = (notificationType: string, cronExpression?: string) => {
-    switch (notificationType) {
+const calculateNextSend = (notification: AccountScheduledNotificationDocument) => {
+    switch (notification.type) {
         case "cron": {
             // TODO(ebongers): use preference in user profile
             let options = {tz: "Europe/Amsterdam"};
-            let cron = parseExpression(cronExpression as string, options);
+            let cron = parseExpression(notification.cronExpression as string, options);
             return cron.next().toDate();
         }
         default: {
+            functions.logger.error(`Unknown notification type ${notification.type} on document ${notification.ref}`);
             return null;
         }
     }
@@ -80,19 +81,14 @@ export const updateNextSend = functions.region("europe-west1")
     let notification = change.after;
     let notificationData = notification.data() as AccountScheduledNotificationDocument;
 
+    if (notificationData.enabled === false) return;
+
     try {
-      switch (notificationData.type) {
-        case "cron":
-          if (notification.get("nextSend") === undefined || oldNotificationData.cronExpression != notificationData.cronExpression) {
-            let nextSend = calculateNextSend(notificationData.type, notificationData.cronExpression);
+          let nextSend = calculateNextSend(notificationData);
+          if (nextSend != oldNotificationData.nextSend) {
             functions.logger.debug(`Updating timestamps on notification ${notification.ref.id}:`, {nextSend: nextSend});
             await notification.ref.update({nextSend: nextSend});
           }
-          break;
-        default:
-          functions.logger.error(`Unknown notification type ${notificationData.type} on document ${notification.ref}`);
-          break;
-      }
     } catch (e) {
       functions.logger.error(`Failed to update nextSend on document ${notification.ref}`);
       functions.logger.error((e as Error).message);
@@ -159,7 +155,7 @@ export const runNotify = functions.region("europe-west1")
 
     for (let scheduledNotification of scheduledNotifications.docs) {
       let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
-      let nextSend = calculateNextSend(scheduledNotificationData.type, scheduledNotificationData.cronExpression);
+      let nextSend = calculateNextSend(scheduledNotificationData);
 
       functions.logger.info("creating", scheduledNotificationData);
       await triggerNotification(scheduledNotification.ref, scheduledNotificationData);
