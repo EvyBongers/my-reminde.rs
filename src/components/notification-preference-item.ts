@@ -101,7 +101,11 @@ export class NotificationPreferenceItem extends LitElement {
         Cron schedule: <code>${this.item.cronExpression}</code>
       </p>
       <footer>
-        Next notification: ${calculateNextSend(this.item.type, this.item.cronExpression).toLocaleString()}
+        ${this.item.enabled ? html`
+          Next notification: ${calculateNextSend(this.item.type, this.item.cronExpression).toLocaleString()}
+        ` : html`
+          (disabled)
+        `}
       </footer>
     `;
   }
@@ -152,6 +156,7 @@ export class NotificationPreferenceItem extends LitElement {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
     this.item.enabled = !this.item.enabled;
+    this.item.nextSend = null;
     setDocByRef(this.item._ref, this.item, {merge: true});
   }
 }
