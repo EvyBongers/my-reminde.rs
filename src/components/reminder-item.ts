@@ -10,12 +10,10 @@ import "@material/mwc-icon-button-toggle";
 import {ReminderDocument} from "../../firebase/functions/src/index"
 import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
+import {ReminderBase} from "./reminder-base";
 
 @customElement("reminder-item")
-export class ReminderItem extends LitElement {
-
-  @property()
-  item: Partial<ReminderDocument> = {};
+export class ReminderItem extends ReminderBase {
 
   @property({type: Boolean})
   protected collapsed: boolean = true;
@@ -30,10 +28,6 @@ export class ReminderItem extends LitElement {
       flex-direction: row;
       padding: 0 16px;
       position: relative;
-    }
-
-    reminder-edit {
-      position: absolute;
     }
 
     .buttons {
@@ -74,14 +68,6 @@ export class ReminderItem extends LitElement {
 
     .notification[collapsed] aside, .notification[collapsed] p {
       display: none;
-    }
-
-    #editing {
-      --mdc-dialog-min-width: 300px;
-    }
-
-    #editing mwc-textfield, #editing mwc-select {
-      display: block;
     }
   `;
 
