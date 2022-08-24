@@ -8,12 +8,13 @@ import "@material/mwc-icon-button-toggle";
 import "@material/mwc-ripple";
 import "@material/mwc-select";
 import {addDocByRef, setDocByRef} from "../db";
-import {NotificationPreferenceItem} from "./notification-preference-item";
-import "./notification-preference-item";
+import {ReminderItem} from "./reminder-item";
+import "./reminder-item";
 import {calculateNextSend} from "../helpers/Scheduling";
+import {ReminderDocument} from "../../firebase/functions/src";
 
-@customElement("notification-preference-item-edit")
-export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
+@customElement("reminder-edit")
+export class ReminderEdit extends ReminderItem {
 
   @property()
   documentRef: any;
@@ -69,11 +70,11 @@ export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
     `;
   }
 
-  private renderNextOccurrence(item: any) {
+  private renderNextOccurrence(item: ReminderDocument) {
     try {
       console.log(`Calculating next occurrence for ${item.cronExpression}`);
       return html`
-        <span>Next: ${calculateNextSend(item.type, item.cronExpression).toLocaleString()}</span>
+        <span>Next: ${calculateNextSend(item).toLocaleString()}</span>
       `;
     } catch {
       return "";
@@ -97,6 +98,6 @@ export class NotificationPreferenceItemEdit extends NotificationPreferenceItem {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "notification-preference-item-edit": NotificationPreferenceItemEdit;
+    "reminder-edit": ReminderEdit;
   }
 }

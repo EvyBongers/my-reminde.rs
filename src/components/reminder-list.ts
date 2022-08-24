@@ -3,29 +3,19 @@ import {customElement, property, queryAll} from "lit/decorators.js";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
-import "./notification-preference-item";
-import "./notification-preference-item-edit";
+import "./reminder-item";
+import "./reminder-edit";
 import {query} from "lit/decorators";
-import {NotificationPreferenceItem} from "./notification-preference-item";
+import {ReminderItem} from "./reminder-item";
+import {ReminderDocument} from "../../firebase/functions/src/index"
 
-export interface ScheduledNotificationDocument {
-  title: string;
-  body: string;
-  nextSend: any;
-  lastSent: any;
-  type: string;
-  cronExpression?: string;
-
-  [key: string]: any
-}
-
-@customElement("notification-preferences")
-export class NotificationPreferences extends BunnyElement {
+@customElement("reminder-list")
+export class ReminderList extends BunnyElement {
   @property()
-  scheduledNotifications: DataCollectionSupplier<ScheduledNotificationDocument>;
+  scheduledNotifications: DataCollectionSupplier<ReminderDocument>;
 
-  @queryAll('notification-preference-item')
-  notifications: NodeListOf<NotificationPreferenceItem>;
+  @queryAll('reminder-item')
+  notifications: NodeListOf<ReminderItem>;
 
   @property({type: String})
   accountId: string;
@@ -41,7 +31,7 @@ export class NotificationPreferences extends BunnyElement {
       flex-direction: column;
     }
 
-    notification-preference-item:after {
+    reminder-item:after {
       border-bottom: 1px solid #d3d3d3;
       content: "";
       display: block;
@@ -52,7 +42,7 @@ export class NotificationPreferences extends BunnyElement {
       bottom: 0;
     }
 
-    notification-preference-item:last-child:after {
+    reminder-item:last-child:after {
       display: none;
     }
 
@@ -69,7 +59,7 @@ export class NotificationPreferences extends BunnyElement {
       <h3>Scheduled notifications</h3>
       <div class="notifications-container">
         ${renderItems(this.scheduledNotifications, (item, index) => html`
-        <notification-preference-item .item="${item}"></notification-preference-item>
+        <reminder-item .item="${item}"></reminder-item>
       `, "Loading notifications...")}
       </div>
 
@@ -79,11 +69,11 @@ export class NotificationPreferences extends BunnyElement {
 
   @observe("accountId")
   accountChanged(accountId: string) {
-    this.scheduledNotifications = loadCollection<ScheduledNotificationDocument>(`accounts/${this.accountId}/scheduledNotifications`);
+    this.scheduledNotifications = loadCollection<ReminderDocument>(`accounts/${this.accountId}/scheduledNotifications`);
   }
 
   public async addNotification(e: Event) {
-    let notification = document.createElement("notification-preference-item-edit");
+    let notification = document.createElement("reminder-edit");
     notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/scheduledNotifications`);
     this.shadowRoot.append(notification);
   }
@@ -91,6 +81,6 @@ export class NotificationPreferences extends BunnyElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "notification-preferences": NotificationPreferences;
+    "reminder-list": ReminderList;
   }
 }

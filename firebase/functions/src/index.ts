@@ -18,11 +18,11 @@ interface AccountDocument {
   devices: { [key: string]: AccountDevice };
 }
 
-export interface AccountScheduledNotificationDocument {
+export interface ReminderDocument {
   title: string;
   body: string;
-  nextSend: any;
-  lastSent: any;
+  nextSend?: any;
+  lastSent?: any;
   type: string;
   enabled?: boolean;
   cronExpression?: string;
@@ -30,7 +30,7 @@ export interface AccountScheduledNotificationDocument {
   [x: string]: any
 }
 
-const calculateNextSend = (notification: AccountScheduledNotificationDocument) => {
+const calculateNextSend = (notification: ReminderDocument) => {
   switch (notification.type) {
     case "cron": {
       // TODO(ebongers): use preference in user profile
@@ -50,13 +50,13 @@ const db = getFirestore();
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
   async (path: string, context) => {
     let notificationDocumentRef = await db.doc(path);
-    let notificationDocumentData = (await notificationDocumentRef.get()).data() as AccountScheduledNotificationDocument;
+    let notificationDocumentData = (await notificationDocumentRef.get()).data() as ReminderDocument;
     notificationDocumentData.title = `[forced] ${notificationDocumentData.title}`;
     await triggerNotification(notificationDocumentRef, notificationDocumentData);
   },
 );
 
-const triggerNotification = async (ref: firestore.DocumentReference, data: AccountScheduledNotificationDocument) => {
+const triggerNotification = async (ref: firestore.DocumentReference, data: ReminderDocument) => {
   let accountRef = ref.parent.parent as firestore.DocumentReference;
   await accountRef.collection("notifications").add({
     notification: ref,
@@ -75,10 +75,10 @@ export const updateNextSend = functions.region("europe-west1")
 .firestore.document("/accounts/{accountId}/scheduledNotifications/{notificationId}")
 .onWrite(async (change, context) => {
   let oldNotification = change.before;
-  let oldNotificationData = oldNotification.data() as AccountScheduledNotificationDocument;
+  let oldNotificationData = oldNotification.data() as ReminderDocument;
 
   let notification = change.after;
-  let notificationData = notification.data() as AccountScheduledNotificationDocument;
+  let notificationData = notification.data() as ReminderDocument;
 
   if (notificationData.enabled === false) return;
 
@@ -152,7 +152,7 @@ export const runNotify = functions.region("europe-west1")
   .get();
 
   for (let scheduledNotification of scheduledNotifications.docs) {
-    let scheduledNotificationData = scheduledNotification.data() as AccountScheduledNotificationDocument;
+    let scheduledNotificationData = scheduledNotification.data() as ReminderDocument;
     let nextSend = calculateNextSend(scheduledNotificationData);
 
     functions.logger.info("creating", scheduledNotificationData);

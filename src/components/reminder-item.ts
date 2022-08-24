@@ -7,15 +7,15 @@ import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
-import {AccountScheduledNotificationDocument} from "../../firebase/functions/src/index"
+import {ReminderDocument} from "../../firebase/functions/src/index"
 import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
 
-@customElement("notification-preference-item")
-export class NotificationPreferenceItem extends LitElement {
+@customElement("reminder-item")
+export class ReminderItem extends LitElement {
 
   @property()
-  item: Partial<AccountScheduledNotificationDocument> = {};
+  item: Partial<ReminderDocument> = {};
 
   @property({type: Boolean})
   protected collapsed: boolean = true;
@@ -32,7 +32,7 @@ export class NotificationPreferenceItem extends LitElement {
       position: relative;
     }
 
-    notification-preference-item-edit {
+    reminder-edit {
       position: absolute;
     }
 
@@ -146,7 +146,7 @@ export class NotificationPreferenceItem extends LitElement {
   edit(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
-    let notification = document.createElement("notification-preference-item-edit");
+    let notification = document.createElement("reminder-edit");
     notification.item = structuredClone(this.item);
     notification.documentRef = this.item._ref;
     this.shadowRoot.append(notification);
@@ -163,6 +163,6 @@ export class NotificationPreferenceItem extends LitElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "notification-preference-item": NotificationPreferenceItem;
+    "reminder-item": ReminderItem;
   }
 }

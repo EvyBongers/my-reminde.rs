@@ -9,9 +9,9 @@ import "@material/mwc-fab";
 import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
-import './components/notification-preferences';
+import './components/reminder-list';
 import {query} from "lit/decorators.js";
-import {NotificationPreferences} from "./components/notification-preferences";
+import {ReminderList} from "./components/reminder-list";
 import {showMessage} from "./helpers/Snacks";
 
 @customElement("jdi-app")
@@ -27,7 +27,7 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @query('notification-preferences')
-  private notificationPreferences: NotificationPreferences;
+  private notificationPreferences: ReminderList;
 
   static override styles = css`
     :host {
@@ -49,7 +49,7 @@ export class JDIApp extends LitElement {
       <br>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
 
-      <notification-preferences .accountId="${this.userId}"></notification-preferences>
+      <reminder-list .accountId="${this.userId}"></reminder-list>
     `;
   }
 
