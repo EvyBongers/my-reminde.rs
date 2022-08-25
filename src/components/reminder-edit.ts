@@ -65,7 +65,10 @@ export class ReminderEdit extends ReminderBase {
                          .value="${this.item?.body ?? ""}"></mwc-textfield>
           <br>
           <mwc-select name="type" icon="event" required
-                      @selected="${(_: Event) => { this.item.type = (_.currentTarget as HTMLSelectElement).value; this.requestUpdate(this.item.type, "")}}"
+                      @selected="${(_: Event) => {
+                        this.item.type = (_.currentTarget as HTMLSelectElement).value;
+                        this.requestUpdate(this.item.type, "")
+                      }}"
                       .value="${this.item?.type ?? ""}">
             <mwc-list-item graphic="icon" value="cron">Cron schedule</mwc-list-item>
           </mwc-select>

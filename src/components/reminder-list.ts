@@ -5,7 +5,6 @@ import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
 import "./reminder-item";
 import "./reminder-edit";
-import {query} from "lit/decorators";
 import {ReminderItem} from "./reminder-item";
 import {ReminderDocument} from "../../firebase/functions/src/index"
 
@@ -59,8 +58,8 @@ export class ReminderList extends BunnyElement {
       <h3>Scheduled notifications</h3>
       <div class="notifications-container">
         ${renderItems(this.scheduledNotifications, (item, index) => html`
-        <reminder-item .item="${item}"></reminder-item>
-      `, "Loading notifications...")}
+          <reminder-item .item="${item}"></reminder-item>
+        `, "Loading notifications...")}
       </div>
 
       <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>
