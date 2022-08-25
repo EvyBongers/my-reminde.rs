@@ -37,13 +37,8 @@ export class ReminderItem extends ReminderBase {
       padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
     }
 
-    div {
-      position: relative;
-    }
-
-    .buttons {
-      --mdc-icon-button-size: 40px;
-      margin: 8px;
+    .actions, .state {
+      display: flex;
     }
 
     .notification {
@@ -89,7 +84,7 @@ export class ReminderItem extends ReminderBase {
 
   private renderState() {
     return html`
-      <div class="buttons">
+      <div class="state">
         <mwc-icon>${this.item.enabled ? "notifications_active" : "notifications_off"}</mwc-icon>
       </div>
     `;
@@ -109,7 +104,7 @@ export class ReminderItem extends ReminderBase {
         `}
         <footer>
           ${!this.item.enabled ? html`(disabled)` : html`
-            Next notification: ${calculateNextSend(this.item).toLocaleString()}
+            Next: ${calculateNextSend(this.item).toLocaleString()}
           `}
         </footer>
       </div>
