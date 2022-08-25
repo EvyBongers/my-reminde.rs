@@ -8,6 +8,8 @@ import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
+import {RippleHandlers} from "@material/mwc-ripple/ripple-handlers";
+import {Ripple} from "@material/mwc-ripple";
 import {Menu} from "@material/mwc-menu";
 import {ReminderBase} from "./reminder-base";
 import "./menu-button";
@@ -23,6 +25,13 @@ export class ReminderItem extends ReminderBase {
 
   @query("mwc-menu")
   private menu: Menu;
+
+  @queryAsync('mwc-ripple')
+  private ripple!: Promise<Ripple | null>;
+
+  protected rippleHandlers: RippleHandlers = new RippleHandlers(() => {
+    return this.ripple;
+  });
 
   static override styles = css`
     :host {
