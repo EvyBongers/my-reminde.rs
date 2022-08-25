@@ -1,40 +1,53 @@
-import {css, html, LitElement} from "lit";
-import {customElement, property, queryAll} from "lit/decorators.js";
+import {css, html} from "lit";
+import {customElement, property, query, queryAsync} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
-import {IconButtonToggle} from "@material/mwc-icon-button-toggle";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
-import {ReminderDocument} from "../../firebase/functions/src/index"
 import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
+import {Menu} from "@material/mwc-menu";
 import {ReminderBase} from "./reminder-base";
 
 @customElement("reminder-item")
 export class ReminderItem extends ReminderBase {
 
   @property({type: Boolean})
-  protected collapsed: boolean = true;
+  protected expanded: boolean = false;
 
-  @queryAll("mwc-icon-button, mwc-icon-button-toggle")
-  private editButtons!: NodeListOf<IconButton | IconButtonToggle>;
+  @query("mwc-icon-button")
+  private menuButton: IconButton;
+
+  @query("mwc-menu")
+  private menu: Menu;
 
   static override styles = css`
     :host {
       cursor: pointer;
       display: flex;
       flex-direction: row;
-      padding: 0 16px;
+      position: relative;
+    }
+
+    mwc-icon {
+      width: var(--mdc-icon-size, 24px);
+      height: var(--mdc-icon-size, 24px);
+      padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
+    }
+
+    div {
       position: relative;
     }
 
     .buttons {
-      margin: 12px 0 12px auto;
+      --mdc-icon-button-size: 40px;
+      margin: 8px;
     }
 
     .notification {
+      margin-right: auto;
       margin-top: 12px;
     }
 
@@ -53,71 +66,92 @@ export class ReminderItem extends ReminderBase {
       font-size: 0.875rem;
       margin-bottom: 0;
     }
-
-    .notification mwc-icon-button, .notification mwc-icon-button-toggle {
-      --mdc-icon-button-size: 30px;
-      --mdc-icon-size: 18px;
-    }
-
-    .notification aside {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      margin: 6px 12px;
-    }
-
-    .notification[collapsed] aside, .notification[collapsed] p {
-      display: none;
-    }
   `;
 
-  connectedCallback() {
-    super.connectedCallback();
-
+  async firstUpdated() {
+    // Give the browser a chance to paint
+    await new Promise((r) => setTimeout(r, 0));
     this.addEventListener('click', _ => {
-      this.collapsed = !this.collapsed;
+      this.expanded = !this.expanded;
     });
+
+    this.menu.anchor = this.menuButton;
+    this.menuButton.addEventListener("click", _ => {
+      this.menu.show();
+    })
   }
 
-  private renderPreview() {
+  private renderRipple() {
     return html`
-      <h4 id="title">${this.item.title}</h4>
-      <p id="body">${this.item.body}</p>
-      <p id="schedule">
-        Cron schedule: <code>${this.item.cronExpression}</code>
-      </p>
-      <footer>
-        ${this.item.enabled ? html`
-          Next notification: ${calculateNextSend(this.item.type, this.item.cronExpression).toLocaleString()}
-        ` : html`
-          (disabled)
-        `}
-      </footer>
+      <mwc-ripple></mwc-ripple>
     `;
   }
 
-  private renderButtons() {
+  private renderState() {
     return html`
-      <aside>
-        <mwc-icon-button outlined icon="edit" @click="${this.edit}"></mwc-icon-button>
-        <mwc-icon-button outlined icon="delete" @click="${this.delete}"></mwc-icon-button>
-        <mwc-icon-button-toggle outlined onIcon="notifications_active" offIcon="notifications_off"
-                                ?on="${this.item.enabled === true}"
-                                @click="${this.toggleActive}"></mwc-icon-button-toggle>
-      </aside>
-    `
+      <div class="buttons">
+        <mwc-icon>${this.item.enabled ? "notifications_active" : "notifications_off"}</mwc-icon>
+      </div>
+    `;
+  }
+
+  private renderContent() {
+    return html`
+      <div class="notification">
+        <header>
+          <h4 id="title">${this.item.title}</h4>
+        </header>
+        ${!this.expanded ? html`` : html`
+          <main>
+            <p id="body">${this.item.body}</p>
+            <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
+          </main>
+        `}
+        <footer>
+          ${!this.item.enabled ? html`(disabled)` : html`
+            Next notification: ${calculateNextSend(this.item).toLocaleString()}
+          `}
+        </footer>
+      </div>
+    `;
+  }
+
+  private renderActions() {
+    return html`
+      <div class="actions">
+        <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
+        <mwc-icon-button raised icon="more_vert" @click="${this.showMenu}"></mwc-icon-button>
+        <mwc-menu corner="BOTTOM_END" menuCorner="END">
+          <mwc-list-item graphic="icon" @click="${this.toggleActive}">
+            <mwc-icon slot="graphic">${this.item.enabled ? "notifications_off" : "notifications_active"}</mwc-icon>
+            <span>${this.item.enabled ? "Disable" : "Enable"}</span>
+          </mwc-list-item>
+          <mwc-list-item graphic="icon" @click="${this.edit}">
+            <mwc-icon slot="graphic">edit</mwc-icon>
+            <span>Edit</span>
+          </mwc-list-item>
+          <mwc-list-item graphic="icon" @click="${this.delete}">
+            <mwc-icon slot="graphic">delete</mwc-icon>
+            <span>Delete</span>
+          </mwc-list-item>
+        </mwc-menu>
+      </div>
+    `;
   }
 
   override render() {
     return html`
-      <div class="notification" ?collapsed="${this.collapsed}">
-        ${this.renderPreview()}
-        ${this.renderButtons()}
-      </div>
-      <div class="buttons">
-        <mwc-icon>${this.collapsed ? "expand_more" : "expand_less"}</mwc-icon>
-      </div>
-    `
+      ${this.renderRipple()}
+      ${this.renderState()}
+      ${this.renderContent()}
+      ${this.renderActions()}
+    `;
+  }
+
+  showMenu(e: Event) {
+    e.stopPropagation();
+    (e.target as HTMLElement).blur()
+    this.menu.show();
   }
 
   delete(e: Event) {

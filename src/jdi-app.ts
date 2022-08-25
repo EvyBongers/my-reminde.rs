@@ -33,6 +33,12 @@ export class JDIApp extends LitElement {
     :host {
       display: block;
       font-family: "Roboto";
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      right: 0;
+      padding: 0 6pt;
     }
   `;
 

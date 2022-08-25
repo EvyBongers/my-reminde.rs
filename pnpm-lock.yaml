@@ -7,6 +7,7 @@ specifiers:
   '@material/mwc-icon': ^0.27.0
   '@material/mwc-icon-button': ^0.27.0
   '@material/mwc-icon-button-toggle': ^0.27.0
+  '@material/mwc-menu': ^0.27.0
   '@material/mwc-ripple': ^0.27.0
   '@material/mwc-select': ^0.27.0
   '@material/mwc-snackbar': ^0.27.0
@@ -30,6 +31,7 @@ dependencies:
   '@material/mwc-icon': 0.27.0
   '@material/mwc-icon-button': 0.27.0
   '@material/mwc-icon-button-toggle': 0.27.0
+  '@material/mwc-menu': 0.27.0
   '@material/mwc-ripple': 0.27.0
   '@material/mwc-select': 0.27.0
   '@material/mwc-snackbar': 0.27.0
