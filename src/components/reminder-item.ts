@@ -10,6 +10,7 @@ import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
 import {Menu} from "@material/mwc-menu";
 import {ReminderBase} from "./reminder-base";
+import "./menu-button";
 
 @customElement("reminder-item")
 export class ReminderItem extends ReminderBase {
@@ -69,11 +70,6 @@ export class ReminderItem extends ReminderBase {
     this.addEventListener('click', _ => {
       this.expanded = !this.expanded;
     });
-
-    this.menu.anchor = this.menuButton;
-    this.menuButton.addEventListener("click", _ => {
-      this.menu.show();
-    })
   }
 
   private renderRipple() {
@@ -115,8 +111,7 @@ export class ReminderItem extends ReminderBase {
     return html`
       <div class="actions">
         <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
-        <mwc-icon-button raised icon="more_vert" @click="${this.showMenu}"></mwc-icon-button>
-        <mwc-menu corner="BOTTOM_END" menuCorner="END">
+        <menu-button>
           <mwc-list-item graphic="icon" @click="${this.toggleActive}">
             <mwc-icon slot="graphic">${this.item.enabled ? "notifications_off" : "notifications_active"}</mwc-icon>
             <span>${this.item.enabled ? "Disable" : "Enable"}</span>
@@ -129,7 +124,7 @@ export class ReminderItem extends ReminderBase {
             <mwc-icon slot="graphic">delete</mwc-icon>
             <span>Delete</span>
           </mwc-list-item>
-        </mwc-menu>
+        </menu-button>
       </div>
     `;
   }
@@ -141,12 +136,6 @@ export class ReminderItem extends ReminderBase {
       ${this.renderContent()}
       ${this.renderActions()}
     `;
-  }
-
-  showMenu(e: Event) {
-    e.stopPropagation();
-    (e.target as HTMLElement).blur()
-    this.menu.show();
   }
 
   delete(e: Event) {
