@@ -100,35 +100,37 @@ export const sendNotifications = functions.region("europe-west1")
   let accounts = await db.collection("accounts").get();
   for (let account of accounts.docs) {
     let accountData = account.data() as AccountDocument;
-    let _notification = {
-      title: notificationData.title,
-      body: notificationData.body,
-    };
     let batchResponse = await messaging.sendMulticast({
-      "notification": _notification,
-      "webpush": {
-        "notification": {
-          ..._notification,
-          // "actions": [
+      webpush: {
+        headers: {
+          Prefer: "respond-async",
+          TTL: "-1",
+          Urgency: "high",
+          Topic: notificationData.notificationId,
+        },
+        notification: {
+          // actions: [
           //   {
-          //     "title": "OK",
-          //     "action": "void()",
+          //     title: "OK",
+          //     action: "void()",
           //   },
           //   {
-          //     "title": "Dismiss",
-          //     "action": "void()",
+          //     title: "Dismiss",
+          //     action: "void()",
           //   },
           // ],
-          "renotify": true,
-          "requireInteraction": true,
-          "tag": snapshot.id,
-          "timestamp": (notificationData.sent as Timestamp).toMillis(),
+          body: notificationData.body,
+          renotify: true,
+          requireInteraction: true,
+          tag: snapshot.id,
+          timestamp: (notificationData.sent as Timestamp).toMillis(),
+          title: notificationData.title,
         },
-        // "fcmOptions": notificationData.link ? {
-        //   "link": notificationData.link,
-        // } : {},
+        // fcmOptions: notificationData.link ? {
+        //   link: notificationData.link,
+        // } : undefined,
       },
-      "tokens": getPushTokens(accountData),
+      tokens: getPushTokens(accountData),
     });
     functions.logger.info(batchResponse.successCount + " messages were sent successfully");
     if (batchResponse.failureCount > 0) {
