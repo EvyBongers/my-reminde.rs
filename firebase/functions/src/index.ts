@@ -113,8 +113,8 @@ export const sendNotifications = functions.region("europe-west1")
     let batchResponse = await messaging.sendMulticast({
       webpush: {
         headers: {
-          Prefer: "respond-async",
-          TTL: "-1",
+          // Prefer: "respond-async",
+          // TTL: "-1",
           Urgency: "high",
           Topic: notificationData.scheduledNotificationRef.id,
         },
