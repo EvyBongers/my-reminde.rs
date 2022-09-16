@@ -81,13 +81,14 @@ let getPushTokens = (account: AccountDocument) => {
 export const updateNextSend = functions.region("europe-west1")
 .firestore.document("/accounts/{accountId}/scheduledNotifications/{notificationId}")
 .onWrite(async (change, context) => {
-  let oldNotification = change.before;
-  let oldNotificationData = oldNotification.data() as ReminderDocument;
+  if (context.eventType == "google.firestore.document.delete") return;
 
   let notification = change.after;
   let notificationData = notification.data() as ReminderDocument;
-
   if (notificationData.enabled === false) return;
+
+  let oldNotification = change.before;
+  let oldNotificationData = oldNotification.data() as ReminderDocument;
 
   try {
     let nextSend = calculateNextSend(notificationData);
