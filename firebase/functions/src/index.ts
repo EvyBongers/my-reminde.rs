@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 
 import {initializeApp} from "firebase-admin/app";
 import {DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
-import {getMessaging} from "firebase-admin/messaging";
+import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {parseExpression} from "cron-parser-all";
 
 initializeApp();
@@ -27,6 +27,14 @@ export interface ReminderDocument {
   cronExpression?: string;
 
   [x: string]: any
+}
+
+interface NotificationDocument {
+  scheduledNotificationRef: DocumentReference,
+  title: string,
+  body: string,
+  link?: string,
+  sent: FieldValue,
 }
 
 const calculateNextSend = (notification: ReminderDocument) => {
@@ -58,12 +66,12 @@ export const doSendNotifications = functions.region("europe-west1").https.onCall
 const triggerNotification = async (ref: DocumentReference, data: ReminderDocument) => {
   let accountRef = ref.parent.parent as DocumentReference;
   await accountRef.collection("notifications").add({
-    notification: ref,
+    scheduledNotificationRef: ref,
     title: data.title,
     body: data.body,
     link: data.link || "",
     sent: FieldValue.serverTimestamp(),
-  });
+  } as NotificationDocument);
 };
 
 let getPushTokens = (account: AccountDocument) => {
@@ -96,7 +104,7 @@ export const updateNextSend = functions.region("europe-west1")
 export const sendNotifications = functions.region("europe-west1")
 .firestore.document("/accounts/{accountId}/notifications/{notificationId}")
 .onCreate(async (snapshot, context) => {
-  let notificationData = snapshot.data();
+  let notificationData = snapshot.data() as NotificationDocument;
   let accounts = await db.collection("accounts").get();
   for (let account of accounts.docs) {
     let accountData = account.data() as AccountDocument;
@@ -106,7 +114,7 @@ export const sendNotifications = functions.region("europe-west1")
           Prefer: "respond-async",
           TTL: "-1",
           Urgency: "high",
-          Topic: notificationData.notificationId,
+          Topic: notificationData.scheduledNotificationRef.id,
         },
         notification: {
           // actions: [
@@ -131,7 +139,7 @@ export const sendNotifications = functions.region("europe-west1")
         // } : undefined,
       },
       tokens: getPushTokens(accountData),
-    });
+    } as MulticastMessage);
     functions.logger.info(batchResponse.successCount + " messages were sent successfully");
     if (batchResponse.failureCount > 0) {
       functions.logger.error(batchResponse.failureCount + " messages failed to send");
