@@ -93,7 +93,7 @@ export const updateNextSend = functions.region("europe-west1")
   try {
     let nextSend = calculateNextSend(notificationData);
     if (nextSend != oldNotificationData.nextSend) {
-      functions.logger.debug(`Updating timestamps on notification ${notification.ref.id}:`, {nextSend: nextSend});
+      functions.logger.debug(`Updating timestamps on notification ${notification.ref}:`, {nextSend: nextSend});
       await notification.ref.update({nextSend: nextSend});
     }
   } catch (e) {
@@ -109,6 +109,7 @@ export const sendNotifications = functions.region("europe-west1")
   let accounts = await db.collection("accounts").get();
   for (let account of accounts.docs) {
     let accountData = account.data() as AccountDocument;
+    let tokens = getPushTokens(accountData);
     let batchResponse = await messaging.sendMulticast({
       webpush: {
         headers: {
@@ -139,13 +140,20 @@ export const sendNotifications = functions.region("europe-west1")
         //   link: notificationData.link,
         // } : undefined,
       },
-      tokens: getPushTokens(accountData),
+      tokens: tokens,
     } as MulticastMessage);
     functions.logger.info(batchResponse.successCount + " messages were sent successfully");
     if (batchResponse.failureCount > 0) {
       functions.logger.error(batchResponse.failureCount + " messages failed to send");
-      batchResponse.responses.filter(response => !response.success).forEach(response => {
-        functions.logger.debug(response.messageId, response.error);
+      batchResponse.responses.forEach((response, index) => {
+        let error = response.error;
+        if (error !== undefined) {
+          functions.logger.error("Failure sending notification to", tokens[index], error);
+          if (error.code === "messaging/invalid-registration-token" ||
+            error.code === "messaging/registration-token-not-registered") {
+            // TODO: delete/mark device token
+          }
+        }
       });
     }
   }
