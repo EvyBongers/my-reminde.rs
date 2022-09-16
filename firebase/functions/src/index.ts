@@ -1,9 +1,8 @@
 import * as functions from "firebase-functions";
 
 import {initializeApp} from "firebase-admin/app";
-import {FieldValue, getFirestore} from "firebase-admin/firestore";
+import {DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging} from "firebase-admin/messaging";
-import {firestore} from "firebase-admin";
 import {parseExpression} from "cron-parser-all";
 
 initializeApp();
@@ -56,8 +55,8 @@ export const doSendNotifications = functions.region("europe-west1").https.onCall
   },
 );
 
-const triggerNotification = async (ref: firestore.DocumentReference, data: ReminderDocument) => {
-  let accountRef = ref.parent.parent as firestore.DocumentReference;
+const triggerNotification = async (ref: DocumentReference, data: ReminderDocument) => {
+  let accountRef = ref.parent.parent as DocumentReference;
   await accountRef.collection("notifications").add({
     notification: ref,
     title: data.title,
@@ -123,7 +122,7 @@ export const sendNotifications = functions.region("europe-west1")
           "renotify": true,
           "requireInteraction": true,
           "tag": snapshot.id,
-          "timestamp": (notificationData.sent as firestore.Timestamp).toMillis(),
+          "timestamp": (notificationData.sent as Timestamp).toMillis(),
         },
         // "fcmOptions": notificationData.link ? {
         //   "link": notificationData.link,
