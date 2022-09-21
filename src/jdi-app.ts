@@ -26,8 +26,8 @@ export class JDIApp extends LitElement {
   @property()
   pushNotificationsEnabled: boolean;
 
-  @query('notification-preferences')
-  private notificationPreferences: ReminderList;
+  @query('reminder-list')
+  private reminders: ReminderList;
 
   static override styles = css`
     :host {
@@ -108,7 +108,7 @@ export class JDIApp extends LitElement {
 
   private async sendNotification(e: Event) {
     // TODO(ebongers): select notification to schedule
-    let scheduledNotifications = [...this.notificationPreferences.notifications.values()].map(_=>_.item);
+    let scheduledNotifications = [...this.reminders.notifications.values()].map(_=>_.item);
     let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random()*scheduledNotifications.length)];
 
     showMessage(`Sending notification ${selectedNotification.title}`, {timeoutMs: 7500});
