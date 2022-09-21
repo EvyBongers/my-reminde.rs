@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 
 import {initializeApp} from "firebase-admin/app";
-import {DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
+import {DocumentData, DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {parseExpression} from "cron-parser-all";
 
@@ -13,20 +13,20 @@ interface AccountDevice {
   token: string;
 }
 
-interface AccountDocument {
+interface AccountDocument extends DocumentData {
   devices: { [key: string]: AccountDevice };
 }
 
-export interface ReminderDocument {
+export interface ReminderDocument extends DocumentData {
   title: string;
   body: string;
-  nextSend?: any;
-  lastSent?: any;
-  type: string;
+  link?: string;
   enabled?: boolean;
-  cronExpression?: string;
 
-  [x: string]: any
+  type: string;
+  cronExpression?: string;
+  nextSend?: Timestamp;
+  lastSent?: Timestamp;
 }
 
 interface NotificationDocument {
@@ -34,19 +34,19 @@ interface NotificationDocument {
   title: string,
   body: string,
   link?: string,
-  sent: FieldValue,
+  sent: Timestamp,
 }
 
-const calculateNextSend = (notification: ReminderDocument) => {
+const calculateNextSend = (notification: ReminderDocument) : Timestamp | null => {
   switch (notification.type) {
     case "cron": {
       // TODO(ebongers): use preference in user profile
       let options = {tz: "Europe/Amsterdam"};
       let cron = parseExpression(notification.cronExpression as string, options);
-      return cron.next().toDate();
+      return Timestamp.fromDate(cron.next().toDate());
     }
     default: {
-      functions.logger.error(`Unknown notification type ${notification.type} on document ${notification.ref}`);
+      functions.logger.error(`Unknown notification type ${notification.type} on document ${notification._ref}`);
       return null;
     }
   }
@@ -133,7 +133,7 @@ export const sendNotifications = functions.region("europe-west1")
           renotify: true,
           requireInteraction: true,
           tag: snapshot.id,
-          timestamp: (notificationData.sent as Timestamp).toMillis(),
+          timestamp: notificationData.sent.toMillis(),
           title: notificationData.title,
         },
         // fcmOptions: notificationData.link ? {

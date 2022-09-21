@@ -112,7 +112,7 @@ export class JDIApp extends LitElement {
     let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random()*scheduledNotifications.length)];
 
     showMessage(`Sending notification ${selectedNotification.title}`, {timeoutMs: 7500});
-    await doSendNotifications(selectedNotification._ref._key.path.toString());
+    await doSendNotifications(selectedNotification._ref.path.toString());
   }
 }
 
