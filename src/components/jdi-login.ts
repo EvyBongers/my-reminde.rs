@@ -4,8 +4,8 @@ import {login} from "../auth";
 import {toastWrapper} from "../helpers/Decorators";
 import "@material/mwc-button";
 import "@material/mwc-textfield";
-import "./jdi-form";
 import "@material/mwc-icon"
+import "./jdi-form";
 
 @customElement("jdi-login")
 export class JDILogin extends LitElement {

@@ -1,6 +1,6 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import {customElement, property, query} from "lit/decorators.js";
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
@@ -10,7 +10,6 @@ import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
 import './components/reminder-list';
-import {query} from "lit/decorators.js";
 import {ReminderList} from "./components/reminder-list";
 import {showMessage} from "./helpers/Snacks";
 
@@ -26,7 +25,7 @@ export class JDIApp extends LitElement {
   @property()
   pushNotificationsEnabled: boolean;
 
-  @query('reminder-list')
+  @query("reminder-list")
   private reminders: ReminderList;
 
   static override styles = css`
@@ -45,7 +44,8 @@ export class JDIApp extends LitElement {
   renderLoggedIn() {
     return html`
       <h1>Hurray!</h1>
-      <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}" @click="${this.togglePush}">
+      <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}"
+                  @click="${this.togglePush}">
         ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
       </mwc-button>
       <br>
@@ -96,8 +96,8 @@ export class JDIApp extends LitElement {
     localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
   }
 
-  private async togglePush(e: Event) {
-    if (await this.pushNotificationsEnabled) {
+  private async togglePush(_: Event) {
+    if (this.pushNotificationsEnabled) {
       await disablePushNotifications();
     } else {
       await enablePushNotifications();
@@ -106,10 +106,10 @@ export class JDIApp extends LitElement {
     this.loadPushNotificationsState();
   }
 
-  private async sendNotification(e: Event) {
-    // TODO(ebongers): select notification to schedule
-    let scheduledNotifications = [...this.reminders.notifications.values()].map(_=>_.item);
-    let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random()*scheduledNotifications.length)];
+  private async sendNotification(_: Event) {
+    // TODO: select notification to schedule
+    let scheduledNotifications = [...this.reminders.notifications.values()].map(_ => _.item);
+    let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random() * scheduledNotifications.length)];
 
     showMessage(`Sending notification ${selectedNotification.title}`, {timeoutMs: 7500});
     await doSendNotifications(selectedNotification._ref.path.toString());

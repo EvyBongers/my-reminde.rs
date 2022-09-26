@@ -1,4 +1,4 @@
-import {css, html} from "lit";
+import {css, html, LitElement} from "lit";
 import {customElement, query} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
 import "@material/mwc-dialog";
@@ -7,10 +7,9 @@ import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {Menu} from "@material/mwc-menu";
-import {ReminderBase} from "./reminder-base";
 
 @customElement("menu-button")
-export class MenuBotton extends ReminderBase {
+export class MenuButton extends LitElement {
   @query("mwc-icon-button")
   private menuButton: IconButton;
 
@@ -56,6 +55,6 @@ export class MenuBotton extends ReminderBase {
 
 declare global {
   interface HTMLElementTagNameMap {
-    "menu-button": MenuBotton;
+    "menu-button": MenuButton;
   }
 }
