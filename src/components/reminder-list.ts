@@ -48,7 +48,7 @@ export class ReminderList extends BunnyElement {
     mwc-fab {
       --mdc-icon-size: 36px;
       position: fixed;
-      right: 50px;
+      right: 20px;
       bottom: 50px;
     }
   `;
