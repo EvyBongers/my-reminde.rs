@@ -1,6 +1,6 @@
-import {css, html} from "lit";
+import {css, html, LitElement} from "lit";
 import {choose} from "lit/directives/choose.js";
-import {customElement, property} from "lit/decorators.js";
+import {customElement, property, query} from "lit/decorators.js";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-icon-button";
@@ -8,18 +8,26 @@ import "@material/mwc-icon-button-toggle";
 import "@material/mwc-ripple";
 import "@material/mwc-select";
 import {addDocByRef, setDocByRef} from "../db";
-import {ReminderBase} from "./reminder-base";
 import {calculateNextSend} from "../helpers/Scheduling";
 import {ReminderDocument} from "../../firebase/functions/src";
+import {toastWrapper} from "../helpers/Decorators";
+import {Dialog} from "@material/mwc-dialog";
 
 @customElement("reminder-edit")
-export class ReminderEdit extends ReminderBase {
+export class ReminderEdit extends LitElement {
+  @property()
+  item: ReminderDocument;
 
   @property()
   documentRef: any;
 
   @property()
   collectionRef: any;
+
+  private editResult: string;
+
+  @query("mwc-dialog")
+  private dialog: Dialog;
 
   static override styles = css`
     :host {
@@ -41,12 +49,21 @@ export class ReminderEdit extends ReminderBase {
         type: "",
       };
     }
-  }
 
-  updated() {
     this.addEventListener("click", (e: Event) => {
       e.stopPropagation();
     });
+    this.dialog.addEventListener("closed", (ev: CustomEvent) => {
+      if (ev.target != this.dialog){ ev.stopPropagation(); return }
+
+      console.log("Edit dialog is handling an event:");
+      console.log(ev);
+
+      let event = new CustomEvent(ev.type, {
+        detail: this.editResult
+      });
+      this.dispatchEvent(event);
+    })
   }
 
   override render() {
@@ -104,18 +121,18 @@ export class ReminderEdit extends ReminderBase {
     }
   }
 
-  save(e: Event) {
+  cancel(_: Event) {
+    this.editResult = "cancelled";
+  }
+
+  save(_: Event) {
+    this.editResult = "saved";
     if (this.documentRef) {
       setDocByRef(this.documentRef, this.item, {merge: true});
     } else {
       this.item.enabled = true;
       addDocByRef(this.collectionRef, this.item);
     }
-    // TODO(ebongers): Remove this component from DOM
-  }
-
-  cancel(e: Event) {
-    // TODO(ebongers): how to cancel? Remove this component from DOM
   }
 }
 

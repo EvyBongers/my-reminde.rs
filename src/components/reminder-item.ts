@@ -1,4 +1,4 @@
-import {css, html} from "lit";
+import {css, html, LitElement} from "lit";
 import {customElement, property, query, queryAsync} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
 import "@material/mwc-dialog";
@@ -11,11 +11,13 @@ import {calculateNextSend} from "../helpers/Scheduling";
 import {RippleHandlers} from "@material/mwc-ripple/ripple-handlers";
 import {Ripple} from "@material/mwc-ripple";
 import {Menu} from "@material/mwc-menu";
-import {ReminderBase} from "./reminder-base";
+import {ReminderDocument} from "../../firebase/functions/src";
 import "./menu-button";
 
 @customElement("reminder-item")
-export class ReminderItem extends ReminderBase {
+export class ReminderItem extends LitElement {
+  @property()
+  item: ReminderDocument;
 
   @property({type: Boolean})
   protected expanded: boolean = false;
@@ -147,13 +149,33 @@ export class ReminderItem extends ReminderBase {
     `;
   }
 
-  delete(e: Event) {
+  async delete(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
-    // mwc-dialog? https://github.com/material-components/material-web/tree/mwc/packages/dialog#example-usage
-    if (confirm("Delete this notification?")) {
-      deleteDocByRef(this.item._ref);
-    }
+    let dialog = document.createElement("mwc-dialog");
+
+    let prompt = document.createElement("div");
+    prompt.append("Delete reminder?");
+    dialog.appendChild(prompt);
+
+    let primaryActionButton = document.createElement("mwc-button");
+    primaryActionButton.setAttribute("slot", "primaryAction");
+    primaryActionButton.setAttribute("dialogAction","ok");
+    primaryActionButton.append("Delete");
+    dialog.appendChild(primaryActionButton);
+    primaryActionButton.addEventListener("click", ev => { deleteDocByRef(this.item._ref); });
+
+    let secondaryActionButton = document.createElement("mwc-button");
+    secondaryActionButton.setAttribute("slot", "secondaryAction");
+    secondaryActionButton.setAttribute("dialogAction","cancel");
+    secondaryActionButton.append("Cancel");
+    dialog.appendChild(secondaryActionButton);
+
+    dialog.addEventListener("click", e => { e.stopPropagation(); });
+    dialog.addEventListener("closed", _ => { this.shadowRoot.removeChild(dialog); });
+
+    this.shadowRoot.append(dialog);
+    dialog.show();
   }
 
   edit(e: Event) {
@@ -162,12 +184,17 @@ export class ReminderItem extends ReminderBase {
     let notification = document.createElement("reminder-edit");
     notification.item = structuredClone(this.item);
     notification.documentRef = this.item._ref;
+    notification.addEventListener("closed", (ev: CustomEvent) => {
+      console.log(`Notification edit result: ${ev.detail}`);
+      this.shadowRoot.removeChild(notification);
+    });
+
     this.shadowRoot.append(notification);
   }
 
   toggleActive(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
+    (e.target as HTMLElement).blur();
     this.item.enabled = !this.item.enabled;
     this.item.nextSend = null;
     setDocByRef(this.item._ref, this.item, {merge: true});

@@ -6,7 +6,7 @@ import {BunnyElement, observe} from "./bunny-element";
 import "./reminder-item";
 import "./reminder-edit";
 import {ReminderItem} from "./reminder-item";
-import {ReminderDocument} from "../../firebase/functions/src/index"
+import {ReminderDocument} from "../../firebase/functions/src"
 
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
@@ -74,6 +74,11 @@ export class ReminderList extends BunnyElement {
   public async addNotification(e: Event) {
     let notification = document.createElement("reminder-edit");
     notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/scheduledNotifications`);
+    notification.addEventListener("closed", (ev: CustomEvent) => {
+      console.log(`Notification add result: ${ev.detail}`);
+      this.shadowRoot.removeChild(notification);
+    });
+
     this.shadowRoot.append(notification);
   }
 }
