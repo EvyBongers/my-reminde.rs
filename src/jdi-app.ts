@@ -47,6 +47,11 @@ export class JDIApp extends LitElement {
     main {
       padding: 0 6pt;
     }
+
+    nav {
+      display: flex;
+      flex-direction: column;
+    }
   `;
 
   renderLoggedIn() {
