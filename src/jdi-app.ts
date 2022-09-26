@@ -5,16 +5,16 @@ import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import {Drawer} from "@material/mwc-drawer";
+import {ReminderList} from "./components/reminder-list";
+import {logout} from "./auth";
+import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-drawer";
 import "@material/mwc-fab";
 import "@material/mwc-top-app-bar-fixed";
-import './components/jdi-login';
-import './components/jdi-logout';
-import './components/jdi-devices';
-import './components/reminder-list';
-import {ReminderList} from "./components/reminder-list";
-import {showMessage} from "./helpers/Snacks";
+import "./components/jdi-login";
+import "./components/jdi-devices";
+import "./components/reminder-list";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -59,8 +59,6 @@ export class JDIApp extends LitElement {
       <br>
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
       <br>
-      <jdi-logout></jdi-logout>
-      <br>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
 
       <reminder-list .accountId="${this.userId}"></reminder-list>
@@ -89,6 +87,7 @@ export class JDIApp extends LitElement {
         <nav>
           <mwc-button>Reminders</mwc-button>
           <mwc-button>Devices</mwc-button>
+          <mwc-button raised icon="logout" @click="${logout}">Logout</mwc-button>
         </nav>
         <mwc-top-app-bar-fixed slot="appContent">
           <mwc-icon-button icon="menu" slot="navigationIcon" @click="${this.toggleDrawer}"></mwc-icon-button>
