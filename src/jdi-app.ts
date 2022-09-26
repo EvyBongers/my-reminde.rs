@@ -78,6 +78,7 @@ export class JDIApp extends LitElement {
   }
 
   override render() {
+    // Drawer has header?
     return html`
       <mwc-drawer hasHeader type="modal">
         <!--
