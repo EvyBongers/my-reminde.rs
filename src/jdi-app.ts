@@ -4,8 +4,11 @@ import {customElement, property, query} from "lit/decorators.js";
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
+import {Drawer} from "@material/mwc-drawer";
 import "@material/mwc-button";
+import "@material/mwc-drawer";
 import "@material/mwc-fab";
+import "@material/mwc-top-app-bar-fixed";
 import './components/jdi-login';
 import './components/jdi-logout';
 import './components/jdi-devices';
@@ -28,6 +31,9 @@ export class JDIApp extends LitElement {
   @query("reminder-list")
   private reminders: ReminderList;
 
+  @query("mwc-drawer")
+  private navDrawer: Drawer;
+
   static override styles = css`
     :host {
       display: block;
@@ -36,6 +42,9 @@ export class JDIApp extends LitElement {
       top: 0;
       bottom: 0;
       right: 0;
+    }
+
+    main {
       padding: 0 6pt;
     }
   `;
@@ -64,9 +73,32 @@ export class JDIApp extends LitElement {
     `;
   }
 
+  renderAppContent() {
+    if (!this.userId) return this.renderLoggedOut();
+
+    return this.renderLoggedIn();
+  }
+
   override render() {
     return html`
-      ${this.userId ? this.renderLoggedIn() : this.renderLoggedOut()}
+      <mwc-drawer hasHeader type="modal">
+        <!--
+        <span slot="title">Drawer Title</span>
+        <span slot="subtitle">subtitle</span>
+        -->
+        <nav>
+          <mwc-button>Reminders</mwc-button>
+          <mwc-button>Devices</mwc-button>
+        </nav>
+        <mwc-top-app-bar-fixed slot="appContent">
+          <mwc-icon-button icon="menu" slot="navigationIcon" @click="${this.toggleDrawer}"></mwc-icon-button>
+          <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s` : "My"} reminders</div>
+          <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications"}"
+                           slot="actionItems"></mwc-icon-button>
+          <mwc-icon-button icon="install_mobile" slot="actionItems"></mwc-icon-button>
+          <main>${this.renderAppContent()}</main>
+        </mwc-top-app-bar-fixed>
+      </mwc-drawer>
     `;
   }
 
@@ -93,6 +125,10 @@ export class JDIApp extends LitElement {
   private async loadPushNotificationsState() {
     this.pushNotificationsEnabled = await isPushNotificationsEnabled();
     localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
+  }
+
+  private toggleDrawer(_: Event) {
+    this.navDrawer.open = !this.navDrawer.open;
   }
 
   private async togglePush(_: Event) {
