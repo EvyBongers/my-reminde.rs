@@ -31,7 +31,6 @@ export class JDIApp extends LitElement {
   static override styles = css`
     :host {
       display: block;
-      font-family: "Roboto";
       position: absolute;
       left: 0;
       top: 0;
