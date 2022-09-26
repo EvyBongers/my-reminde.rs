@@ -125,7 +125,12 @@ export class ReminderEdit extends LitElement {
     this.editResult = "cancelled";
   }
 
-  save(_: Event) {
+  @toastWrapper({
+    successMessage: "Reminder saved",
+    progressMessage: "Saving...",
+    failedMessage: "Failed to save reminder: {{e}}",
+  })
+  async save(_: Event) {
     this.editResult = "saved";
     if (this.documentRef) {
       setDocByRef(this.documentRef, this.item, {merge: true});
