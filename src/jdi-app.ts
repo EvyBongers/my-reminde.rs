@@ -1,6 +1,7 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, PropertyValues} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
+import {choose} from 'lit/directives/choose.js';
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
@@ -27,6 +28,9 @@ export class JDIApp extends LitElement {
 
   @property()
   pushNotificationsEnabled: boolean;
+
+  @property()
+  currentView: string;
 
   @query("reminder-list")
   private reminders: ReminderList;
@@ -61,18 +65,20 @@ export class JDIApp extends LitElement {
     });
   }
 
-  renderLoggedIn() {
+  renderDevices() {
     return html`
+      <jdi-devices .accountId="${this.userId}"></jdi-devices>
+    `;
+  }
+
+  renderReminders() {
+    return html`
+      <reminder-list .accountId="${this.userId}"></reminder-list>
+      <br>
       <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}"
                   @click="${this.togglePush}">
         ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
       </mwc-button>
-      <br>
-      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
-      <br>
-      <jdi-devices .accountId="${this.userId}"></jdi-devices>
-
-      <reminder-list .accountId="${this.userId}"></reminder-list>
     `;
   }
 
@@ -85,27 +91,42 @@ export class JDIApp extends LitElement {
   renderAppContent() {
     if (!this.userId) return this.renderLoggedOut();
 
-    return this.renderLoggedIn();
+    try {
+      return html`
+        ${choose(this.currentView, [
+              ['reminders', () => html`${this.renderReminders()}`],
+              ['devices', () => html`${this.renderDevices()}`],
+            ],
+            () => html`${this.renderReminders()}`)}
+        <br>
+        <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
+      `;
+    }
+    catch (e) {
+      return html`
+        Failed to render view ${this.currentView}: ${e}
+      `;
+    }
   }
 
   override render() {
     // Drawer has header?
     return html`
       <mwc-drawer hasHeader type="modal">
+        <span slot="title">Reminde.rs</span>
         <!--
-        <span slot="title">Drawer Title</span>
         <span slot="subtitle">subtitle</span>
         -->
         <nav>
-          <mwc-button>Reminders</mwc-button>
-          <mwc-button>Devices</mwc-button>
+          <mwc-button data-view="reminders" @click="${this.switchTo}">Reminders</mwc-button>
+          <mwc-button data-view="devices" @click="${this.switchTo}">Devices</mwc-button>
           <mwc-button raised icon="logout" @click="${logout}">Logout</mwc-button>
         </nav>
         <mwc-top-app-bar-fixed slot="appContent">
           <mwc-icon-button icon="menu" slot="navigationIcon"></mwc-icon-button>
           <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
           <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications"}"
-                           slot="actionItems"></mwc-icon-button>
+                           slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
           <mwc-icon-button icon="install_mobile" slot="actionItems"></mwc-icon-button>
           <main>${this.renderAppContent()}</main>
         </mwc-top-app-bar-fixed>
@@ -131,6 +152,11 @@ export class JDIApp extends LitElement {
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
+  }
+
+  private switchTo(e: Event) {
+    this.currentView = (e.currentTarget as HTMLElement).dataset.view;
+    this.navDrawer.open = false;
   }
 
   private async loadPushNotificationsState() {
