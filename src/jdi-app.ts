@@ -1,5 +1,5 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement} from "lit";
+import {css, html, LitElement, PropertyValues} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
@@ -54,9 +54,15 @@ export class JDIApp extends LitElement {
     }
   `;
 
+  protected firstUpdated(_changedProperties: PropertyValues) {
+    super.firstUpdated(_changedProperties);
+    this.navDrawer.addEventListener("MDCTopAppBar:nav", _ => {
+      this.navDrawer.open = !this.navDrawer.open;
+    });
+  }
+
   renderLoggedIn() {
     return html`
-      <h1>Hurray!</h1>
       <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}"
                   @click="${this.togglePush}">
         ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
@@ -96,7 +102,7 @@ export class JDIApp extends LitElement {
           <mwc-button raised icon="logout" @click="${logout}">Logout</mwc-button>
         </nav>
         <mwc-top-app-bar-fixed slot="appContent">
-          <mwc-icon-button icon="menu" slot="navigationIcon" @click="${this.toggleDrawer}"></mwc-icon-button>
+          <mwc-icon-button icon="menu" slot="navigationIcon"></mwc-icon-button>
           <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
           <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications"}"
                            slot="actionItems"></mwc-icon-button>
@@ -130,10 +136,6 @@ export class JDIApp extends LitElement {
   private async loadPushNotificationsState() {
     this.pushNotificationsEnabled = await isPushNotificationsEnabled();
     localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
-  }
-
-  private toggleDrawer(_: Event) {
-    this.navDrawer.open = !this.navDrawer.open;
   }
 
   private async togglePush(_: Event) {
