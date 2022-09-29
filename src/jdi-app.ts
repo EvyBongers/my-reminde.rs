@@ -32,6 +32,9 @@ export class JDIApp extends LitElement {
   @property()
   currentView: string;
 
+  @property()
+  drawerType: string;
+
   @query("reminder-list")
   private reminders: ReminderList;
 
@@ -39,6 +42,17 @@ export class JDIApp extends LitElement {
   private navDrawer: Drawer;
 
   static override styles = css`
+    @media (min-width: 600px) {
+      mwc-icon-button[slot="navigationIcon"] {
+        display: none;
+      }
+
+      mwc-drawer mwc-top-app-bar-fixed {
+        /* Default width of drawer is 256px. See CSS Custom Properties below */
+        --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
+      }
+    }
+
     :host {
       display: block;
       position: absolute;
@@ -60,6 +74,11 @@ export class JDIApp extends LitElement {
 
   protected firstUpdated(_changedProperties: PropertyValues) {
     super.firstUpdated(_changedProperties);
+    this.drawerType = window.outerWidth < 600 ? "modal":"";
+    this.navDrawer.open = this.drawerType == "";
+    window.addEventListener("resize", (e) => {
+      this.drawerType = window.outerWidth < 600 ? "modal":"";
+    });
     this.navDrawer.addEventListener("MDCTopAppBar:nav", _ => {
       this.navDrawer.open = !this.navDrawer.open;
     });
@@ -110,9 +129,8 @@ export class JDIApp extends LitElement {
   }
 
   override render() {
-    // Drawer has header?
     return html`
-      <mwc-drawer hasHeader type="modal">
+      <mwc-drawer hasHeader type="${this.drawerType}">
         <span slot="title">Reminde.rs</span>
         <!--
         <span slot="subtitle">subtitle</span>
@@ -158,7 +176,7 @@ export class JDIApp extends LitElement {
 
   private switchTo(e: Event) {
     this.currentView = (e.currentTarget as HTMLElement).dataset.view;
-    this.navDrawer.open = false;
+    this.navDrawer.open = this.drawerType == "";
   }
 
   private async loadPushNotificationsState() {
