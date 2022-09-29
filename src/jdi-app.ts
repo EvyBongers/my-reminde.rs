@@ -145,7 +145,7 @@ export class JDIApp extends LitElement {
         <mwc-top-app-bar-fixed slot="appContent">
           <mwc-icon-button icon="menu" slot="navigationIcon"></mwc-icon-button>
           <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-          <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications"}"
+          <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
                            slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
           <!--
           <mwc-icon-button icon="install_mobile" slot="actionItems"></mwc-icon-button>
