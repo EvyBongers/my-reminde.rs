@@ -12,6 +12,7 @@ import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-drawer";
 import "@material/mwc-fab";
+import "@material/mwc-list";
 import "@material/mwc-top-app-bar-fixed";
 import "./components/jdi-login";
 import "./components/jdi-devices";
@@ -64,11 +65,6 @@ export class JDIApp extends LitElement {
 
     main {
       padding: 0 6pt;
-    }
-
-    nav {
-      display: flex;
-      flex-direction: column;
     }
   `;
 
@@ -136,9 +132,15 @@ export class JDIApp extends LitElement {
         <span slot="subtitle">subtitle</span>
         -->
         <nav>
-          <mwc-button data-view="reminders" @click="${this.switchTo}">Reminders</mwc-button>
-          <mwc-button data-view="devices" @click="${this.switchTo}">Devices</mwc-button>
-          <mwc-button raised icon="logout" @click="${logout}">Logout</mwc-button>
+          <mwc-list>
+            <li divider role="separator"></li>
+            <mwc-list-item graphic="icon" data-view="reminders" @click="${this.switchTo}"><mwc-icon slot="graphic">notifications</mwc-icon><span>Reminders</span></mwc-list-item>
+            <li divider role="separator"></li>
+            <mwc-list-item graphic="icon" data-view="devices" @click="${this.switchTo}"><mwc-icon slot="graphic">devices</mwc-icon><span>Devices</span></mwc-list-item>
+            <li divider role="separator"></li>
+            <mwc-list-item graphic="icon" @click="${logout}"><mwc-icon slot="graphic">logout</mwc-icon><span>Logout</span></mwc-list-item>
+            <li divider role="separator"></li>
+          </mwc-list>
         </nav>
         <mwc-top-app-bar-fixed slot="appContent">
           <mwc-icon-button icon="menu" slot="navigationIcon"></mwc-icon-button>
