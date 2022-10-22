@@ -11,6 +11,7 @@ import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
 import "@material/mwc-list";
+import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
 import "./components/jdi-login";
