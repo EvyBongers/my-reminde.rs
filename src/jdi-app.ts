@@ -10,7 +10,9 @@ import {logout} from "./auth";
 import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
+import "@material/mwc-formfield";
 import "@material/mwc-list";
+import "@material/mwc-switch";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
@@ -39,6 +41,7 @@ export class JDIApp extends LitElement {
 
   static override styles = css`
     :host {
+      --mdc-typography-body2-font-size: 1rem;
       --mdc-tab-stacked-height: 72px;
       display: block;
       position: absolute;
@@ -51,6 +54,15 @@ export class JDIApp extends LitElement {
     main {
       padding: 0 6pt;
       position: relative;
+    }
+
+    mwc-formfield {
+      display: flex;
+      height: 48px;
+    }
+
+    mwc-formfield mwc-switch {
+      z-index: -1;
     }
 
     mwc-tab-bar {
@@ -83,10 +95,10 @@ export class JDIApp extends LitElement {
   renderSettings() {
     return html`
       <h3>Settings</h3>
-      <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}"
-                  @click="${this.togglePush}">
-        ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
-      </mwc-button>
+      <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
+        <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
+      </mwc-formfield>
+      <br>
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
       <mwc-button outlined icon="logout" label="Logout" @click="${this.confirmLogout}" stacked></mwc-button>
     `;
@@ -179,11 +191,13 @@ export class JDIApp extends LitElement {
     localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
   }
 
-  private async togglePush(_: Event) {
-    if (this.pushNotificationsEnabled) {
-      await disablePushNotifications();
-    } else {
-      await enablePushNotifications();
+  private async togglePush(e: Event) {
+    if (e.target === e.currentTarget) {
+      if (this.pushNotificationsEnabled) {
+        await disablePushNotifications();
+      } else {
+        await enablePushNotifications();
+      }
     }
 
     await this.loadPushNotificationsState();

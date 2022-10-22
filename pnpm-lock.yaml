@@ -5,6 +5,7 @@ specifiers:
   '@material/mwc-circular-progress': ^0.27.0
   '@material/mwc-dialog': ^0.27.0
   '@material/mwc-fab': ^0.27.0
+  '@material/mwc-formfield': ^0.27.0
   '@material/mwc-icon': ^0.27.0
   '@material/mwc-icon-button': ^0.27.0
   '@material/mwc-icon-button-toggle': ^0.27.0
@@ -13,6 +14,7 @@ specifiers:
   '@material/mwc-ripple': ^0.27.0
   '@material/mwc-select': ^0.27.0
   '@material/mwc-snackbar': ^0.27.0
+  '@material/mwc-switch': ^0.27.0
   '@material/mwc-tab': ^0.27.0
   '@material/mwc-tab-bar': ^0.27.0
   '@material/mwc-textfield': ^0.27.0
@@ -34,6 +36,7 @@ dependencies:
   '@material/mwc-circular-progress': 0.27.0
   '@material/mwc-dialog': 0.27.0
   '@material/mwc-fab': 0.27.0
+  '@material/mwc-formfield': 0.27.0
   '@material/mwc-icon': 0.27.0
   '@material/mwc-icon-button': 0.27.0
   '@material/mwc-icon-button-toggle': 0.27.0
@@ -42,6 +45,7 @@ dependencies:
   '@material/mwc-ripple': 0.27.0
   '@material/mwc-select': 0.27.0
   '@material/mwc-snackbar': 0.27.0
+  '@material/mwc-switch': 0.27.0
   '@material/mwc-tab': 0.27.0
   '@material/mwc-tab-bar': 0.27.0
   '@material/mwc-textfield': 0.27.0
@@ -724,6 +728,18 @@ packages:
       '@material/rtl': 14.0.0-canary.53b3cad2f.0
     dev: false
 
+  /@material/form-field/14.0.0-canary.53b3cad2f.0:
+    resolution: {integrity: sha512-h9jFm9f5WeMHJWGpQsZ9sPrERLGcDQdW8uvbHAHZ/zN35Mqj43s8+alXROiibx+m1oHLvf2Z01pPWtFSXLYzxA==}
+    dependencies:
+      '@material/base': 14.0.0-canary.53b3cad2f.0
+      '@material/feature-targeting': 14.0.0-canary.53b3cad2f.0
+      '@material/ripple': 14.0.0-canary.53b3cad2f.0
+      '@material/rtl': 14.0.0-canary.53b3cad2f.0
+      '@material/theme': 14.0.0-canary.53b3cad2f.0
+      '@material/typography': 14.0.0-canary.53b3cad2f.0
+      tslib: 2.4.0
+    dev: false
+
   /@material/icon-button/14.0.0-canary.53b3cad2f.0:
     resolution: {integrity: sha512-BFdj3CP0JXHC/F2bDmpmzWhum4fkzIDgCCavvnpE/KcCbr0AaoSULRde+LtqvbdLIYW20cXhvjinIOlRhSOshA==}
     dependencies:
@@ -859,6 +875,15 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@material/mwc-formfield/0.27.0:
+    resolution: {integrity: sha512-XGZtC1MTyGQ8b2osnaygGzS3qe2QvlWfXZepcFs9i6MW+b6VimQQ4c/KsKIF7dHmeY6N0o4k9pAZ086EGesXOQ==}
+    dependencies:
+      '@material/form-field': 14.0.0-canary.53b3cad2f.0
+      '@material/mwc-base': 0.27.0
+      lit: 2.4.0
+      tslib: 2.4.0
+    dev: false
+
   /@material/mwc-icon-button-toggle/0.27.0:
     resolution: {integrity: sha512-PLozOm8m96vfPqTvugdCSC6V+sd337rdm/H2ZpnMbV+8gllfIkm1J02hv7rQ1O51ThrpMt4hd0URitIiEeuATg==}
     dependencies:
@@ -972,6 +997,16 @@ packages:
     dependencies:
       '@material/mwc-base': 0.27.0
       '@material/snackbar': 14.0.0-canary.53b3cad2f.0
+      lit: 2.4.0
+      tslib: 2.4.0
+    dev: false
+
+  /@material/mwc-switch/0.27.0:
+    resolution: {integrity: sha512-MKKjm42f8YyHN1HmvfgppgTPJUxulcmOqND5R7zI/kB38vFcWDxEhnpdUYr2kEsFtebpYNSF0j6FXcKV/W+fJw==}
+    dependencies:
+      '@material/mwc-base': 0.27.0
+      '@material/mwc-ripple': 0.27.0
+      '@material/switch': 14.0.0-canary.53b3cad2f.0
       lit: 2.4.0
       tslib: 2.4.0
     dev: false
@@ -1150,6 +1185,24 @@ packages:
       '@material/shape': 14.0.0-canary.53b3cad2f.0
       '@material/theme': 14.0.0-canary.53b3cad2f.0
       '@material/typography': 14.0.0-canary.53b3cad2f.0
+      tslib: 2.4.0
+    dev: false
+
+  /@material/switch/14.0.0-canary.53b3cad2f.0:
+    resolution: {integrity: sha512-hL7lOF8tgYaS1Spce6zlxfveoqUlqDTW+vv+R7TIHwzLD5HJCdhTiotXshOKCZLoSi7Ljx7JpCdvNqGlv4rpIw==}
+    dependencies:
+      '@material/animation': 14.0.0-canary.53b3cad2f.0
+      '@material/base': 14.0.0-canary.53b3cad2f.0
+      '@material/density': 14.0.0-canary.53b3cad2f.0
+      '@material/dom': 14.0.0-canary.53b3cad2f.0
+      '@material/elevation': 14.0.0-canary.53b3cad2f.0
+      '@material/feature-targeting': 14.0.0-canary.53b3cad2f.0
+      '@material/focus-ring': 14.0.0-canary.53b3cad2f.0
+      '@material/ripple': 14.0.0-canary.53b3cad2f.0
+      '@material/rtl': 14.0.0-canary.53b3cad2f.0
+      '@material/shape': 14.0.0-canary.53b3cad2f.0
+      '@material/theme': 14.0.0-canary.53b3cad2f.0
+      '@material/tokens': 14.0.0-canary.53b3cad2f.0
       tslib: 2.4.0
     dev: false
 
