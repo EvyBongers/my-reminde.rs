@@ -25,6 +25,11 @@ export class ConfirmDialog extends LitElement {
     `;
   }
 
+  connectedCallback() {
+    super.connectedCallback();
+    this.addEventListener("click", (ev) => { ev.stopPropagation(); })
+  }
+
   protected firstUpdated(_changedProperties: PropertyValues) {
     super.firstUpdated(_changedProperties);
     this.shadowRoot.querySelector("mwc-dialog").show();
