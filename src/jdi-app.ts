@@ -65,7 +65,8 @@ export class JDIApp extends LitElement {
       z-index: -1;
     }
 
-    mwc-tab-bar {
+    footer {
+      --mdc-typography-button-text-transform: none;
       border-top: 1px solid #d3d3d3;
       position: fixed;
       bottom: 0;
