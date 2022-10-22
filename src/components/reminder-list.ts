@@ -60,7 +60,6 @@ export class ReminderList extends BunnyElement {
 
   override render() {
     return html`
-      <h3>Scheduled notifications</h3>
       <div class="notifications-container">
         ${renderItems(this.scheduledNotifications, (item, index) => html`
           <reminder-item .item="${item}"></reminder-item>

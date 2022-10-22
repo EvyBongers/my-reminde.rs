@@ -50,6 +50,7 @@ export class JDIApp extends LitElement {
 
     main {
       padding: 0 6pt;
+      position: relative;
     }
 
     mwc-tab-bar {
@@ -67,24 +68,43 @@ export class JDIApp extends LitElement {
 
   renderDevices() {
     return html`
+      <h3>Subscribed devices</h3>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
 
   renderReminders() {
     return html`
+      <h3>Reminders</h3>
       <reminder-list .accountId="${this.userId}"></reminder-list>
-      <br>
+    `;
+  }
+
+  renderSettings() {
+    return html`
+      <h3>Settings</h3>
       <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}"
                   @click="${this.togglePush}">
         ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
       </mwc-button>
+      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
+      <mwc-button outlined icon="logout" label="Logout" @click="${this.confirmLogout}" stacked></mwc-button>
     `;
   }
 
   renderLoggedOut() {
     return html`
       <jdi-login></jdi-login>
+    `;
+  }
+
+  renderNav(){
+    return html`
+      <mwc-tab-bar>
+        <mwc-tab icon="notifications" label="Reminders" data-view="reminders" @click="${this.switchTo}" stacked></mwc-tab>
+        <mwc-tab icon="settings" label="Settings" data-view="settings" @click="${this.switchTo}" stacked></mwc-tab>
+        <mwc-tab icon="devices" label="Devices" data-view="devices" @click="${this.switchTo}" stacked></mwc-tab>
+      </mwc-tab-bar>
     `;
   }
 
@@ -95,11 +115,10 @@ export class JDIApp extends LitElement {
       return html`
         ${choose(this.currentView, [
               ['reminders', () => html`${this.renderReminders()}`],
+              ['settings', () => html`${this.renderSettings()}`],
               ['devices', () => html`${this.renderDevices()}`],
             ],
             () => html`${this.renderReminders()}`)}
-        <br>
-        <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
       `;
     }
     catch (e) {
@@ -115,13 +134,9 @@ export class JDIApp extends LitElement {
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
         <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
                          slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+        <main>${this.renderAppContent()}</main>
+        <footer>${this.renderNav()}</footer>
       </mwc-top-app-bar-fixed>
-      <main>${this.renderAppContent()}</main>
-      <mwc-tab-bar>
-        <mwc-tab icon="notifications" label="Reminders" data-view="reminders" @click="${this.switchTo}" stacked></mwc-tab>
-        <mwc-tab icon="devices" label="Devices" data-view="devices" @click="${this.switchTo}" stacked></mwc-tab>
-        <mwc-tab icon="logout" label="Logout" @click="${this.confirmLogout}" stacked></mwc-tab>
-      </mwc-tab-bar>
     `;
   }
 
