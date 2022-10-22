@@ -1,18 +1,17 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement, PropertyValues} from "lit";
+import {css, html, LitElement} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {choose} from 'lit/directives/choose.js';
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {Drawer} from "@material/mwc-drawer";
 import {ReminderList} from "./components/reminder-list";
 import {logout} from "./auth";
 import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
-import "@material/mwc-drawer";
 import "@material/mwc-fab";
 import "@material/mwc-list";
+import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
 import "./components/jdi-login";
 import "./components/jdi-devices";
@@ -33,52 +32,36 @@ export class JDIApp extends LitElement {
   @property()
   currentView: string;
 
-  @property()
-  drawerType: string;
-
   @query("reminder-list")
   private reminders: ReminderList;
 
-  @query("mwc-drawer")
-  private navDrawer: Drawer;
-
   static override styles = css`
-    @media (min-width: 600px) {
-      mwc-icon-button[slot="navigationIcon"] {
-        display: none;
-      }
-
-      mwc-drawer mwc-top-app-bar-fixed {
-        /* Default width of drawer is 256px. See CSS Custom Properties below */
-        --mdc-top-app-bar-width: calc(100% - var(--mdc-drawer-width, 256px));
-      }
-    }
-
     :host {
+      --mdc-tab-stacked-height: 72px;
       display: block;
       position: absolute;
       left: 0;
       top: 0;
-      bottom: 0;
+      bottom: var(--mdc-tab-stacked-height, 0);
       right: 0;
     }
 
     main {
       padding: 0 6pt;
     }
-  `;
 
-  protected firstUpdated(_changedProperties: PropertyValues) {
-    super.firstUpdated(_changedProperties);
-    this.drawerType = window.outerWidth < 600 ? "modal":"";
-    this.navDrawer.open = this.drawerType == "";
-    window.addEventListener("resize", (e) => {
-      this.drawerType = window.outerWidth < 600 ? "modal":"";
-    });
-    this.navDrawer.addEventListener("MDCTopAppBar:nav", _ => {
-      this.navDrawer.open = !this.navDrawer.open;
-    });
-  }
+    mwc-tab-bar {
+      border-top: 1px solid #d3d3d3;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    mwc-tab {
+      background-color: inherit;
+    }
+  `;
 
   renderDevices() {
     return html`
@@ -126,33 +109,17 @@ export class JDIApp extends LitElement {
 
   override render() {
     return html`
-      <mwc-drawer hasHeader type="${this.drawerType}">
-        <span slot="title">Reminde.rs</span>
-        <!--
-        <span slot="subtitle">subtitle</span>
-        -->
-        <nav>
-          <mwc-list>
-            <li divider role="separator"></li>
-            <mwc-list-item graphic="icon" data-view="reminders" @click="${this.switchTo}"><mwc-icon slot="graphic">notifications</mwc-icon><span>Reminders</span></mwc-list-item>
-            <li divider role="separator"></li>
-            <mwc-list-item graphic="icon" data-view="devices" @click="${this.switchTo}"><mwc-icon slot="graphic">devices</mwc-icon><span>Devices</span></mwc-list-item>
-            <li divider role="separator"></li>
-            <mwc-list-item graphic="icon" @click="${logout}"><mwc-icon slot="graphic">logout</mwc-icon><span>Logout</span></mwc-list-item>
-            <li divider role="separator"></li>
-          </mwc-list>
-        </nav>
-        <mwc-top-app-bar-fixed slot="appContent">
-          <mwc-icon-button icon="menu" slot="navigationIcon"></mwc-icon-button>
-          <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-          <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
-                           slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
-          <!--
-          <mwc-icon-button icon="install_mobile" slot="actionItems"></mwc-icon-button>
-          -->
-          <main>${this.renderAppContent()}</main>
-        </mwc-top-app-bar-fixed>
-      </mwc-drawer>
+      <mwc-top-app-bar-fixed>
+        <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
+        <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
+                         slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+      </mwc-top-app-bar-fixed>
+      <main>${this.renderAppContent()}</main>
+      <mwc-tab-bar>
+        <mwc-tab icon="notifications" label="Reminders" data-view="reminders" @click="${this.switchTo}" stacked></mwc-tab>
+        <mwc-tab icon="devices" label="Devices" data-view="devices" @click="${this.switchTo}" stacked></mwc-tab>
+        <mwc-tab icon="logout" label="Logout" @click="${logout}" stacked></mwc-tab>
+      </mwc-tab-bar>
     `;
   }
 
@@ -178,7 +145,6 @@ export class JDIApp extends LitElement {
 
   private switchTo(e: Event) {
     this.currentView = (e.currentTarget as HTMLElement).dataset.view;
-    this.navDrawer.open = this.drawerType == "";
   }
 
   private async loadPushNotificationsState() {
@@ -193,7 +159,7 @@ export class JDIApp extends LitElement {
       await enablePushNotifications();
     }
 
-    this.loadPushNotificationsState();
+    await this.loadPushNotificationsState();
   }
 
   private async sendNotification(_: Event) {
