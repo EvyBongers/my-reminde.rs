@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@material/mwc-button': ^0.27.0
+  '@material/mwc-circular-progress': ^0.27.0
   '@material/mwc-dialog': ^0.27.0
   '@material/mwc-fab': ^0.27.0
   '@material/mwc-icon': ^0.27.0
@@ -29,6 +30,7 @@ specifiers:
 
 dependencies:
   '@material/mwc-button': 0.27.0
+  '@material/mwc-circular-progress': 0.27.0
   '@material/mwc-dialog': 0.27.0
   '@material/mwc-fab': 0.27.0
   '@material/mwc-icon': 0.27.0
@@ -637,6 +639,18 @@ packages:
       tslib: 2.4.0
     dev: false
 
+  /@material/circular-progress/14.0.0-canary.53b3cad2f.0:
+    resolution: {integrity: sha512-4A+HMgp66b45Fvbcbh9qb1j0vRFjKESbE2fHFkSMMNDPqFiKcvq4tJFBxKG2szYzpAnXdWLYaB+DeQ2+wSu9hg==}
+    dependencies:
+      '@material/animation': 14.0.0-canary.53b3cad2f.0
+      '@material/base': 14.0.0-canary.53b3cad2f.0
+      '@material/feature-targeting': 14.0.0-canary.53b3cad2f.0
+      '@material/progress-indicator': 14.0.0-canary.53b3cad2f.0
+      '@material/rtl': 14.0.0-canary.53b3cad2f.0
+      '@material/theme': 14.0.0-canary.53b3cad2f.0
+      tslib: 2.4.0
+    dev: false
+
   /@material/density/14.0.0-canary.53b3cad2f.0:
     resolution: {integrity: sha512-Eh/vZ3vVyqtpylg5Ci33qlgtToS4H1/ppd450Ib3tcdISIoodgijYY0w4XsRvrnZgbI/h/1STFdLxdzS0UNuFw==}
     dependencies:
@@ -800,6 +814,16 @@ packages:
     dependencies:
       '@material/mwc-base': 0.27.0
       '@material/mwc-ripple': 0.27.0
+      lit: 2.4.0
+      tslib: 2.4.0
+    dev: false
+
+  /@material/mwc-circular-progress/0.27.0:
+    resolution: {integrity: sha512-7DkqMb5pUrHfLus5EZ7IT2HUMoE+uPpjGzu3MnDpIzDlfYo6I8p+ifWtEytI0NtXdY5UmITNuCv0RC77mhJrgQ==}
+    dependencies:
+      '@material/circular-progress': 14.0.0-canary.53b3cad2f.0
+      '@material/mwc-base': 0.27.0
+      '@material/theme': 14.0.0-canary.53b3cad2f.0
       lit: 2.4.0
       tslib: 2.4.0
     dev: false
@@ -1033,6 +1057,12 @@ packages:
       '@material/rtl': 14.0.0-canary.53b3cad2f.0
       '@material/shape': 14.0.0-canary.53b3cad2f.0
       '@material/theme': 14.0.0-canary.53b3cad2f.0
+      tslib: 2.4.0
+    dev: false
+
+  /@material/progress-indicator/14.0.0-canary.53b3cad2f.0:
+    resolution: {integrity: sha512-vW0oZK70QOpAarip95ueCQ/I3kBClcWjxsc0F0QjkqT76DOVXpjnZ4XoRRyq9eMpwLqlKLTecrsSNpmqwwF1Dg==}
+    dependencies:
       tslib: 2.4.0
     dev: false
 
