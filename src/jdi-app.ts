@@ -16,6 +16,7 @@ import "@material/mwc-top-app-bar-fixed";
 import "./components/jdi-login";
 import "./components/jdi-devices";
 import "./components/reminder-list";
+import "./components/confirm-dialog";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -118,7 +119,7 @@ export class JDIApp extends LitElement {
       <mwc-tab-bar>
         <mwc-tab icon="notifications" label="Reminders" data-view="reminders" @click="${this.switchTo}" stacked></mwc-tab>
         <mwc-tab icon="devices" label="Devices" data-view="devices" @click="${this.switchTo}" stacked></mwc-tab>
-        <mwc-tab icon="logout" label="Logout" @click="${logout}" stacked></mwc-tab>
+        <mwc-tab icon="logout" label="Logout" @click="${this.confirmLogout}" stacked></mwc-tab>
       </mwc-tab-bar>
     `;
   }
@@ -141,6 +142,16 @@ export class JDIApp extends LitElement {
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
+  }
+
+  private confirmLogout(e: Event) {
+    let dialog = document.createElement("confirm-dialog");
+    dialog.append("Are you sure you want to log out?");
+    dialog.setAttribute("confirmLabel", "Yes");
+    dialog.setAttribute("cancelLabel","No");
+    dialog.addEventListener("confirm", logout);
+    dialog.addEventListener("closed", _ => { this.renderRoot.removeChild(dialog); });
+    this.shadowRoot.append(dialog);
   }
 
   private switchTo(e: Event) {
