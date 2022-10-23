@@ -42,18 +42,20 @@ export class JDIApp extends LitElement {
   static override styles = css`
     :host {
       --mdc-typography-body2-font-size: 1rem;
-      --mdc-tab-stacked-height: 72px;
+      --mdc-tab-height: 48px;
+    }
+
+    mwc-top-app-bar-fixed {
       display: block;
       position: absolute;
       left: 0;
       top: 0;
-      bottom: var(--mdc-tab-stacked-height, 0);
+      bottom: calc(var(--mdc-tab-height, 48px) + 6pt);
       right: 0;
     }
 
     main {
-      padding: 0 6pt;
-      position: relative;
+      padding: 0 6pt calc(var(--mdc-tab-height, 0) + 6pt);
     }
 
     mwc-formfield {
@@ -65,7 +67,7 @@ export class JDIApp extends LitElement {
       z-index: -1;
     }
 
-    footer {
+    nav {
       --mdc-typography-button-text-transform: none;
       border-top: 1px solid #d3d3d3;
       position: fixed;
@@ -114,9 +116,9 @@ export class JDIApp extends LitElement {
   renderNav(){
     return html`
       <mwc-tab-bar>
-        <mwc-tab icon="notifications" label="Reminders" data-view="reminders" @click="${this.switchTo}" stacked></mwc-tab>
-        <mwc-tab icon="settings" label="Settings" data-view="settings" @click="${this.switchTo}" stacked></mwc-tab>
-        <mwc-tab icon="devices" label="Devices" data-view="devices" @click="${this.switchTo}" stacked></mwc-tab>
+        <mwc-tab icon="notifications" data-view="reminders" @click="${this.switchTo}"></mwc-tab>
+        <mwc-tab icon="settings" data-view="settings" @click="${this.switchTo}"></mwc-tab>
+        <mwc-tab icon="devices" data-view="devices" @click="${this.switchTo}"></mwc-tab>
       </mwc-tab-bar>
     `;
   }
@@ -147,8 +149,9 @@ export class JDIApp extends LitElement {
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
         <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
                          slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+
         <main>${this.renderAppContent()}</main>
-        <footer>${this.renderNav()}</footer>
+        <nav>${this.renderNav()}</nav>
       </mwc-top-app-bar-fixed>
     `;
   }
