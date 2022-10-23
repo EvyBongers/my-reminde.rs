@@ -40,7 +40,7 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
-          from: path.join("src", "*.{js,json}"),
+          from: path.join("src", "*.{js,json,webmanifest}"),
           to: path.join(__dirname, "firebase", "public", "[name][ext]"), // TODO(evy): figure out how to properly handle the dot in [ext]
           toType: "template",
         },

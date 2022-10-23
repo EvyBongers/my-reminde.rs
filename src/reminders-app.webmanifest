@@ -1,11 +1,14 @@
 {
-  "name": "JustDoIt",
+  "dir": "ltr",
+  "name": "Reminde.rs - Your personal reminders app",
+  "short_name": "Reminde.rs",
+  "description": "The #1 reminders app giving you all the flexibility you need.",
+  "scope": "/",
   "start_url": "/",
   "display": "standalone",
-  "dir": "ltr",
   "orientation": "natural",
-  "scope": "/",
   "theme_color": "#b824f3",
+  "background_color": "#B12A34",
   "icons": [
     {
       "src": "/images/android-icon-36x36.png",

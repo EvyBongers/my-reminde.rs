@@ -152,30 +152,14 @@ export class ReminderItem extends LitElement {
   async delete(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
-    let dialog = document.createElement("mwc-dialog");
 
-    let prompt = document.createElement("div");
-    prompt.append("Delete reminder?");
-    dialog.appendChild(prompt);
-
-    let primaryActionButton = document.createElement("mwc-button");
-    primaryActionButton.setAttribute("slot", "primaryAction");
-    primaryActionButton.setAttribute("dialogAction","ok");
-    primaryActionButton.append("Delete");
-    dialog.appendChild(primaryActionButton);
-    primaryActionButton.addEventListener("click", ev => { deleteDocByRef(this.item._ref); });
-
-    let secondaryActionButton = document.createElement("mwc-button");
-    secondaryActionButton.setAttribute("slot", "secondaryAction");
-    secondaryActionButton.setAttribute("dialogAction","cancel");
-    secondaryActionButton.append("Cancel");
-    dialog.appendChild(secondaryActionButton);
-
-    dialog.addEventListener("click", e => { e.stopPropagation(); });
-    dialog.addEventListener("closed", _ => { this.shadowRoot.removeChild(dialog); });
-
+    let dialog = document.createElement("confirm-dialog");
+    dialog.append("Delete reminder?");
+    dialog.setAttribute("confirmLabel", "Delete");
+    dialog.setAttribute("cancelLabel","Cancel");
+    dialog.addEventListener("confirm", _ => { deleteDocByRef(this.item._ref); });
+    dialog.addEventListener("closed", _ => { this.renderRoot.removeChild(dialog); });
     this.shadowRoot.append(dialog);
-    dialog.show();
   }
 
   edit(e: Event) {

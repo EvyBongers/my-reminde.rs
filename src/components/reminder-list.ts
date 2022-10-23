@@ -1,12 +1,13 @@
 import {css, html} from "lit";
 import {customElement, property, queryAll} from "lit/decorators.js";
+import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
-import "./reminder-item";
-import "./reminder-edit";
 import {ReminderItem} from "./reminder-item";
 import {ReminderDocument} from "../../firebase/functions/src"
+import "./reminder-item";
+import "./reminder-edit";
 
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
@@ -30,6 +31,10 @@ export class ReminderList extends BunnyElement {
       flex-direction: column;
     }
 
+    .notifications-container mwc-circular-progress {
+      margin: 0 auto;
+    }
+
     reminder-item:after {
       border-bottom: 1px solid #d3d3d3;
       content: "";
@@ -48,18 +53,17 @@ export class ReminderList extends BunnyElement {
     mwc-fab {
       --mdc-icon-size: 36px;
       position: fixed;
-      right: 50px;
-      bottom: 50px;
+      right: 20px;
+      bottom: calc(var(--mdc-tab-height, 0) + 20px);
     }
   `;
 
   override render() {
     return html`
-      <h3>Scheduled notifications</h3>
       <div class="notifications-container">
         ${renderItems(this.scheduledNotifications, (item, index) => html`
           <reminder-item .item="${item}"></reminder-item>
-        `, "Loading notifications...")}
+        `, html`<mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
 
       <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>

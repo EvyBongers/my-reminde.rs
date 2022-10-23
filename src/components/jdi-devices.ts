@@ -35,7 +35,6 @@ export class JDIDevices extends BunnyElement {
 
   override render() {
     return html`
-      <h3>Subscribed devices</h3>
       <div class="devices-container">
         ${renderItem(this.account, item => html`
           ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}

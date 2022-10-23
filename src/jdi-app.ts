@@ -1,17 +1,25 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
+import {choose} from 'lit/directives/choose.js';
 import {auth} from "./auth";
 import {doSendNotifications} from "./functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
+import {ReminderList} from "./components/reminder-list";
+import {logout} from "./auth";
+import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
-import './components/jdi-login';
-import './components/jdi-logout';
-import './components/jdi-devices';
-import './components/reminder-list';
-import {ReminderList} from "./components/reminder-list";
-import {showMessage} from "./helpers/Snacks";
+import "@material/mwc-formfield";
+import "@material/mwc-list";
+import "@material/mwc-switch";
+import "@material/mwc-tab";
+import "@material/mwc-tab-bar";
+import "@material/mwc-top-app-bar-fixed";
+import "./components/jdi-login";
+import "./components/jdi-devices";
+import "./components/reminder-list";
+import "./components/confirm-dialog";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -25,36 +33,81 @@ export class JDIApp extends LitElement {
   @property()
   pushNotificationsEnabled: boolean;
 
+  @property()
+  currentView: string;
+
   @query("reminder-list")
   private reminders: ReminderList;
 
   static override styles = css`
     :host {
+      --base-background-color: #ffffff;
+      --mdc-typography-body2-font-size: 1rem;
+      --mdc-tab-height: 48px;
+
+      background-color: var(--base-background-color);
+    }
+
+    mwc-top-app-bar-fixed {
       display: block;
       position: absolute;
       left: 0;
       top: 0;
-      bottom: 0;
+      bottom: calc(var(--mdc-tab-height, 48px) + 6pt);
       right: 0;
-      padding: 0 6pt;
+    }
+
+    main {
+      padding: 0 6pt calc(var(--mdc-tab-height, 0) + 6pt);
+    }
+
+    mwc-formfield {
+      display: flex;
+      height: 48px;
+    }
+
+    mwc-formfield mwc-switch {
+      z-index: -1;
+    }
+
+    nav {
+      --mdc-typography-button-text-transform: none;
+      background-color: var(--base-background-color);
+      border-top: 1px solid #d3d3d3;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+    }
+
+    mwc-tab {
+      background-color: inherit;
     }
   `;
 
-  renderLoggedIn() {
+  renderDevices() {
     return html`
-      <h1>Hurray!</h1>
-      <mwc-button outlined icon="${this.pushNotificationsEnabled ? "notifications_off" : "notifications_active"}"
-                  @click="${this.togglePush}">
-        ${this.pushNotificationsEnabled ? "Disable" : "Enable"} notifications
-      </mwc-button>
-      <br>
-      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a message</mwc-button>
-      <br>
-      <jdi-logout></jdi-logout>
-      <br>
+      <h3>Subscribed devices</h3>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
+    `;
+  }
 
+  renderReminders() {
+    return html`
+      <h3>Reminders</h3>
       <reminder-list .accountId="${this.userId}"></reminder-list>
+    `;
+  }
+
+  renderSettings() {
+    return html`
+      <h3>Settings</h3>
+      <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
+        <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
+      </mwc-formfield>
+      <br>
+      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
+      <mwc-button outlined icon="logout" label="Logout" @click="${this.confirmLogout}" stacked></mwc-button>
     `;
   }
 
@@ -64,9 +117,46 @@ export class JDIApp extends LitElement {
     `;
   }
 
+  renderNav(){
+    return html`
+      <mwc-tab-bar>
+        <mwc-tab icon="notifications" data-view="reminders" @click="${this.switchTo}"></mwc-tab>
+        <mwc-tab icon="settings" data-view="settings" @click="${this.switchTo}"></mwc-tab>
+        <mwc-tab icon="devices" data-view="devices" @click="${this.switchTo}"></mwc-tab>
+      </mwc-tab-bar>
+    `;
+  }
+
+  renderAppContent() {
+    if (!this.userId) return this.renderLoggedOut();
+
+    try {
+      return html`
+        ${choose(this.currentView, [
+              ['reminders', () => html`${this.renderReminders()}`],
+              ['settings', () => html`${this.renderSettings()}`],
+              ['devices', () => html`${this.renderDevices()}`],
+            ],
+            () => html`${this.renderReminders()}`)}
+      `;
+    }
+    catch (e) {
+      return html`
+        Failed to render view ${this.currentView}: ${e}
+      `;
+    }
+  }
+
   override render() {
     return html`
-      ${this.userId ? this.renderLoggedIn() : this.renderLoggedOut()}
+      <mwc-top-app-bar-fixed>
+        <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
+        <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
+                         slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+
+        <main>${this.renderAppContent()}</main>
+        <nav>${this.renderNav()}</nav>
+      </mwc-top-app-bar-fixed>
     `;
   }
 
@@ -90,19 +180,35 @@ export class JDIApp extends LitElement {
     this.loadPushNotificationsState();
   }
 
+  private confirmLogout(e: Event) {
+    let dialog = document.createElement("confirm-dialog");
+    dialog.append("Are you sure you want to log out?");
+    dialog.setAttribute("confirmLabel", "Yes");
+    dialog.setAttribute("cancelLabel","No");
+    dialog.addEventListener("confirm", logout);
+    dialog.addEventListener("closed", _ => { this.renderRoot.removeChild(dialog); });
+    this.shadowRoot.append(dialog);
+  }
+
+  private switchTo(e: Event) {
+    this.currentView = (e.currentTarget as HTMLElement).dataset.view;
+  }
+
   private async loadPushNotificationsState() {
     this.pushNotificationsEnabled = await isPushNotificationsEnabled();
     localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
   }
 
-  private async togglePush(_: Event) {
-    if (this.pushNotificationsEnabled) {
-      await disablePushNotifications();
-    } else {
-      await enablePushNotifications();
+  private async togglePush(e: Event) {
+    if (e.target === e.currentTarget) {
+      if (this.pushNotificationsEnabled) {
+        await disablePushNotifications();
+      } else {
+        await enablePushNotifications();
+      }
     }
 
-    this.loadPushNotificationsState();
+    await this.loadPushNotificationsState();
   }
 
   private async sendNotification(_: Event) {
