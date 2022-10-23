@@ -41,8 +41,11 @@ export class JDIApp extends LitElement {
 
   static override styles = css`
     :host {
+      --base-background-color: #ffffff;
       --mdc-typography-body2-font-size: 1rem;
       --mdc-tab-height: 48px;
+
+      background-color: var(--base-background-color);
     }
 
     mwc-top-app-bar-fixed {
@@ -69,6 +72,7 @@ export class JDIApp extends LitElement {
 
     nav {
       --mdc-typography-button-text-transform: none;
+      background-color: var(--base-background-color);
       border-top: 1px solid #d3d3d3;
       position: fixed;
       bottom: 0;
