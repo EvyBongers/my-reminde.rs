@@ -58,7 +58,7 @@ export class JDIApp extends LitElement {
     }
 
     main {
-      padding: 0 6pt calc(var(--mdc-tab-height, 0) + 6pt);
+      padding: 6pt 6pt calc(var(--mdc-tab-height, 0) + 6pt);
     }
 
     mwc-formfield {
