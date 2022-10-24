@@ -53,7 +53,7 @@ export class JDIApp extends LitElement {
       position: absolute;
       left: 0;
       top: 0;
-      bottom: calc(var(--mdc-tab-height, 48px) + 6pt);
+      bottom: 0;
       right: 0;
     }
 
