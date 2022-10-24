@@ -107,7 +107,6 @@ export class JDIApp extends LitElement {
       </mwc-formfield>
       <br>
       <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
-      <mwc-button outlined icon="logout" label="Logout" @click="${this.confirmLogout}" stacked></mwc-button>
     `;
   }
 
@@ -153,6 +152,7 @@ export class JDIApp extends LitElement {
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
         <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
                          slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+        <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
 
         <main>${this.renderAppContent()}</main>
         <nav>${this.renderNav()}</nav>
