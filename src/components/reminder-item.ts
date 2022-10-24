@@ -31,9 +31,7 @@ export class ReminderItem extends LitElement {
   @queryAsync('mwc-ripple')
   private ripple!: Promise<Ripple | null>;
 
-  protected rippleHandlers: RippleHandlers = new RippleHandlers(() => {
-    return this.ripple;
-  });
+  protected rippleHandlers: RippleHandlers = new RippleHandlers(() => this.ripple);
 
   static override styles = css`
     :host {
@@ -78,6 +76,22 @@ export class ReminderItem extends LitElement {
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
+
+    this.addEventListener("focusin", this.rippleHandlers.startFocus);
+    this.addEventListener("mouseenter", this.rippleHandlers.startHover);
+    this.addEventListener("mousedown", this.rippleHandlers.startPress);
+    this.addEventListener("mouseup", this.rippleHandlers.endPress);
+    this.addEventListener("mouseleave", this.rippleHandlers.endHover);
+    this.addEventListener("focusout", this.rippleHandlers.endFocus);
+
+    this.addEventListener("touchstart", this.rippleHandlers.startPress);
+    this.addEventListener("touchend", this.rippleHandlers.endPress);
+    this.addEventListener("touchend", this.rippleHandlers.endHover);
+    this.addEventListener("touchend", this.rippleHandlers.endFocus);
+    this.addEventListener("touchcancel", this.rippleHandlers.endPress);
+    this.addEventListener("touchcancel", this.rippleHandlers.endHover);
+    this.addEventListener("touchcancel", this.rippleHandlers.endFocus);
+
     this.addEventListener('click', _ => {
       this.expanded = !this.expanded;
     });
@@ -156,7 +170,7 @@ export class ReminderItem extends LitElement {
     let dialog = document.createElement("confirm-dialog");
     dialog.append("Delete reminder?");
     dialog.setAttribute("confirmLabel", "Delete");
-    dialog.setAttribute("cancelLabel","Cancel");
+    dialog.setAttribute("cancelLabel", "Cancel");
     dialog.addEventListener("confirm", _ => { deleteDocByRef(this.item._ref); });
     dialog.addEventListener("closed", _ => { this.renderRoot.removeChild(dialog); });
     this.shadowRoot.append(dialog);

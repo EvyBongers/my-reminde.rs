@@ -32,9 +32,9 @@ export class MenuButton extends LitElement {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
     this.menu.anchor = this.menuButton;
-    this.menuButton.addEventListener("click", _ => {
-      this.showMenu(_);
-    })
+    this.addEventListener("mousedown", e => e.stopPropagation());
+    this.addEventListener("touchstart", e => e.stopPropagation());
+    this.menuButton.addEventListener("click", e => this.showMenu(e));
   }
 
   override render() {
