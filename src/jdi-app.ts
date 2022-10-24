@@ -117,6 +117,8 @@ export class JDIApp extends LitElement {
   }
 
   renderNav(){
+    if (!this.userId) return "";
+
     return html`
       <mwc-tab-bar>
         <mwc-tab icon="notifications" data-view="reminders" @click="${this.switchTo}"></mwc-tab>
@@ -147,12 +149,16 @@ export class JDIApp extends LitElement {
   }
 
   override render() {
+    let appBarButtons = (this.userId) ? html`
+      <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
+                       slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+      <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
+    ` : "";
+
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-        <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
-                         slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
-        <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
+        ${appBarButtons}
 
         <main>${this.renderAppContent()}</main>
         <nav>${this.renderNav()}</nav>
