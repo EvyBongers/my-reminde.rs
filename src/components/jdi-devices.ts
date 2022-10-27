@@ -88,10 +88,12 @@ export class JDIDevices extends BunnyElement {
             ${!device.lastSeen ? "" : html`Last seen ${new Date(device.lastSeen).toLocaleString()}`}
           </footer>
         </div>
-        <div class="actions">
-          <mwc-icon-button data-device-id="${deviceId}" data-device-name="${device.name}"
-                           @click="${this.unsubscribeDevice}" icon="cancel"></mwc-icon-button>
-        </div>
+        ${deviceId == getDeviceId() ? "" : html`
+          <div class="actions">
+            <mwc-icon-button data-device-id="${deviceId}" data-device-name="${device.name}"
+                             @click="${this.unsubscribeDevice}" icon="cancel"></mwc-icon-button>
+          </div>
+        `}
       </div>
     `;
   }
