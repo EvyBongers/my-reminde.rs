@@ -6,6 +6,14 @@ import {firestoreDelete} from "./db";
 
 const messaging = getMessaging(firebaseApp);
 
+async function updateDevice(deviceId: string, deviceProperties: any) {
+  await updateAccount({
+    devices: {
+      [deviceId]: deviceProperties,
+    }
+  });
+}
+
 export async function enablePushNotifications() {
   let token = await getToken(messaging, {vapidKey: ""});
   console.log(token);
@@ -13,22 +21,15 @@ export async function enablePushNotifications() {
   let deviceName = getDeviceName();
   if (!deviceName) return;
 
-  await updateAccount({
-    devices: {
-      [getDeviceId()]: {
-        name: deviceName,
-        token: token
-      },
-    }
+  await updateDevice(getDeviceId(), {
+    name: deviceName,
+    token: token,
+    lastSeen: Date.now(),
   });
 }
 
-export async function disablePushNotifications() {
-  await updateAccount({
-    devices: {
-      [getDeviceId()]: firestoreDelete(),
-    }
-  });
+export async function disablePushNotifications(deviceId?: string) {
+  await updateDevice(deviceId ?? getDeviceId(), firestoreDelete());
 }
 
 export async function isPushNotificationsEnabled() {
@@ -39,7 +40,14 @@ export async function isPushNotificationsEnabled() {
   let account = await getAccount();
   if(!account?.devices) return false;
 
-  return getDeviceId() in account.devices;
+  if (getDeviceId() in account.devices) {
+    console.log(`Updating last seen for ${getDeviceId()}`)
+    await updateDevice(getDeviceId(), {
+      lastSeen: Date.now(),
+    });
+    return true
+  }
+  return false
 }
 
 // TODO: fix foreground notifications
