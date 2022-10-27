@@ -1,7 +1,7 @@
 const LOCALSTORAGE_DEVICE_ID = '__deviceId';
 const LOCALSTORAGE_DEVICE_NAME = '__deviceName';
 
-export const getDeviceId = () => {
+export const getDeviceId = () : string => {
   localStorage[LOCALSTORAGE_DEVICE_ID]??= crypto.randomUUID().replace(/-/g, '_');
   // if (!localStorage[LOCALSTORAGE_DEVICE_ID]) {
   //   localStorage[LOCALSTORAGE_DEVICE_ID] = crypto.randomUUID();
