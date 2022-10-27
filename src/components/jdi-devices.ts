@@ -57,6 +57,7 @@ export class JDIDevices extends BunnyElement {
       margin-right: auto;
       margin-top: 12px;
       margin-left: 12px;
+      overflow: auto;
     }
 
     .device-details header {
@@ -67,11 +68,15 @@ export class JDIDevices extends BunnyElement {
     .device-details h4 {
       margin-block-start: 0;
       margin-block-end: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .device-details span {
       margin-left: 6px;
       margin-right: 12px;
+      white-space: nowrap;
     }
 
     .device-details footer {
