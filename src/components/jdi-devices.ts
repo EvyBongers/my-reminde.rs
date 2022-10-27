@@ -113,9 +113,15 @@ export class JDIDevices extends BunnyElement {
       ${thisDevice}
       <h3>Other devices</h3>
       <div class="devices-list">
-        ${renderItem(this.account, item => html`
-          ${Object.entries(item.devices).filter(([key, _]) => key != currentDeviceId).map(([key, value]) => this.renderDevice(key, value))}
-        `, html`
+        ${renderItem(this.account, item => {
+          let otherDevices = Object.entries(item.devices).filter(([key, _]) => key != currentDeviceId);
+          if (otherDevices.length === 0) {
+            return html`No subscribed devices.`;
+          }
+          return html`
+            ${otherDevices.map(([key, value]) => this.renderDevice(key, value))}
+          `;
+        }, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
     `;
