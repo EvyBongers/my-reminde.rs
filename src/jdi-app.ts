@@ -118,7 +118,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderNav(){
+  renderNav() {
     if (!this.userId) return "";
 
     return html`
@@ -142,8 +142,7 @@ export class JDIApp extends LitElement {
             ],
             () => html`${this.renderReminders()}`)}
       `;
-    }
-    catch (e) {
+    } catch (e) {
       return html`
         Failed to render view ${this.currentView}: ${e}
       `;
@@ -188,13 +187,15 @@ export class JDIApp extends LitElement {
     this.loadPushNotificationsState();
   }
 
-  private confirmLogout(e: Event) {
+  private confirmLogout(_: Event) {
     let dialog = document.createElement("confirm-dialog");
     dialog.append("Are you sure you want to log out?");
     dialog.setAttribute("confirmLabel", "Yes");
-    dialog.setAttribute("cancelLabel","No");
+    dialog.setAttribute("cancelLabel", "No");
     dialog.addEventListener("confirm", logout);
-    dialog.addEventListener("closed", _ => { this.renderRoot.removeChild(dialog); });
+    dialog.addEventListener("closed", _ => {
+      this.renderRoot.removeChild(dialog);
+    });
     this.shadowRoot.append(dialog);
   }
 

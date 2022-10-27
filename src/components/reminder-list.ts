@@ -57,9 +57,10 @@ export class ReminderList extends BunnyElement {
   override render() {
     return html`
       <div class="notifications-container">
-        ${renderItems(this.scheduledNotifications, (item, index) => html`
+        ${renderItems(this.scheduledNotifications, item => html`
           <reminder-item .item="${item}"></reminder-item>
-        `, html`<mwc-circular-progress indeterminate></mwc-circular-progress>`)}
+        `, html`
+          <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
 
       <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>
@@ -68,10 +69,10 @@ export class ReminderList extends BunnyElement {
 
   @observe("accountId")
   accountChanged(accountId: string) {
-    this.scheduledNotifications = loadCollection<ReminderDocument>(`accounts/${this.accountId}/scheduledNotifications`);
+    this.scheduledNotifications = loadCollection<ReminderDocument>(`accounts/${accountId}/scheduledNotifications`);
   }
 
-  public async addNotification(e: Event) {
+  public async addNotification(_: Event) {
     let notification = document.createElement("reminder-edit");
     notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/scheduledNotifications`);
     notification.addEventListener("closed", (ev: CustomEvent) => {
