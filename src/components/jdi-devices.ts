@@ -1,10 +1,10 @@
-import {css, html, LitElement} from "lit";
+import {css, html, LitElement, nothing} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {BunnyElement, observe} from "./bunny-element";
 import {DataSupplier, loadDocument} from "../db";
 import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
-import {disablePushNotifications, isPushNotificationsEnabled} from "../messaging";
+import {disablePushNotifications} from "../messaging";
 import "@material/mwc-icon-button";
 
 @customElement("jdi-devices")
@@ -35,7 +35,6 @@ export class JDIDevices extends BunnyElement {
       cursor: pointer;
       display: flex;
       flex-direction: row;
-      padding-left: 12px;
       position: relative;
     }
 
@@ -57,11 +56,22 @@ export class JDIDevices extends BunnyElement {
     .device-details {
       margin-right: auto;
       margin-top: 12px;
+      margin-left: 12px;
+    }
+
+    .device-details header {
+      display: flex;
+      flex-direction: row;
     }
 
     .device-details h4 {
       margin-block-start: 0;
       margin-block-end: 0;
+    }
+
+    .device-details span {
+      margin-left: 6px;
+      margin-right: 12px;
     }
 
     .device-details footer {
@@ -78,17 +88,19 @@ export class JDIDevices extends BunnyElement {
   `;
 
   renderDevice(deviceId: string, device: any) {
+    let isThisDevice = deviceId == getDeviceId();
     return html`
       <div class="device">
         <div class="device-details">
           <header>
-            <h4 id="title">${device.name}</h4>
+            <h4>${device.name}</h4>
+            ${isThisDevice ? html`<span>(this device)</style>` : nothing}
           </header>
           <footer>
             ${!device.lastSeen ? "" : html`Last seen ${new Date(device.lastSeen).toLocaleString()}`}
           </footer>
         </div>
-        ${deviceId == getDeviceId() ? "" : html`
+        ${isThisDevice ? nothing : html`
           <div class="actions">
             <mwc-icon-button data-device-id="${deviceId}" data-device-name="${device.name}"
                              @click="${this.unsubscribeDevice}" icon="cancel"></mwc-icon-button>
@@ -99,29 +111,11 @@ export class JDIDevices extends BunnyElement {
   }
 
   override render() {
-    let currentDeviceId = getDeviceId();
-    let thisDevice = isPushNotificationsEnabled() ? html`
-      <h3>This device</h3>
+    return html`
       <div class="devices-list">
         ${renderItem(this.account, item => html`
-          ${Object.entries(item.devices).filter(([key, value]) => key == currentDeviceId).map(([key, value]) => this.renderDevice(key, value))}
+          ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
         `, html`
-          <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
-      </div>` : null;
-
-    return html`
-      ${thisDevice}
-      <h3>Other devices</h3>
-      <div class="devices-list">
-        ${renderItem(this.account, item => {
-          let otherDevices = Object.entries(item.devices).filter(([key, _]) => key != currentDeviceId);
-          if (otherDevices.length === 0) {
-            return html`No subscribed devices.`;
-          }
-          return html`
-            ${otherDevices.map(([key, value]) => this.renderDevice(key, value))}
-          `;
-        }, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
     `;
