@@ -1,9 +1,11 @@
-import {css, html} from "lit";
+import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {BunnyElement, observe} from "./bunny-element";
 import {DataSupplier, loadDocument} from "../db";
 import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
+import {disablePushNotifications} from "../messaging";
+import "@material/mwc-icon-button";
 
 @customElement("jdi-devices")
 export class JDIDevices extends BunnyElement {
@@ -67,6 +69,12 @@ export class JDIDevices extends BunnyElement {
       font-size: 0.875rem;
       margin-bottom: 0;
     }
+
+    mwc-icon {
+      width: var(--mdc-icon-size, 24px);
+      height: var(--mdc-icon-size, 24px);
+      padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
+    }
   `;
 
   renderDevice(deviceId: string, device: any) {
@@ -79,6 +87,10 @@ export class JDIDevices extends BunnyElement {
           <footer>
             ${!device.lastSeen ? "" : html`Last seen ${new Date(device.lastSeen).toLocaleString()}`}
           </footer>
+        </div>
+        <div class="actions">
+          <mwc-icon-button data-device-id="${deviceId}" data-device-name="${device.name}"
+                           @click="${this.unsubscribeDevice}" icon="cancel"></mwc-icon-button>
         </div>
       </div>
     `;
@@ -96,8 +108,26 @@ export class JDIDevices extends BunnyElement {
   }
 
   @observe('accountId')
-  accountChanged(accountId: string) {
+  private async accountChanged(accountId: string) {
     this.account = loadDocument<any>(`accounts/${accountId}`);
+  }
+
+  private async unsubscribeDevice(e: Event) {
+    e.stopPropagation();
+    (e.target as HTMLElement).blur()
+
+    const eventDataset = (e.currentTarget as HTMLElement | LitElement).dataset;
+    let dialog = document.createElement("confirm-dialog");
+    dialog.append(`Are you sure you want to disable reminders for ${eventDataset.deviceName}?`);
+    dialog.setAttribute("confirmLabel", "Confirm");
+    dialog.setAttribute("cancelLabel", "Cancel");
+    dialog.addEventListener("confirm", _ => {
+      disablePushNotifications(eventDataset.deviceId);
+    });
+    dialog.addEventListener("closed", _ => {
+      this.renderRoot.removeChild(dialog);
+    });
+    this.shadowRoot.append(dialog);
   }
 }
 
