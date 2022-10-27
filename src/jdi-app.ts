@@ -1,17 +1,15 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement} from "lit";
+import {css, html, LitElement, render} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {choose} from 'lit/directives/choose.js';
-import {auth} from "./auth";
-import {doSendNotifications} from "./functions";
+import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import {ReminderList} from "./components/reminder-list";
-import {logout} from "./auth";
 import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
 import "@material/mwc-formfield";
-import "@material/mwc-list";
+import "@material/mwc-list/mwc-radio-list-item";
 import "@material/mwc-switch";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
@@ -20,6 +18,10 @@ import "./components/jdi-login";
 import "./components/jdi-devices";
 import "./components/reminder-list";
 import "./components/confirm-dialog";
+import {loadCollection} from "./db";
+import {ReminderDocument} from "../firebase/functions/src";
+import {SingleSelectedEvent} from "@material/mwc-list";
+import {doSendNotifications} from "./functions";
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -218,12 +220,35 @@ export class JDIApp extends LitElement {
   }
 
   private async sendNotification(_: Event) {
-    // TODO: select notification to schedule
-    let scheduledNotifications = [...this.reminders.notifications.values()].map(_ => _.item);
-    let selectedNotification = [...scheduledNotifications.values()][Math.floor(Math.random() * scheduledNotifications.length)];
+    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.userId}/scheduledNotifications`).next()).value;
+    try {
+      let reminderDocuments = reminders as ReminderDocument[];
+      let selectedReminder: ReminderDocument;
 
-    showMessage(`Sending notification ${selectedNotification.title}`, {timeoutMs: 7500});
-    await doSendNotifications(selectedNotification._ref.path.toString());
+      let dialog = document.createElement("confirm-dialog");
+      dialog.setAttribute("confirmLabel", "Send");
+      dialog.setAttribute("cancelLabel", "Cancel");
+      render(html`
+        <span>Reminder to send:</span>
+        <br>
+        <mwc-list @selected="${(e: SingleSelectedEvent) => {
+          selectedReminder = reminderDocuments[e.detail.index]
+        }}">
+          ${reminderDocuments.map(_ => html`
+            <mwc-radio-list-item .data-document-ref="${_._ref}">${_.title}</mwc-radio-list-item>`)}
+        </mwc-list>
+      `, dialog);
+      dialog.addEventListener("confirm", _ => {
+        showMessage(`Sending notification ${selectedReminder.title}`, {timeoutMs: 7500});
+        doSendNotifications(selectedReminder._ref.path);
+      });
+      dialog.addEventListener("closed", _ => {
+        this.renderRoot.removeChild(dialog);
+      });
+      this.shadowRoot.append(dialog);
+    } catch (e) {
+      showMessage(`Failed to fetch notifications: ${e}`, {timeoutMs: 10000});
+    }
   }
 }
 

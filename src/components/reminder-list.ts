@@ -1,10 +1,9 @@
 import {css, html} from "lit";
-import {customElement, property, queryAll} from "lit/decorators.js";
+import {customElement, property} from "lit/decorators.js";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, observe} from "./bunny-element";
-import {ReminderItem} from "./reminder-item";
 import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
@@ -13,9 +12,6 @@ import "./reminder-edit";
 export class ReminderList extends BunnyElement {
   @property()
   scheduledNotifications: DataCollectionSupplier<ReminderDocument>;
-
-  @queryAll('reminder-item')
-  notifications: NodeListOf<ReminderItem>;
 
   @property({type: String})
   accountId: string;
