@@ -4,7 +4,7 @@ import {BunnyElement, observe} from "./bunny-element";
 import {DataSupplier, loadDocument} from "../db";
 import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
-import {disablePushNotifications} from "../messaging";
+import {disablePushNotifications, isPushNotificationsEnabled} from "../messaging";
 import "@material/mwc-icon-button";
 
 @customElement("jdi-devices")
@@ -31,7 +31,7 @@ export class JDIDevices extends BunnyElement {
       margin: 0 auto;
     }
 
-    .device-container {
+    .device {
       cursor: pointer;
       display: flex;
       flex-direction: row;
@@ -39,7 +39,7 @@ export class JDIDevices extends BunnyElement {
       position: relative;
     }
 
-    .device-container:after {
+    .device:after {
       border-bottom: 1px solid #d3d3d3;
       content: "";
       display: block;
@@ -50,21 +50,21 @@ export class JDIDevices extends BunnyElement {
       bottom: 0;
     }
 
-    .device-container:last-child:after {
+    .device:last-child:after {
       display: none;
     }
 
-    .device {
+    .device-details {
       margin-right: auto;
       margin-top: 12px;
     }
 
-    .device h4 {
+    .device-details h4 {
       margin-block-start: 0;
       margin-block-end: 0;
     }
 
-    .device footer {
+    .device-details footer {
       color: rgba(0, 0, 0, 0.54);
       font-size: 0.875rem;
       margin-bottom: 0;
@@ -79,8 +79,8 @@ export class JDIDevices extends BunnyElement {
 
   renderDevice(deviceId: string, device: any) {
     return html`
-      <div class="device-container">
-        <div class="device">
+      <div class="device">
+        <div class="device-details">
           <header>
             <h4 id="title">${device.name}</h4>
           </header>
@@ -97,10 +97,22 @@ export class JDIDevices extends BunnyElement {
   }
 
   override render() {
-    return html`
+    let currentDeviceId = getDeviceId();
+    let thisDevice = isPushNotificationsEnabled() ? html`
+      <h3>This device</h3>
       <div class="devices-list">
         ${renderItem(this.account, item => html`
-          ${Object.entries(item.devices).map(([key, value]) => this.renderDevice(key, value))}
+          ${Object.entries(item.devices).filter(([key, value]) => key == currentDeviceId).map(([key, value]) => this.renderDevice(key, value))}
+        `, html`
+          <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
+      </div>` : null;
+
+    return html`
+      ${thisDevice}
+      <h3>Other devices</h3>
+      <div class="devices-list">
+        ${renderItem(this.account, item => html`
+          ${Object.entries(item.devices).filter(([key, _]) => key != currentDeviceId).map(([key, value]) => this.renderDevice(key, value))}
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
