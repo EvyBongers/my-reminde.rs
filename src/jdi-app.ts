@@ -59,6 +59,10 @@ export class JDIApp extends LitElement {
       right: 0;
     }
 
+    h2 {
+      text-transform: capitalize;
+    }
+
     main {
       padding: 6pt 6pt calc(var(--mdc-tab-height, 0) + 6pt);
     }
@@ -89,21 +93,18 @@ export class JDIApp extends LitElement {
 
   renderDevices() {
     return html`
-      <h3>Subscribed devices</h3>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
 
   renderReminders() {
     return html`
-      <h3>Reminders</h3>
       <reminder-list .accountId="${this.userId}"></reminder-list>
     `;
   }
 
   renderSettings() {
     return html`
-      <h3>Settings</h3>
       <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
         <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
       </mwc-formfield>
@@ -135,6 +136,7 @@ export class JDIApp extends LitElement {
 
     try {
       return html`
+        <h2>${(this.currentView ?? "reminders")}</h2>
         ${choose(this.currentView, [
               ['reminders', () => html`${this.renderReminders()}`],
               ['settings', () => html`${this.renderSettings()}`],
