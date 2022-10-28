@@ -68,8 +68,7 @@ export class ReminderItem extends Rippling(LitElement) {
   `;
 
   async firstUpdated() {
-    // Give the browser a chance to paint
-    await new Promise((r) => setTimeout(r, 0));
+    await this.updateComplete;
     await super.firstUpdated();
 
     this.addEventListener('click', _ => {
