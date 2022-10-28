@@ -1,21 +1,20 @@
 import {css, html, LitElement} from "lit";
-import {customElement, property, query, queryAsync} from "lit/decorators.js";
+import {customElement, property, query} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
+import {Menu} from "@material/mwc-menu";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
+import {ReminderDocument} from "../../firebase/functions/src";
 import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
-import {RippleHandlers} from "@material/mwc-ripple/ripple-handlers";
-import {Ripple} from "@material/mwc-ripple";
-import {Menu} from "@material/mwc-menu";
-import {ReminderDocument} from "../../firebase/functions/src";
+import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
 
 @customElement("reminder-item")
-export class ReminderItem extends LitElement {
+export class ReminderItem extends Rippling(LitElement) {
   @property()
   item: ReminderDocument;
 
@@ -27,11 +26,6 @@ export class ReminderItem extends LitElement {
 
   @query("mwc-menu")
   private menu: Menu;
-
-  @queryAsync('mwc-ripple')
-  private ripple!: Promise<Ripple | null>;
-
-  protected rippleHandlers: RippleHandlers = new RippleHandlers(() => this.ripple);
 
   static override styles = css`
     :host {
@@ -76,31 +70,11 @@ export class ReminderItem extends LitElement {
   async firstUpdated() {
     // Give the browser a chance to paint
     await new Promise((r) => setTimeout(r, 0));
-
-    this.addEventListener("focusin", this.rippleHandlers.startFocus);
-    this.addEventListener("mouseenter", this.rippleHandlers.startHover);
-    this.addEventListener("mousedown", this.rippleHandlers.startPress);
-    this.addEventListener("mouseup", this.rippleHandlers.endPress);
-    this.addEventListener("mouseleave", this.rippleHandlers.endHover);
-    this.addEventListener("focusout", this.rippleHandlers.endFocus);
-
-    this.addEventListener("touchstart", this.rippleHandlers.startPress);
-    this.addEventListener("touchend", this.rippleHandlers.endPress);
-    this.addEventListener("touchend", this.rippleHandlers.endHover);
-    this.addEventListener("touchend", this.rippleHandlers.endFocus);
-    this.addEventListener("touchcancel", this.rippleHandlers.endPress);
-    this.addEventListener("touchcancel", this.rippleHandlers.endHover);
-    this.addEventListener("touchcancel", this.rippleHandlers.endFocus);
+    await super.firstUpdated();
 
     this.addEventListener('click', _ => {
       this.expanded = !this.expanded;
     });
-  }
-
-  private renderRipple() {
-    return html`
-      <mwc-ripple></mwc-ripple>
-    `;
   }
 
   private renderState() {
@@ -156,7 +130,6 @@ export class ReminderItem extends LitElement {
 
   override render() {
     return html`
-      ${this.renderRipple()}
       ${this.renderState()}
       ${this.renderContent()}
       ${this.renderActions()}
@@ -171,8 +144,12 @@ export class ReminderItem extends LitElement {
     dialog.append("Delete reminder?");
     dialog.setAttribute("confirmLabel", "Delete");
     dialog.setAttribute("cancelLabel", "Cancel");
-    dialog.addEventListener("confirm", _ => { deleteDocByRef(this.item._ref); });
-    dialog.addEventListener("closed", _ => { this.renderRoot.removeChild(dialog); });
+    dialog.addEventListener("confirm", _ => {
+      deleteDocByRef(this.item._ref);
+    });
+    dialog.addEventListener("closed", _ => {
+      this.renderRoot.removeChild(dialog);
+    });
     this.shadowRoot.append(dialog);
   }
 
