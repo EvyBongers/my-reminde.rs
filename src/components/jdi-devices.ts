@@ -32,7 +32,6 @@ export class JDIDevices extends BunnyElement {
     }
 
     .device {
-      cursor: pointer;
       display: flex;
       flex-direction: row;
       position: relative;
