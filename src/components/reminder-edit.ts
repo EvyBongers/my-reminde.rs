@@ -78,11 +78,11 @@ export class ReminderEdit extends LitElement {
                   escapeKeyAction="${this.cancel}"
                   scrimClickAction="${this.cancel}" open>
         <div>
-          <mwc-textfield type="text" label="Title" required
+          <mwc-textfield type="text" label="Title" icon="title" required
                          @input="${(_: Event) => this.item.title = (_.currentTarget as HTMLInputElement).value}"
                          .value="${this.item?.title ?? ""}"></mwc-textfield>
           <br>
-          <mwc-textfield type="text" label="Body" name="body" required
+          <mwc-textfield type="text" label="Body" icon="notes" name="body" required
                          @input="${(_: Event) => this.item.body = (_.currentTarget as HTMLInputElement).value}"
                          .value="${this.item?.body ?? ""}"></mwc-textfield>
           <br>
@@ -92,7 +92,7 @@ export class ReminderEdit extends LitElement {
           </mwc-formfield>
           <br>
           ${this.hasLink === true ? html`
-          <mwc-textfield type="text" label="Link" name="link" ?required="${this.hasLink}"
+          <mwc-textfield type="text" label="Link" icon="link" name="link" ?required="${this.hasLink}"
                          @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
                          .value="${this.item?.link ?? ""}"></mwc-textfield>
           <br>` : nothing}
