@@ -38,7 +38,7 @@ export async function isPushNotificationsEnabled() {
   }
 
   let account = await getAccount();
-  if(!account?.devices) return false;
+  if (!account?.devices) return false;
 
   if (getDeviceId() in account.devices) {
     console.log(`Updating last seen for ${getDeviceId()}`)
@@ -52,16 +52,31 @@ export async function isPushNotificationsEnabled() {
 
 // TODO: fix foreground notifications
 onMessage(messaging, (payload) => {
-  console.log(
-    "[messaging.ts] Received message ",
-    payload,
-  );
+  console.log("[messaging.ts] Received message ", payload);
+
   // Customize notification here
-  const notificationTitle = `[Foreground] ${payload.data.title}`;
+  const notificationTitle = `[Foreground] ${payload.notification.title}`;
   const notificationOptions = {
-    body: payload.data.body,
-    icon: "/firebase-logo.png",
+    // actions?: NotificationAction[];
+    // badge?: string;
+    body: payload.notification.body,
+    // data?: any;
+    // dir?: NotificationDirection;
+    // icon?: string;
+    image: payload.notification.image ?? "/firebase-logo.png",
+    // lang?: string;
+    renotify: true,
+    requireInteraction: true,
+    // silent?: boolean;
+    tag: payload.messageId,
+    // timestamp: notificationData.sent.toMillis(),
+    // vibrate?: VibratePattern;
   };
 
-  new Notification(notificationTitle, notificationOptions);
+  navigator.serviceWorker.getRegistration("/firebase-cloud-messaging-push-scope").then(
+    registration => {
+      if (!registration) return;
+      registration.showNotification(notificationTitle, notificationOptions)
+    }
+  );
 });
