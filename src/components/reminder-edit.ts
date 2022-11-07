@@ -1,6 +1,7 @@
-import {css, html, LitElement} from "lit";
+import {css, html, LitElement, nothing} from "lit";
 import {choose} from "lit/directives/choose.js";
-import {customElement, property, query} from "lit/decorators.js";
+import {customElement, property, query, state} from "lit/decorators.js";
+import "@material/mwc-checkbox";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-icon-button";
@@ -29,6 +30,9 @@ export class ReminderEdit extends LitElement {
   @query("mwc-dialog")
   private dialog: Dialog;
 
+  @state()
+  private hasLink: boolean;
+
   static override styles = css`
     :host {
       --mdc-dialog-min-width: 300px;
@@ -49,6 +53,7 @@ export class ReminderEdit extends LitElement {
         type: "",
       };
     }
+    this.hasLink = this.item.link != undefined;
 
     this.addEventListener("click", (e: Event) => {
       e.stopPropagation();
@@ -81,7 +86,17 @@ export class ReminderEdit extends LitElement {
                          @input="${(_: Event) => this.item.body = (_.currentTarget as HTMLInputElement).value}"
                          .value="${this.item?.body ?? ""}"></mwc-textfield>
           <br>
-          <mwc-select name="type" icon="event" required
+          <mwc-formfield label="Add link?">
+            <mwc-checkbox ?checked="${this.hasLink}"
+                          @change="${(_: Event) => this.hasLink = (_.currentTarget as HTMLInputElement).checked}"></mwc-checkbox>
+          </mwc-formfield>
+          <br>
+          ${this.hasLink === true ? html`
+          <mwc-textfield type="text" label="Link" name="link" ?required="${this.hasLink}"
+                         @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
+                         .value="${this.item?.link ?? ""}"></mwc-textfield>
+          <br>` : nothing}
+          <mwc-select name="type" label="Schedule type" icon="event" required
                       @selected="${(_: Event) => {
                         this.item.type = (_.currentTarget as HTMLSelectElement).value;
                         this.requestUpdate(this.item.type, "")
