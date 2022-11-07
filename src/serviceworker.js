@@ -78,7 +78,12 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('notificationclick', (event) => {
   if (event.action === 'open') {
     console.log("Opening notification...");
-    window.open(`https://localhost:8443/notifications/${event.notifiation.tag}`)
+
+    event.waitUntil(self.clients.matchAll({
+      type: "window"
+    }).then((_) => {
+      return clients.openWindow(`/notifications/${event.notifiation.tag}`);
+    }));
   } else {
     console.log(`Unknown notification action '${event.action}'`);
   }
