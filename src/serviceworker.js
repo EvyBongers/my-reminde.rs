@@ -74,3 +74,13 @@ self.addEventListener('fetch', (event) => {
   // event.respondWith(), the request will be handled by the browser as if there
   // were no service worker involvement.
 });
+
+self.addEventListener('notificationclick', (event) => {
+  if (event.action === 'open') {
+    console.log("Opening notification...");
+    window.open(`https://localhost:8443/notifications/${event.notifiation.tag}`)
+  } else {
+    console.log(`Unknown notification action '${event.action}'`);
+  }
+  event.notification.close();
+}, false);
