@@ -130,9 +130,9 @@ export class JDIApp extends LitElement {
 
     return html`
       <mwc-tab-bar>
-        <mwc-tab icon="notifications" data-view="reminders" @click="${this.switchTo}"></mwc-tab>
-        <mwc-tab icon="settings" data-view="settings" @click="${this.switchTo}"></mwc-tab>
-        <mwc-tab icon="devices" data-view="devices" @click="${this.switchTo}"></mwc-tab>
+        <mwc-tab icon="notifications" data-uri="/reminders" @click="${this.route}"></mwc-tab>
+        <mwc-tab icon="settings" data-uri="/settings" @click="${this.route}"></mwc-tab>
+        <mwc-tab icon="devices" data-uri="/devices" @click="${this.route}"></mwc-tab>
       </mwc-tab-bar>
     `;
   }
@@ -207,8 +207,24 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private switchTo(e: Event) {
-    this.currentView = (e.currentTarget as HTMLElement).dataset.view;
+  private setView(pathname: string) {
+    let routeData = ((uri: string) => {
+      for (const pattern in JDIApp.routes) {
+        let matchResult = new RegExp(`^${pattern}$`).exec(uri);
+        if (matchResult !== null) {
+          return JDIApp.routes[pattern];
+        }
+      }
+    })(pathname);
+    console.log("Route data:", routeData);
+    this.currentView = routeData.view;
+  }
+
+  private route(e: Event) {
+    const uri = (e.currentTarget as HTMLElement).dataset.uri;
+
+    window.history.pushState({}, null, uri);
+    this.setView(uri);
   }
 
   private async loadPushNotificationsState() {
