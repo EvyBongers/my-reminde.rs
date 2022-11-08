@@ -22,11 +22,11 @@ self.addEventListener('notificationclick', (event) => {
   switch (event.action) {
     case "":
       console.log("Opening notification...");
-      clients.openWindow(`/notifications/${event.notifiation.tag}`);
+      clients.openWindow(`/notifications/${event.notification.tag}`);
       break;
     case "open":
       console.log("Opening notification link...");
-      clients.openWindow(`/notifications/${event.notifiation.tag}/open`);
+      clients.openWindow(`/notifications/${event.notification.tag}/open`);
     default:
       console.log(`Unknown notification action '${event.action}'`);
   }
