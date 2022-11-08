@@ -1,5 +1,5 @@
-import { initializeApp } from "firebase/app";
-import { getMessaging } from "firebase/messaging";
+importScripts("https://www.gstatic.com/firebasejs/9.12.1/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/9.12.1/firebase-messaging-compat.js");
 
 const firebaseConfig = {
   apiKey: "AIzaSyAQeo7TxkZXoPZlB31rnbdJ4YK6J9l3lHY",
@@ -12,10 +12,10 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 
 // Initialize Firebase Cloud Messaging and get a reference to the service
-const messaging = getMessaging(app);
+const messaging = firebase.messaging(app);
 
 self.addEventListener('notificationclick', (event) => {
   console.log("Notification click registered", event);
