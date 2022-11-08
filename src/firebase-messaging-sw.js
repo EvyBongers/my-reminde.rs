@@ -13,3 +13,18 @@ const firebaseApp = firebase.initializeApp({
 
 // Retrieve an instance of Firebase Messaging so that it can handle background messages.
 const messaging = firebase.messaging(firebaseApp);
+
+self.addEventListener('notificationclick', (event) => {
+  if (event.action === 'open') {
+    console.log("Opening notification...");
+
+    event.waitUntil(self.clients.matchAll({
+      type: "window"
+    }).then((_) => {
+      return clients.openWindow(`/notifications/${event.notifiation.tag}`);
+    }));
+  } else {
+    console.log(`Unknown notification action '${event.action}'`);
+  }
+  event.notification.close();
+}, false);
