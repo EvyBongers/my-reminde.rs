@@ -15,6 +15,7 @@ const firebaseApp = firebase.initializeApp({
 const messaging = firebase.messaging(firebaseApp);
 
 self.addEventListener('notificationclick', (event) => {
+  console.log("Notification click registered", event);
   if (event.action === 'open') {
     console.log("Opening notification...");
 
