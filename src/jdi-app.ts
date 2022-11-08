@@ -184,6 +184,7 @@ export class JDIApp extends LitElement {
       if (user) {
         this.userId = user.uid;
         localStorage["loggedInUserId"] = user.uid;
+        this.setView();
       } else {
         this.userId = undefined;
         delete localStorage["loggedInUserId"];
@@ -207,7 +208,9 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private setView(pathname: string) {
+  private setView(pathname?: string) {
+    pathname ??= (new URL(document.location.href)).pathname;
+
     let routeData = ((uri: string) => {
       for (const pattern in JDIApp.routes) {
         let matchResult = new RegExp(`^${pattern}$`).exec(uri);
