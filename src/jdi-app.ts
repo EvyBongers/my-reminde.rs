@@ -91,6 +91,12 @@ export class JDIApp extends LitElement {
     }
   `;
 
+  private static routes: { [pattern: string]: { view: string } } = {
+    "/(reminders)?": { view: "reminders"},
+    "/settings": { view: "settings" },
+    "/devices": { view: "devices" },
+  }
+
   renderDevices() {
     return html`
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
