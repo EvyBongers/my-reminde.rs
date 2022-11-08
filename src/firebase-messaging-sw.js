@@ -19,16 +19,16 @@ const messaging = getMessaging(app);
 
 self.addEventListener('notificationclick', (event) => {
   console.log("Notification click registered", event);
-  if (event.action === 'open') {
-    console.log("Opening notification...");
-
-    event.waitUntil(self.clients.matchAll({
-      type: "window"
-    }).then((_) => {
-      return clients.openWindow(`/notifications/${event.notifiation.tag}`);
-    }));
-  } else {
-    console.log(`Unknown notification action '${event.action}'`);
+  switch (event.action) {
+    case "":
+      console.log("Opening notification...");
+      clients.openWindow(`/notifications/${event.notifiation.tag}`);
+      break;
+    case "open":
+      console.log("Opening notification link...");
+      clients.openWindow(`/notifications/${event.notifiation.tag}/open`);
+    default:
+      console.log(`Unknown notification action '${event.action}'`);
   }
   event.notification.close();
-}, false);
+});
