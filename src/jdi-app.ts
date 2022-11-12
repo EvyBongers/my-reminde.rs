@@ -95,10 +95,10 @@ export class JDIApp extends LitElement {
   `;
 
   private static routes: { [pattern: string]: { view: string } } = {
-    "/(reminders)?": {view: "reminders"},
+    "/reminders/:id": {view: "reminders"},
     "/settings": {view: "settings"},
     "/devices": {view: "devices"},
-    "/notifications": {view: "notifications"},
+    "/notifications/:id": {view: "notifications"},
   }
 
   renderDevices() {
@@ -227,7 +227,7 @@ export class JDIApp extends LitElement {
 
     let routeData = ((uri: string) => {
       for (const pattern in JDIApp.routes) {
-        let matchResult = new RegExp(`^${pattern}$`).exec(uri);
+        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:(?:/)(?<id>\\w+))?")}$`).exec(uri);
         if (matchResult !== null) {
           return JDIApp.routes[pattern];
         }
