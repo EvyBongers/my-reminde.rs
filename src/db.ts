@@ -68,7 +68,6 @@ export async function* loadCollection<T = any>(path: string): DataCollectionSupp
   }
 }
 
-//loadDocument('accounts/asdasda')
 export async function* loadDocument<T = any>(path: string): DataSupplier<T> {
   let lastCallback: (doc: any) => void;
   let nextItems = new Promise<T>((s) => {
