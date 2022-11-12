@@ -25,6 +25,11 @@ import {ReminderDocument} from "../firebase/functions/src";
 import {SingleSelectedEvent} from "@material/mwc-list";
 import {doSendNotifications} from "./functions";
 
+type routeData = {
+  view: string
+  data?: {[key: string]: string}
+};
+
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
 
@@ -38,7 +43,7 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @property()
-  currentView: string;
+  currentRoute: routeData;
 
   @query("reminder-list")
   private reminders: ReminderList;
@@ -94,7 +99,7 @@ export class JDIApp extends LitElement {
     }
   `;
 
-  private static routes: { [pattern: string]: { view: string } } = {
+  private static routes: { [pattern: string]: routeData } = {
     "/reminders/:id": {view: "reminders"},
     "/settings": {view: "settings"},
     "/devices": {view: "devices"},
@@ -108,10 +113,10 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderReminders() {
+  renderReminders(args?: {[key: string]: string}) {
     return html`
       <h2>Reminders</h2>
-      <reminder-list .accountId="${this.userId}"></reminder-list>
+      <reminder-list .accountId="${this.userId}" .selectedId="${args?.id}"></reminder-list>
     `;
   }
 
@@ -126,10 +131,10 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderNotifications() {
+  renderNotifications(args?: {[key: string]: string}) {
     return html`
       <h2>Notification history</h2>
-      <notification-list .collection="notifications" .accountId="${this.userId}"></notification-list>
+      <notification-list .accountId="${this.userId}" .selectedId="${args?.id}"></notification-list>
     `;
   }
 
@@ -163,11 +168,11 @@ export class JDIApp extends LitElement {
   renderAppContent() {
     try {
       return html`
-        ${choose(this.currentView, [
-              ['reminders', () => html`${this.renderReminders()}`],
+        ${choose(this.currentRoute.view, [
+              ['reminders', () => html`${this.renderReminders(this.currentRoute.data)}`],
               ['settings', () => html`${this.renderSettings()}`],
               ['devices', () => html`${this.renderDevices()}`],
-              ['notifications', () => html`${this.renderNotifications()}`],
+              ['notifications', () => html`${this.renderNotifications(this.currentRoute.data)}`],
             ],
             () => html`${this.renderReminders()}`)}
       `;
@@ -232,12 +237,15 @@ export class JDIApp extends LitElement {
       for (const pattern in JDIApp.routes) {
         let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:(?:/)(?<id>\\w+))?")}$`).exec(uri);
         if (matchResult !== null) {
-          return JDIApp.routes[pattern];
+          return {
+            ...JDIApp.routes[pattern],
+            data: matchResult.groups,
+          };
         }
       }
     })(pathname);
     console.log("Route data:", routeData ?? "<nullish>");
-    this.currentView = routeData?.view;
+    this.currentRoute = routeData;
   }
 
   private route(e: Event) {
