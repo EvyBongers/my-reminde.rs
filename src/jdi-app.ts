@@ -103,18 +103,21 @@ export class JDIApp extends LitElement {
 
   renderDevices() {
     return html`
+      <h2>Subscribed devices</h2>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
 
   renderReminders() {
     return html`
+      <h2>Reminders</h2>
       <reminder-list .accountId="${this.userId}"></reminder-list>
     `;
   }
 
   renderSettings() {
     return html`
+      <h2>Settings</h2>
       <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
         <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
       </mwc-formfield>
@@ -125,6 +128,7 @@ export class JDIApp extends LitElement {
 
   renderNotifications() {
     return html`
+      <h2>Notification history</h2>
       <notification-list .collection="notifications" .accountId="${this.userId}"></notification-list>
     `;
   }
@@ -159,7 +163,6 @@ export class JDIApp extends LitElement {
   renderAppContent() {
     try {
       return html`
-        <h2>${(this.currentView ?? "reminders")}</h2>
         ${choose(this.currentView, [
               ['reminders', () => html`${this.renderReminders()}`],
               ['settings', () => html`${this.renderSettings()}`],
