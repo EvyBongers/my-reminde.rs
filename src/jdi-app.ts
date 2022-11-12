@@ -191,7 +191,8 @@ export class JDIApp extends LitElement {
 
   renderAppBarButtons() {
     return html`
-      <mwc-icon-button icon="notifications_active" slot="actionItems" data-uri="/notifications" @click="${this.route}"></mwc-icon-button>
+      <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
+                       slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
       <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
     `;
   }
