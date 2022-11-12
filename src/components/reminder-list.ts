@@ -11,7 +11,7 @@ import "./reminder-edit";
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
   @property()
-  scheduledNotifications: DataCollectionSupplier<ReminderDocument>;
+  reminders: DataCollectionSupplier<ReminderDocument>;
 
   @property({type: String})
   accountId: string;
@@ -21,13 +21,13 @@ export class ReminderList extends BunnyElement {
       display: block;
     }
 
-    .notifications-container {
+    .reminders-container {
       border: 1px solid #d3d3d3;
       display: flex;
       flex-direction: column;
     }
 
-    .notifications-container mwc-circular-progress {
+    .reminders-container mwc-circular-progress {
       margin: 0 auto;
     }
 
@@ -56,20 +56,20 @@ export class ReminderList extends BunnyElement {
 
   override render() {
     return html`
-      <div class="notifications-container">
-        ${renderItems(this.scheduledNotifications, item => html`
+      <div class="reminders-container">
+        ${renderItems(this.reminders, item => html`
           <reminder-item .item="${item}"></reminder-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
 
-      <mwc-fab icon="add" @click="${this.addNotification}"></mwc-fab>
+      <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>
     `;
   }
 
   @observe("accountId")
   accountChanged(accountId: string) {
-    this.scheduledNotifications = loadCollection<ReminderDocument>(`accounts/${accountId}/scheduledNotifications`);
+    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId}/scheduledNotifications`);
   }
 
   public async addNotification(_: Event) {
