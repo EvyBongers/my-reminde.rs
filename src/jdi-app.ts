@@ -1,7 +1,8 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement, render} from "lit";
+import {css, html, LitElement, nothing, render} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {choose} from 'lit/directives/choose.js';
+import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import {ReminderList} from "./components/reminder-list";
@@ -45,8 +46,9 @@ export class JDIApp extends LitElement {
   static override styles = css`
     :host {
       --base-background-color: #ffffff;
-      --mdc-typography-body2-font-size: 1rem;
       --mdc-tab-height: 48px;
+      --mdc-theme-primary: #6200ee;
+      --mdc-typography-body2-font-size: 1rem;
 
       background-color: var(--base-background-color);
     }
@@ -134,21 +136,27 @@ export class JDIApp extends LitElement {
   }
 
   renderNav() {
-    if (!this.userId) return "";
-
     return html`
-      <mwc-tab-bar>
-        <mwc-tab icon="alarm" data-uri="/reminders" @click="${this.route}"></mwc-tab>
-        <mwc-tab icon="settings" data-uri="/settings" @click="${this.route}"></mwc-tab>
-        <mwc-tab icon="devices" data-uri="/devices" @click="${this.route}"></mwc-tab>
-        <mwc-tab icon="notifications" data-uri="/notifications" @click="${this.route}"></mwc-tab>
-      </mwc-tab-bar>
+      <nav>
+        <mwc-tab-bar>
+          <mwc-tab icon="alarm" data-uri="/reminders" @click="${this.route}"></mwc-tab>
+          <mwc-tab icon="settings" data-uri="/settings" @click="${this.route}"></mwc-tab>
+          <mwc-tab icon="devices" data-uri="/devices" @click="${this.route}"></mwc-tab>
+          <mwc-tab icon="notifications" data-uri="/notifications" @click="${this.route}"></mwc-tab>
+        </mwc-tab-bar>
+      </nav>
+    `;
+  }
+
+  renderAppBarButtons() {
+    return html`
+      <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
+                       slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+      <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
     `;
   }
 
   renderAppContent() {
-    if (!this.userId) return this.renderLoggedOut();
-
     try {
       return html`
         <h2>${(this.currentView ?? "reminders")}</h2>
@@ -162,26 +170,21 @@ export class JDIApp extends LitElement {
       `;
     } catch (e) {
       return html`
-        Failed to render view ${this.currentView}: ${e}
+        Failed to render view: ${e}
       `;
     }
   }
 
   override render() {
-    this.setView();
-    let appBarButtons = (this.userId) ? html`
-      <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
-                       slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
-      <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
-    ` : "";
-
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-        ${appBarButtons}
+        ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)};
 
-        <main>${this.renderAppContent()}</main>
-        <nav>${this.renderNav()}</nav>
+        <main>
+          ${when(this.userId, () => html`${this.renderAppContent()}`, () => html`${this.renderLoggedOut()}`)}
+        </main>
+        ${when(this.userId, () => html`${this.renderNav()}`, () => nothing)}
       </mwc-top-app-bar-fixed>
     `;
   }
@@ -201,6 +204,7 @@ export class JDIApp extends LitElement {
       }
     });
 
+    this.setView();
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
