@@ -1,4 +1,4 @@
-import {css, html, LitElement} from "lit";
+import {css, html, nothing, LitElement} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {Menu} from "@material/mwc-menu";
@@ -7,16 +7,15 @@ import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
-import {ReminderDocument} from "../../firebase/functions/src";
-import {deleteDocByRef, setDocByRef} from "../db";
-import {calculateNextSend} from "../helpers/Scheduling";
+import {NotificationDocument} from "../../firebase/functions/src";
+import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
 
-@customElement("reminder-item")
-export class ReminderItem extends Rippling(LitElement) {
+@customElement("notification-item")
+export class NotificationItem extends Rippling(LitElement) {
   @property()
-  item: ReminderDocument;
+  item: NotificationDocument;
 
   @property({type: Boolean})
   protected expanded: boolean = false;
@@ -41,11 +40,12 @@ export class ReminderItem extends Rippling(LitElement) {
       padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
     }
 
-    .actions, .state {
+    .actions {
       display: flex;
     }
 
     .notification {
+      margin-left: 12px;
       margin-right: auto;
       margin-top: 12px;
     }
@@ -76,30 +76,20 @@ export class ReminderItem extends Rippling(LitElement) {
     });
   }
 
-  private renderState() {
-    return html`
-      <div class="state">
-        <mwc-icon>${this.item.enabled ? "alarm" : "alarm_off"}</mwc-icon>
-      </div>
-    `;
-  }
-
   private renderContent() {
     return html`
       <div class="notification">
         <header>
-          <h4 id="title">${this.item.title}</h4>
+          <h4 id="title">${this.item?.title}</h4>
         </header>
         ${!this.expanded ? html`` : html`
           <main>
-            <p id="body">${this.item.body}</p>
-            <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
+            <p id="body">${this.item?.body}</p>
+            ${this.item? html`<p id="link"><a href="${this.item.link}">${this.item.link}</a></p>`:nothing}
           </main>
         `}
         <footer>
-          ${!this.item.enabled ? html`(disabled)` : html`
-            Next: ${calculateNextSend(this.item).toLocaleString()}
-          `}
+          Sent: ${this.item?.sent.toLocaleString()}
         </footer>
       </div>
     `;
@@ -109,27 +99,13 @@ export class ReminderItem extends Rippling(LitElement) {
     return html`
       <div class="actions">
         <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
-        <menu-button>
-          <mwc-list-item graphic="icon" @click="${this.toggleActive}">
-            <mwc-icon slot="graphic">${this.item.enabled ? "notifications_off" : "notifications_active"}</mwc-icon>
-            <span>${this.item.enabled ? "Disable" : "Enable"}</span>
-          </mwc-list-item>
-          <mwc-list-item graphic="icon" @click="${this.edit}">
-            <mwc-icon slot="graphic">edit</mwc-icon>
-            <span>Edit</span>
-          </mwc-list-item>
-          <mwc-list-item graphic="icon" @click="${this.delete}">
-            <mwc-icon slot="graphic">delete</mwc-icon>
-            <span>Delete</span>
-          </mwc-list-item>
-        </menu-button>
+        <mwc-icon-button icon="delete" @click="${this.delete}"></mwc-icon-button>
       </div>
     `;
   }
 
   override render() {
     return html`
-      ${this.renderState()}
       ${this.renderContent()}
       ${this.renderActions()}
     `;
@@ -140,7 +116,7 @@ export class ReminderItem extends Rippling(LitElement) {
     (e.target as HTMLElement).blur()
 
     let dialog = document.createElement("confirm-dialog");
-    dialog.append("Delete reminder?");
+    dialog.append("Delete notification?");
     dialog.setAttribute("confirmLabel", "Delete");
     dialog.setAttribute("cancelLabel", "Cancel");
     dialog.addEventListener("confirm", _ => {
@@ -151,32 +127,10 @@ export class ReminderItem extends Rippling(LitElement) {
     });
     this.shadowRoot.append(dialog);
   }
-
-  edit(e: Event) {
-    e.stopPropagation();
-    (e.target as HTMLElement).blur()
-    let notification = document.createElement("reminder-edit");
-    notification.item = structuredClone(this.item);
-    notification.documentRef = this.item._ref;
-    notification.addEventListener("closed", (ev: CustomEvent) => {
-      console.log(`Notification edit result: ${ev.detail}`);
-      this.shadowRoot.removeChild(notification);
-    });
-
-    this.shadowRoot.append(notification);
-  }
-
-  toggleActive(e: Event) {
-    e.stopPropagation();
-    (e.target as HTMLElement).blur();
-    this.item.enabled = !this.item.enabled;
-    this.item.nextSend = null;
-    setDocByRef(this.item._ref, this.item, {merge: true});
-  }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    "reminder-item": ReminderItem;
+    "notification-item": NotificationItem;
   }
 }

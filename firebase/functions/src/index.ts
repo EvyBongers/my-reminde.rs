@@ -6,6 +6,7 @@ import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {parseExpression} from "cron-parser-all";
 
 initializeApp();
+const db = getFirestore();
 const messaging = getMessaging();
 
 interface AccountDevice {
@@ -29,52 +30,50 @@ export interface ReminderDocument extends DocumentData {
   lastSent?: Timestamp;
 }
 
-interface NotificationDocument {
-  scheduledNotificationRef: DocumentReference,
+export interface NotificationDocument extends DocumentData {
+  reminderRef: DocumentReference,
   title: string,
   body: string,
   link?: string,
   sent: Timestamp,
 }
 
-const calculateNextSend = (notification: ReminderDocument) : Timestamp | null => {
-  switch (notification.type) {
+const calculateNextSend = (reminderDocumentData: ReminderDocument): Timestamp | null => {
+  switch (reminderDocumentData.type) {
     case "cron": {
       // TODO(ebongers): use preference in user profile
       let options = {tz: "Europe/Amsterdam"};
-      let cron = parseExpression(notification.cronExpression as string, options);
+      let cron = parseExpression(reminderDocumentData.cronExpression as string, options);
       return Timestamp.fromDate(cron.next().toDate());
     }
     default: {
-      functions.logger.error(`Unknown notification type ${notification.type} on document ${notification._ref}`);
+      functions.logger.error(`Unknown reminder type ${reminderDocumentData.type} on document ${reminderDocumentData._ref}`);
       return null;
     }
   }
 };
 
-const db = getFirestore();
-
 export const doSendNotifications = functions.region("europe-west1").https.onCall(
   async (path: string, context) => {
-    let notificationDocumentRef = await db.doc(path);
-    let notificationDocumentData = (await notificationDocumentRef.get()).data() as ReminderDocument;
-    notificationDocumentData.title = `[forced] ${notificationDocumentData.title}`;
-    await triggerNotification(notificationDocumentRef, notificationDocumentData);
+    let reminderDocumentRef = await db.doc(path);
+    let reminderDocumentData = (await reminderDocumentRef.get()).data() as ReminderDocument;
+    reminderDocumentData.title = `[forced] ${reminderDocumentData.title}`;
+    await triggerNotification(reminderDocumentRef, reminderDocumentData);
   },
 );
 
-const triggerNotification = async (ref: DocumentReference, data: ReminderDocument) => {
-  let accountRef = ref.parent.parent as DocumentReference;
+const triggerNotification = async (reminderDocumentRef: DocumentReference, reminderDocumentData: ReminderDocument) => {
+  let accountRef = reminderDocumentRef.parent.parent as DocumentReference;
   await accountRef.collection("notifications").add({
-    scheduledNotificationRef: ref,
-    title: data.title,
-    body: data.body,
-    link: data.link || "",
+    reminderRef: reminderDocumentRef,
+    title: reminderDocumentData.title,
+    body: reminderDocumentData.body,
+    link: reminderDocumentData.link || "",
     sent: FieldValue.serverTimestamp(),
   } as NotificationDocument);
 };
 
-let getPushTokens = (account: AccountDocument) => {
+const getPushTokens = (account: AccountDocument) => {
   return Object.entries(account.devices).map(_ => _[1].token);
 };
 
@@ -83,21 +82,21 @@ export const updateNextSend = functions.region("europe-west1")
 .onWrite(async (change, context) => {
   if (context.eventType == "google.firestore.document.delete") return;
 
-  let notification = change.after;
-  let notificationData = notification.data() as ReminderDocument;
-  if (notificationData.enabled === false) return;
+  let reminderDocumentRef = change.after;
+  let reminderDocumentData = reminderDocumentRef.data() as ReminderDocument;
+  if (reminderDocumentData.enabled === false) return;
 
-  let oldNotification = change.before;
-  let oldNotificationData = oldNotification.data() as ReminderDocument;
+  let oldReminderDocumentRef = change.before;
+  let oldreminderDocumentData = oldReminderDocumentRef.data() as ReminderDocument;
 
   try {
-    let nextSend = calculateNextSend(notificationData);
-    if (nextSend != oldNotificationData.nextSend) {
-      functions.logger.debug(`Updating timestamps on notification ${notification.ref}:`, {nextSend: nextSend});
-      await notification.ref.update({nextSend: nextSend});
+    let nextSend = calculateNextSend(reminderDocumentData);
+    if (nextSend != oldreminderDocumentData.nextSend) {
+      functions.logger.debug(`Updating timestamps on reminder ${reminderDocumentRef.ref}:`, {nextSend: nextSend});
+      await reminderDocumentRef.ref.update({nextSend: nextSend});
     }
   } catch (e) {
-    functions.logger.error(`Failed to update nextSend on document ${notification.ref}`);
+    functions.logger.error(`Failed to update nextSend on document ${reminderDocumentRef.ref}`);
     functions.logger.error((e as Error).message);
   }
 });
@@ -116,7 +115,7 @@ export const sendNotifications = functions.region("europe-west1")
           // Prefer: "respond-async",
           // TTL: "-1",
           Urgency: "high",
-          Topic: notificationData.scheduledNotificationRef.id,
+          Topic: notificationData.reminderRef.id,
         },
         notification: {
           // actions: [
@@ -164,19 +163,19 @@ export const runNotify = functions.region("europe-west1")
 .schedule("* * * * *")
 .timeZone("Europe/Amsterdam")
 .onRun(async _context => {
-  let scheduledNotifications = await db.collectionGroup("scheduledNotifications")
+  let reminders = await db.collectionGroup("scheduledNotifications")
   .where("nextSend", "<=", new Date())
   .where("enabled", "==", true)
   .get();
 
-  for (let scheduledNotification of scheduledNotifications.docs) {
-    let scheduledNotificationData = scheduledNotification.data() as ReminderDocument;
-    let nextSend = calculateNextSend(scheduledNotificationData);
+  for (let reminderDocument of reminders.docs) {
+    let reminderDocumentData = reminderDocument.data() as ReminderDocument;
+    let nextSend = calculateNextSend(reminderDocumentData);
 
-    functions.logger.info("creating", scheduledNotificationData);
-    await triggerNotification(scheduledNotification.ref, scheduledNotificationData);
+    functions.logger.info("creating", reminderDocumentData);
+    await triggerNotification(reminderDocument.ref, reminderDocumentData);
 
-    functions.logger.debug(`Updating timestamps on notification ${scheduledNotification.ref.id}:`, {nextSend: nextSend});
-    await scheduledNotification.ref.update({lastSent: FieldValue.serverTimestamp(), nextSend: nextSend});
+    functions.logger.debug(`Updating timestamps on reminder ${reminderDocument.ref.id}:`, {nextSend: nextSend});
+    await reminderDocument.ref.update({lastSent: FieldValue.serverTimestamp(), nextSend: nextSend});
   }
 });

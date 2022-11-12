@@ -16,6 +16,7 @@ import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
 import "./components/jdi-login";
 import "./components/jdi-devices";
+import "./components/notification-list";
 import "./components/reminder-list";
 import "./components/confirm-dialog";
 import {loadCollection} from "./db";
@@ -92,9 +93,10 @@ export class JDIApp extends LitElement {
   `;
 
   private static routes: { [pattern: string]: { view: string } } = {
-    "/(reminders)?": { view: "reminders"},
-    "/settings": { view: "settings" },
-    "/devices": { view: "devices" },
+    "/(reminders)?": {view: "reminders"},
+    "/settings": {view: "settings"},
+    "/devices": {view: "devices"},
+    "/notifications": {view: "notifications"},
   }
 
   renderDevices() {
@@ -119,6 +121,12 @@ export class JDIApp extends LitElement {
     `;
   }
 
+  renderNotifications() {
+    return html`
+      <notification-list .collection="notifications" .accountId="${this.userId}"></notification-list>
+    `;
+  }
+
   renderLoggedOut() {
     return html`
       <jdi-login></jdi-login>
@@ -130,9 +138,10 @@ export class JDIApp extends LitElement {
 
     return html`
       <mwc-tab-bar>
-        <mwc-tab icon="notifications" data-uri="/reminders" @click="${this.route}"></mwc-tab>
+        <mwc-tab icon="alarm" data-uri="/reminders" @click="${this.route}"></mwc-tab>
         <mwc-tab icon="settings" data-uri="/settings" @click="${this.route}"></mwc-tab>
         <mwc-tab icon="devices" data-uri="/devices" @click="${this.route}"></mwc-tab>
+        <mwc-tab icon="notifications" data-uri="/notifications" @click="${this.route}"></mwc-tab>
       </mwc-tab-bar>
     `;
   }
@@ -147,6 +156,7 @@ export class JDIApp extends LitElement {
               ['reminders', () => html`${this.renderReminders()}`],
               ['settings', () => html`${this.renderSettings()}`],
               ['devices', () => html`${this.renderDevices()}`],
+              ['notifications', () => html`${this.renderNotifications()}`],
             ],
             () => html`${this.renderReminders()}`)}
       `;
@@ -219,8 +229,8 @@ export class JDIApp extends LitElement {
         }
       }
     })(pathname);
-    console.log("Route data:", routeData);
-    this.currentView = routeData.view;
+    console.log("Route data:", routeData ?? "<nullish>");
+    this.currentView = routeData?.view;
   }
 
   private route(e: Event) {
