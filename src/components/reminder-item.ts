@@ -1,4 +1,4 @@
-import {css, html, LitElement} from "lit";
+import {css, html, nothing, LitElement} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {Menu} from "@material/mwc-menu";
@@ -93,6 +93,7 @@ export class ReminderItem extends Rippling(LitElement) {
         ${!this.expanded ? html`` : html`
           <main>
             <p id="body">${this.item.body}</p>
+            ${this.item? html`<p id="link"><a href="${this.item.link}">${this.item.link}</a></p>`:nothing}
             <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
           </main>
         `}
