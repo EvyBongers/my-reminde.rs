@@ -14,12 +14,13 @@ import "@material/mwc-switch";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
-import "./components/jdi-login";
-import "./components/jdi-devices";
-import "./components/notification-list";
-import "./components/reminder-list";
 import "./components/confirm-dialog";
+import "./components/jdi-devices";
+import "./components/jdi-login";
 import "./components/nav-bar";
+import "./components/notification-list";
+import "./components/notification-redirect";
+import "./components/reminder-list";
 import {loadCollection} from "./db";
 import {ReminderDocument} from "../firebase/functions/src";
 import {SingleSelectedEvent} from "@material/mwc-list";
@@ -104,6 +105,7 @@ export class JDIApp extends LitElement {
     "/settings": {view: "settings"},
     "/devices": {view: "devices"},
     "/notifications/:id": {view: "notifications"},
+    "/notifications/:id/open": {view: "externalRedirect"},
   }
 
   private navButtons: NavItem[] = [
@@ -118,6 +120,12 @@ export class JDIApp extends LitElement {
     if (window.location.pathname === "/") {
       window.history.replaceState(window.history.state?.data, null, this.defaultPath);
     }
+  }
+  renderNotificationRedirect(args?: { [key: string]: string }) {
+    return html`
+      <h2>Leaving My Reminde.rs</h2>
+      <notification-redirect .accountId="${this.userId}" .notificationId="${args?.id}"></notification-redirect>
+    `;
   }
 
   renderDevices() {
@@ -189,6 +197,7 @@ export class JDIApp extends LitElement {
               ['settings', () => html`${this.renderSettings()}`],
               ['devices', () => html`${this.renderDevices()}`],
               ['notifications', () => html`${this.renderNotifications(this.currentRoute.data)}`],
+              ['externalRedirect', () => html`${this.renderNotificationRedirect(this.currentRoute.data)}`],
             ],
             () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
       `;
