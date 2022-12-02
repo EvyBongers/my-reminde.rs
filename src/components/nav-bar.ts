@@ -1,9 +1,8 @@
-import {css, html, LitElement, ReactiveElement} from "lit";
-import {customElement, property, query, state} from "lit/decorators.js";
+import {css, html, LitElement} from "lit";
+import {customElement, property, state} from "lit/decorators.js";
 import {map} from "lit/directives/map.js";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
-import {TabBar} from "@material/mwc-tab-bar";
 
 export type NavItem = {
   icon: string
