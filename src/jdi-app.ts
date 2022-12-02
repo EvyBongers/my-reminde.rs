@@ -5,7 +5,6 @@ import {choose} from 'lit/directives/choose.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {ReminderList} from "./components/reminder-list";
 import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
@@ -20,14 +19,16 @@ import "./components/jdi-devices";
 import "./components/notification-list";
 import "./components/reminder-list";
 import "./components/confirm-dialog";
+import "./components/nav-bar";
 import {loadCollection} from "./db";
 import {ReminderDocument} from "../firebase/functions/src";
 import {SingleSelectedEvent} from "@material/mwc-list";
 import {doSendNotifications} from "./functions";
+import {NavItem} from "./components/nav-bar";
 
 type routeData = {
   view: string
-  data?: {[key: string]: string}
+  data?: { [key: string]: string }
 };
 
 @customElement("jdi-app")
@@ -44,9 +45,6 @@ export class JDIApp extends LitElement {
 
   @property()
   currentRoute: routeData;
-
-  @query("reminder-list")
-  private reminders: ReminderList;
 
   static override styles = css`
     :host {
@@ -106,6 +104,13 @@ export class JDIApp extends LitElement {
     "/notifications/:id": {view: "notifications"},
   }
 
+  private navButtons: NavItem[] = [
+    {icon: "alarm", uri: "/reminders"},
+    {icon: "settings", uri: "/settings"},
+    {icon: "devices", uri: "/devices"},
+    {icon: "notifications", uri: "/notifications"},
+  ]
+
   renderDevices() {
     return html`
       <h2>Subscribed devices</h2>
@@ -113,7 +118,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderReminders(args?: {[key: string]: string}) {
+  renderReminders(args?: { [key: string]: string }) {
     return html`
       <h2>Reminders</h2>
       <reminder-list .accountId="${this.userId}" .selectedId="${args?.id}"></reminder-list>
@@ -131,7 +136,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderNotifications(args?: {[key: string]: string}) {
+  renderNotifications(args?: { [key: string]: string }) {
     return html`
       <h2>Notification history</h2>
       <notification-list .accountId="${this.userId}" .selectedId="${args?.id}"></notification-list>
@@ -145,14 +150,16 @@ export class JDIApp extends LitElement {
   }
 
   renderNav() {
+    let activeIndex = 0;
+    this.navButtons.forEach((navItem, idx) => {
+      if (document.location.pathname.startsWith(navItem.uri)) {
+        activeIndex = idx;
+      }
+    });
     return html`
       <nav>
-        <mwc-tab-bar>
-          <mwc-tab icon="alarm" data-uri="/reminders" @click="${this.route}"></mwc-tab>
-          <mwc-tab icon="settings" data-uri="/settings" @click="${this.route}"></mwc-tab>
-          <mwc-tab icon="devices" data-uri="/devices" @click="${this.route}"></mwc-tab>
-          <mwc-tab icon="notifications" data-uri="/notifications" @click="${this.route}"></mwc-tab>
-        </mwc-tab-bar>
+        <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"
+                 @NavigationEvent="${this.route}"></nav-bar>
       </nav>
     `;
   }
@@ -168,7 +175,7 @@ export class JDIApp extends LitElement {
   renderAppContent() {
     try {
       return html`
-        ${choose(this.currentRoute.view, [
+        ${choose(this.currentRoute?.view, [
               ['reminders', () => html`${this.renderReminders(this.currentRoute.data)}`],
               ['settings', () => html`${this.renderSettings()}`],
               ['devices', () => html`${this.renderDevices()}`],
@@ -212,9 +219,9 @@ export class JDIApp extends LitElement {
       }
     });
 
-    this.setView();
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
+    this.setCurrentRoute(window.location.pathname);
     this.loadPushNotificationsState();
   }
 
@@ -230,12 +237,10 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private setView(pathname?: string) {
-    pathname ??= (new URL(document.location.href)).pathname;
-
+  private setCurrentRoute(pathname: string) {
     let routeData = ((uri: string) => {
       for (const pattern in JDIApp.routes) {
-        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:(?:/)(?<id>\\w+))?")}$`).exec(uri);
+        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?")}$`).exec(uri);
         if (matchResult !== null) {
           return {
             ...JDIApp.routes[pattern],
@@ -244,15 +249,12 @@ export class JDIApp extends LitElement {
         }
       }
     })(pathname);
-    console.log("Route data:", routeData ?? "<nullish>");
     this.currentRoute = routeData;
   }
 
-  private route(e: Event) {
-    const uri = (e.currentTarget as HTMLElement).dataset.uri;
-
-    window.history.pushState({}, null, uri);
-    this.setView(uri);
+  private route(e: CustomEvent) {
+    window.history.pushState({}, null, e.detail);
+    this.setCurrentRoute(e.detail);
   }
 
   private async loadPushNotificationsState() {
