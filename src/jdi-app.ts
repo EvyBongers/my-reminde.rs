@@ -5,7 +5,6 @@ import {choose} from 'lit/directives/choose.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {ReminderList} from "./components/reminder-list";
 import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
@@ -15,15 +14,23 @@ import "@material/mwc-switch";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
-import "./components/jdi-login";
-import "./components/jdi-devices";
-import "./components/notification-list";
-import "./components/reminder-list";
 import "./components/confirm-dialog";
+import "./components/jdi-devices";
+import "./components/jdi-login";
+import "./components/nav-bar";
+import "./components/notification-list";
+import "./components/notification-redirect";
+import "./components/reminder-list";
 import {loadCollection} from "./db";
 import {ReminderDocument} from "../firebase/functions/src";
 import {SingleSelectedEvent} from "@material/mwc-list";
 import {doSendNotifications} from "./functions";
+import {NavItem} from "./components/nav-bar";
+
+type routeData = {
+  view: string
+  data?: { [key: string]: string }
+};
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -38,10 +45,9 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @property()
-  currentView: string;
+  currentRoute: routeData;
 
-  @query("reminder-list")
-  private reminders: ReminderList;
+  private defaultPath: string = "/reminders";
 
   static override styles = css`
     :host {
@@ -94,11 +100,32 @@ export class JDIApp extends LitElement {
     }
   `;
 
-  private static routes: { [pattern: string]: { view: string } } = {
+  private static routes: { [pattern: string]: routeData } = {
     "/reminders/:id": {view: "reminders"},
     "/settings": {view: "settings"},
     "/devices": {view: "devices"},
     "/notifications/:id": {view: "notifications"},
+    "/notifications/:id/open": {view: "externalRedirect"},
+  }
+
+  private navButtons: NavItem[] = [
+    {icon: "alarm", uri: "/reminders"},
+    {icon: "settings", uri: "/settings"},
+    {icon: "devices", uri: "/devices"},
+    {icon: "notifications", uri: "/notifications"},
+  ]
+
+  constructor() {
+    super();
+    if (window.location.pathname === "/") {
+      window.history.replaceState(window.history.state?.data, null, this.defaultPath);
+    }
+  }
+  renderNotificationRedirect(args?: { [key: string]: string }) {
+    return html`
+      <h2>Leaving My Reminde.rs</h2>
+      <notification-redirect .accountId="${this.userId}" .notificationId="${args?.id}"></notification-redirect>
+    `;
   }
 
   renderDevices() {
@@ -108,10 +135,10 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderReminders() {
+  renderReminders(args?: { [key: string]: string }) {
     return html`
       <h2>Reminders</h2>
-      <reminder-list .accountId="${this.userId}"></reminder-list>
+      <reminder-list .accountId="${this.userId}" .selectedId="${args?.id}"></reminder-list>
     `;
   }
 
@@ -126,10 +153,10 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderNotifications() {
+  renderNotifications(args?: { [key: string]: string }) {
     return html`
       <h2>Notification history</h2>
-      <notification-list .collection="notifications" .accountId="${this.userId}"></notification-list>
+      <notification-list .accountId="${this.userId}" .selectedId="${args?.id}"></notification-list>
     `;
   }
 
@@ -140,14 +167,16 @@ export class JDIApp extends LitElement {
   }
 
   renderNav() {
+    let activeIndex = 0;
+    this.navButtons.forEach((navItem, idx) => {
+      if (document.location.pathname.startsWith(navItem.uri)) {
+        activeIndex = idx;
+      }
+    });
     return html`
       <nav>
-        <mwc-tab-bar>
-          <mwc-tab icon="alarm" data-uri="/reminders" @click="${this.route}"></mwc-tab>
-          <mwc-tab icon="settings" data-uri="/settings" @click="${this.route}"></mwc-tab>
-          <mwc-tab icon="devices" data-uri="/devices" @click="${this.route}"></mwc-tab>
-          <mwc-tab icon="notifications" data-uri="/notifications" @click="${this.route}"></mwc-tab>
-        </mwc-tab-bar>
+        <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"
+                 @NavigationEvent="${this.route}"></nav-bar>
       </nav>
     `;
   }
@@ -163,13 +192,14 @@ export class JDIApp extends LitElement {
   renderAppContent() {
     try {
       return html`
-        ${choose(this.currentView, [
-              ['reminders', () => html`${this.renderReminders()}`],
+        ${choose(this.currentRoute?.view, [
+              ['reminders', () => html`${this.renderReminders(this.currentRoute.data)}`],
               ['settings', () => html`${this.renderSettings()}`],
               ['devices', () => html`${this.renderDevices()}`],
-              ['notifications', () => html`${this.renderNotifications()}`],
+              ['notifications', () => html`${this.renderNotifications(this.currentRoute.data)}`],
+              ['externalRedirect', () => html`${this.renderNotificationRedirect(this.currentRoute.data)}`],
             ],
-            () => html`${this.renderReminders()}`)}
+            () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
       `;
     } catch (e) {
       return html`
@@ -207,9 +237,9 @@ export class JDIApp extends LitElement {
       }
     });
 
-    this.setView();
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
+    this.setCurrentRoute(window.location.pathname);
     this.loadPushNotificationsState();
   }
 
@@ -225,26 +255,24 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private setView(pathname?: string) {
-    pathname ??= (new URL(document.location.href)).pathname;
-
+  private setCurrentRoute(pathname: string) {
     let routeData = ((uri: string) => {
       for (const pattern in JDIApp.routes) {
-        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:(?:/)(?<id>\\w+))?")}$`).exec(uri);
+        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?")}$`).exec(uri);
         if (matchResult !== null) {
-          return JDIApp.routes[pattern];
+          return {
+            ...JDIApp.routes[pattern],
+            data: matchResult.groups,
+          };
         }
       }
     })(pathname);
-    console.log("Route data:", routeData ?? "<nullish>");
-    this.currentView = routeData?.view;
+    this.currentRoute = routeData;
   }
 
-  private route(e: Event) {
-    const uri = (e.currentTarget as HTMLElement).dataset.uri;
-
-    window.history.pushState({}, null, uri);
-    this.setView(uri);
+  private route(e: CustomEvent) {
+    window.history.pushState({}, null, e.detail);
+    this.setCurrentRoute(e.detail);
   }
 
   private async loadPushNotificationsState() {

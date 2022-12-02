@@ -20,12 +20,6 @@ export class NotificationItem extends Rippling(LitElement) {
   @property({type: Boolean})
   protected expanded: boolean = false;
 
-  @query("mwc-icon-button")
-  private menuButton: IconButton;
-
-  @query("mwc-menu")
-  private menu: Menu;
-
   static override styles = css`
     :host {
       cursor: pointer;
