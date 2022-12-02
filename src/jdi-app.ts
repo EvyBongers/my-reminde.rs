@@ -46,6 +46,8 @@ export class JDIApp extends LitElement {
   @property()
   currentRoute: routeData;
 
+  private defaultPath: string = "/reminders";
+
   static override styles = css`
     :host {
       --base-background-color: #ffffff;
@@ -110,6 +112,13 @@ export class JDIApp extends LitElement {
     {icon: "devices", uri: "/devices"},
     {icon: "notifications", uri: "/notifications"},
   ]
+
+  constructor() {
+    super();
+    if (window.location.pathname === "/") {
+      window.history.replaceState(window.history.state?.data, null, this.defaultPath);
+    }
+  }
 
   renderDevices() {
     return html`
@@ -181,7 +190,7 @@ export class JDIApp extends LitElement {
               ['devices', () => html`${this.renderDevices()}`],
               ['notifications', () => html`${this.renderNotifications(this.currentRoute.data)}`],
             ],
-            () => html`${this.renderReminders()}`)}
+            () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
       `;
     } catch (e) {
       return html`
