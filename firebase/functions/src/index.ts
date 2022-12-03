@@ -1,10 +1,22 @@
 import {logger, region} from "firebase-functions";
+import {credential} from "firebase-admin";
 import {initializeApp} from "firebase-admin/app";
 import {DocumentData, DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {parseExpression} from "cron-parser-all";
+import {readFileSync} from "fs";
+import {env} from "process";
 
-initializeApp();
+try {
+  const serviceAccount = JSON.parse(readFileSync(env.FIREBASE_SERVICE_ACCOUNT_FILE as string, "utf8"));
+  initializeApp({
+    credential: credential.cert(serviceAccount),
+  });
+} catch (e) {
+  console.log(`Failed to read service account file (${env.FIREBASE_SERVICE_ACCOUNT_FILE})`, e);
+  initializeApp();
+}
+
 const db = getFirestore();
 const functions = region("europe-west1");
 const messaging = getMessaging();
