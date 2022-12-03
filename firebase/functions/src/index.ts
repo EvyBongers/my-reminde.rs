@@ -122,6 +122,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
         data: {
           notificationId: snapshot.ref.id,
           reminderId: notificationData.reminderRef.id,
+          link: notificationData.link,
         },
         headers: {
           // Prefer: "respond-async",
@@ -130,13 +131,13 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
           Topic: notificationData.reminderRef.id,
         },
         notification: {
-          actions: [
+          actions: notificationData.link ? [
             {
               title: "Open",
               action: "open",
               icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAx0lEQVR4Ae2ZsRGDMBTFuKyRDMIiDJgCNoMqmYACfu/KqBDcPd291kgFjT3cmhBC+NSW2lY7Lq2Fn9Mh/wcf1AMWLu8GrI8O6D6AM9V2PwDK3yoAyO9+AJOf/AAmP/gBQN4PAPJ+AJAXA7i8GMDl7QAuDwABXF4N4PJ+AJf3A7i88RNzeT+Ay/sBXN4P4PJ+wMjk/YBX7QvktYAmAshbAU3ECGTNAEACEgBIALjcFbby63V3M3/g8ParvYUnJrytNnfIhxCCwAnGmUVXQgo6RQAAAABJRU5ErkJggg==",
             },
-          ],
+          ] : [],
           body: notificationData.body,
           renotify: true,
           requireInteraction: true,
