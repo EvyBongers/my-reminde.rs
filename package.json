@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "firebase": "cd firebase && firebase",
-    "functions-npm": "docker run -it --rm -v ${PWD}/firebase/functions:/usr/share/app -w /usr/share/app node:16-alpine npm",
+    "functions-npm": "docker run -it --rm --user node:users -v ${PWD}/firebase/functions:/usr/share/app -w /usr/share/app node:16-alpine npm",
     "setup": "tmux new-session -d -s packages pnpm install; tmux split-window -v pnpm run functions-npm install; tmux attach-session -t packages",
     "update": "tmux new-session -d -s packages pnpm update; tmux split-window -v pnpm run functions-npm update; tmux attach-session -t packages",
     "upgrade": "tmux new-session -d -s packages pnpm update --latest; tmux split-window -v pnpm run functions-npm update --latest; tmux attach-session -t packages",
