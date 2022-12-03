@@ -129,7 +129,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
           title: notificationData.title,
         },
         fcmOptions: {
-          link: `https://qvyldr.web.app/notifications/${snapshot.id}`,
+          link: `https://qvyldr.web.app/notifications/${snapshot.ref.id}`,
         },
       },
       tokens: tokens,
