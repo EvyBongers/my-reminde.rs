@@ -119,6 +119,10 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
     let tokens = getPushTokens(accountData);
     let batchResponse = await messaging.sendMulticast({
       webpush: {
+        data: {
+          notificationId: snapshot.ref.id,
+          reminderId: notificationData.reminderRef.id,
+        },
         headers: {
           // Prefer: "respond-async",
           // TTL: "-1",
@@ -136,7 +140,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
           body: notificationData.body,
           renotify: true,
           requireInteraction: true,
-          tag: snapshot.id,
+          tag: notificationData.reminderRef.id,
           timestamp: notificationData.sent.toMillis(),
           title: notificationData.title,
         },

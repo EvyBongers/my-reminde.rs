@@ -50,7 +50,6 @@ export async function isPushNotificationsEnabled() {
   return false
 }
 
-// TODO: fix foreground notifications
 onMessage(messaging, (payload) => {
   console.log("[messaging.ts] Received message ", payload);
 
@@ -66,7 +65,7 @@ onMessage(messaging, (payload) => {
     ],
     // badge?: string;
     body: payload.notification.body,
-    // data?: any;
+    data: payload.data,
     // dir?: NotificationDirection;
     // icon?: string;
     image: payload.notification.image ?? "/firebase-logo.png",
@@ -74,7 +73,7 @@ onMessage(messaging, (payload) => {
     renotify: true,
     requireInteraction: true,
     // silent?: boolean;
-    tag: payload.messageId,
+    tag: payload.data.reminderId,
     // timestamp: notificationData.sent.toMillis(),
     // vibrate?: VibratePattern;
   };
