@@ -13,20 +13,21 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = firebase.initializeApp(firebaseConfig);
-
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = firebase.messaging(app);
 
 self.addEventListener('notificationclick', (event) => {
   console.log("Notification click registered", event);
+  let data = event.notification.data.FCM_MSG?.data ?? event.notification.data;
   switch (event.action) {
     case "":
-      console.log("Opening notification...");
-      clients.openWindow(`/notifications/${event.notification.tag}`);
+      console.log(`Opening notification: /notifications/${data.notificationId}`);
+      clients.openWindow(`/notifications/${data.notificationId}`);
       break;
     case "open":
-      console.log("Opening notification link...");
-      clients.openWindow(`/notifications/${event.notification.tag}/open`);
+      console.log(`Opening notification link: /notifications/${data.notificationId}/open`);
+      clients.openWindow(`/notifications/${data.notificationId}/open`);
+      break;
     default:
       console.log(`Unknown notification action '${event.action}'`);
   }
