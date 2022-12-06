@@ -13,6 +13,7 @@ import "@material/mwc-switch";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
+import {NavItem} from "./components/nav-bar";
 import "./components/confirm-dialog";
 import "./components/jdi-devices";
 import "./components/jdi-login";
@@ -20,7 +21,6 @@ import "./components/nav-bar";
 import "./components/notification-list";
 import "./components/reminder-list";
 import "./components/settings-control";
-import {NavItem} from "./components/nav-bar";
 import {navigate} from "./helpers/Rendering";
 
 export type Route = {
@@ -190,7 +190,7 @@ export class JDIApp extends LitElement {
   renderAppBarButtons(): TemplateResult {
     return html`
       <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
-                       slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
+                       slot="actionItems"></mwc-icon-button>
       <mwc-icon-button icon="logout" slot="actionItems" @click="${this.confirmLogout}" stacked></mwc-icon-button>
     `;
   }
@@ -290,18 +290,6 @@ export class JDIApp extends LitElement {
   private async loadPushNotificationsState() {
     this.pushNotificationsEnabled = await isPushNotificationsEnabled();
     localStorage["pushNotificationsEnabled"] = this.pushNotificationsEnabled;
-  }
-
-  private async togglePush(e: Event) {
-    if (e.target === e.currentTarget) {
-      if (this.pushNotificationsEnabled) {
-        await disablePushNotifications();
-      } else {
-        await enablePushNotifications();
-      }
-    }
-
-    await this.loadPushNotificationsState();
   }
 }
 

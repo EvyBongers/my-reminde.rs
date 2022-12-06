@@ -1,24 +1,46 @@
-import {customElement, property} from "lit/decorators.js";
 import {css, html, LitElement, render} from "lit";
-import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "../messaging";
-import {loadCollection} from "../db";
-import {ReminderDocument} from "../../firebase/functions/src";
+import {customElement, property} from "lit/decorators.js";
 import {SingleSelectedEvent} from "@material/mwc-list";
+import "@material/mwc-formfield";
+import "@material/mwc-switch";
+import {ReminderDocument} from "../../firebase/functions/src";
 import {showMessage} from "../helpers/Snacks";
+import {loadCollection} from "../db";
 import {doSendNotifications} from "../functions";
+import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "../messaging";
+import {getDeviceName} from "../helpers/Device";
 
 @customElement("settings-control")
 export class SettingsControl extends LitElement {
+  _deviceName: string = getDeviceName();
+
   @property()
   accountId: string;
 
   @property()
   pushNotificationsEnabled: boolean;
 
+  @property()
+  get deviceName(): string {
+    return this._deviceName;
+  }
+
+  set deviceName(name: string) {
+    let oldName = this._deviceName;
+    this._deviceName = name ?? navigator.userAgent;
+    this.requestUpdate('deviceName', oldName);
+  }
+
   static override styles = css`
-    mwc-formfield {
+    .settings-container {
       display: flex;
-      height: 48px;
+      flex-direction: column;
+    }
+
+    mwc-formfield {
+      height: 56px;
+      display: flex;
+      width: 100%;
     }
 
     mwc-formfield mwc-switch {
@@ -36,11 +58,12 @@ export class SettingsControl extends LitElement {
   override render() {
     return html`
       <h2>Settings</h2>
-      <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
-        <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
-      </mwc-formfield>
-      <br>
-      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
+      <div class="settings-container">
+        <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
+          <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
+        </mwc-formfield>
+        <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
+      </div>
     `;
   }
 
@@ -63,8 +86,8 @@ export class SettingsControl extends LitElement {
         <span>Reminder to send:</span>
         <br>
         <mwc-list @selected="${(e: SingleSelectedEvent) => {
-        selectedReminder = reminderDocuments[e.detail.index]
-      }}">
+          selectedReminder = reminderDocuments[e.detail.index]
+        }}">
           ${reminderDocuments.map(_ => html`
             <mwc-radio-list-item .data-document-ref="${_._ref}">${_.title}</mwc-radio-list-item>`)}
         </mwc-list>
