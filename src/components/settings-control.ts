@@ -9,11 +9,13 @@ import {loadCollection} from "../db";
 import {doSendNotifications} from "../functions";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled, updateDevice} from "../messaging";
 import {getDeviceId, getDeviceName, setDeviceName} from "../helpers/Device";
+import {updateAccount} from "../auth";
 import {BunnyElement, observe} from "./bunny-element";
 
 @customElement("settings-control")
 export class SettingsControl extends BunnyElement {
   _deviceName: string = getDeviceName();
+  timezone: string;
 
   @property()
   accountId: string;
@@ -67,6 +69,12 @@ export class SettingsControl extends BunnyElement {
           <mwc-textfield type="text" name="device" .value="${this.deviceName}" placeholder="${navigator.userAgent}"
                          @input="${(_: Event) => this.deviceName = (_.currentTarget as HTMLInputElement).value}">
           </mwc-textfield>
+        </mwc-formfield>
+        <mwc-formfield label="Notifications timezone" alignEnd spaceBetween>
+          <mwc-select name="timezone" .value="${this.timezone}"
+                      @changed="${(_: Event) => this.timezone = (_.currentTarget as HTMLSelectElement).value}">
+            <mwc-list-item>Europe/Amsterdam</mwc-list-item>
+          </mwc-select>
         </mwc-formfield>
         <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
       </div>
@@ -129,6 +137,15 @@ export class SettingsControl extends BunnyElement {
     if (this.pushNotificationsEnabled) {
       await updateDevice(getDeviceId(), {
         name: deviceName,
+      });
+    }
+  }
+
+  @observe("timezone")
+  async updateTimezone(timezone: string) {
+    if (this.pushNotificationsEnabled) {
+      await updateAccount({
+        timezone: timezone,
       });
     }
   }
