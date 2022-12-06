@@ -11,10 +11,11 @@ export const getDeviceId = () : string => {
 }
 
 export const getDeviceName = () => {
-  let proposedDeviceName = localStorage[LOCALSTORAGE_DEVICE_NAME] || navigator.userAgent;
-  let deviceName = prompt('Device name?', proposedDeviceName);
-  if(!deviceName) return null;
+  localStorage[LOCALSTORAGE_DEVICE_NAME] ??= navigator.userAgent;
 
+  return localStorage[LOCALSTORAGE_DEVICE_NAME];
+}
+
+export const setDeviceName = (deviceName: string) => {
   localStorage[LOCALSTORAGE_DEVICE_NAME] = deviceName;
-  return deviceName;
 }

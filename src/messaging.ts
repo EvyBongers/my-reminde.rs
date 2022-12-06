@@ -7,7 +7,7 @@ import {firestoreDelete} from "./db";
 const messaging = getMessaging(firebaseApp);
 const vapidKey = "BCTIaBwvVZY39ljNxvu9x18LcvqROlScyxIdqwUnVPsaMbxVG9INvKFHrXy4lldPoC-sLZo1TSA2xC8XeBKx_ug";
 
-async function updateDevice(deviceId: string, deviceProperties: any) {
+export async function updateDevice(deviceId: string, deviceProperties: any) {
   await updateAccount({
     devices: {
       [deviceId]: deviceProperties,

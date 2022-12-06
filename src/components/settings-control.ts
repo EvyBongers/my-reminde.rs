@@ -7,11 +7,12 @@ import {ReminderDocument} from "../../firebase/functions/src";
 import {showMessage} from "../helpers/Snacks";
 import {loadCollection} from "../db";
 import {doSendNotifications} from "../functions";
-import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "../messaging";
-import {getDeviceName} from "../helpers/Device";
+import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled, updateDevice} from "../messaging";
+import {getDeviceId, getDeviceName, setDeviceName} from "../helpers/Device";
+import {BunnyElement, observe} from "./bunny-element";
 
 @customElement("settings-control")
-export class SettingsControl extends LitElement {
+export class SettingsControl extends BunnyElement {
   _deviceName: string = getDeviceName();
 
   @property()
@@ -61,6 +62,11 @@ export class SettingsControl extends LitElement {
       <div class="settings-container">
         <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
           <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
+        </mwc-formfield>
+        <mwc-formfield label="Device name" alignEnd spaceBetween>
+          <mwc-textfield type="text" name="device" .value="${this.deviceName}" placeholder="${navigator.userAgent}"
+                         @input="${(_: Event) => this.deviceName = (_.currentTarget as HTMLInputElement).value}">
+          </mwc-textfield>
         </mwc-formfield>
         <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
       </div>
@@ -115,6 +121,16 @@ export class SettingsControl extends LitElement {
     }
 
     await this.loadPushNotificationsState();
+  }
+
+  @observe("deviceName")
+  async updateDeviceName(deviceName: string) {
+    setDeviceName(deviceName);
+    if (this.pushNotificationsEnabled) {
+      await updateDevice(getDeviceId(), {
+        name: deviceName,
+      });
+    }
   }
 }
 
