@@ -1,10 +1,22 @@
 import {logger, region} from "firebase-functions";
+import {credential} from "firebase-admin";
 import {initializeApp} from "firebase-admin/app";
 import {DocumentData, DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {parseExpression} from "cron-parser-all";
+import {readFileSync} from "fs";
+import {env} from "process";
 
-initializeApp();
+try {
+  const serviceAccount = JSON.parse(readFileSync(env.FIREBASE_SERVICE_ACCOUNT_FILE as string, "utf8"));
+  initializeApp({
+    credential: credential.cert(serviceAccount),
+  });
+} catch (e) {
+  console.log(`Failed to read service account file (${env.FIREBASE_SERVICE_ACCOUNT_FILE})`, e);
+  initializeApp();
+}
+
 const db = getFirestore();
 const functions = region("europe-west1");
 const messaging = getMessaging();
@@ -107,6 +119,11 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
     let tokens = getPushTokens(accountData);
     let batchResponse = await messaging.sendMulticast({
       webpush: {
+        data: {
+          notificationId: snapshot.ref.id,
+          reminderId: notificationData.reminderRef.id,
+          link: notificationData.link,
+        },
         headers: {
           // Prefer: "respond-async",
           // TTL: "-1",
@@ -114,26 +131,23 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
           Topic: notificationData.reminderRef.id,
         },
         notification: {
-          // actions: [
-          //   {
-          //     title: "OK",
-          //     action: "void()",
-          //   },
-          //   {
-          //     title: "Dismiss",
-          //     action: "void()",
-          //   },
-          // ],
+          actions: notificationData.link ? [
+            {
+              title: "Open",
+              action: "open",
+              icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAx0lEQVR4Ae2ZsRGDMBTFuKyRDMIiDJgCNoMqmYACfu/KqBDcPd291kgFjT3cmhBC+NSW2lY7Lq2Fn9Mh/wcf1AMWLu8GrI8O6D6AM9V2PwDK3yoAyO9+AJOf/AAmP/gBQN4PAPJ+AJAXA7i8GMDl7QAuDwABXF4N4PJ+AJf3A7i88RNzeT+Ay/sBXN4P4PJ+wMjk/YBX7QvktYAmAshbAU3ECGTNAEACEgBIALjcFbby63V3M3/g8ParvYUnJrytNnfIhxCCwAnGmUVXQgo6RQAAAABJRU5ErkJggg==",
+            },
+          ] : [],
           body: notificationData.body,
           renotify: true,
           requireInteraction: true,
-          tag: snapshot.id,
+          tag: notificationData.reminderRef.id,
           timestamp: notificationData.sent.toMillis(),
           title: notificationData.title,
         },
-        // fcmOptions: notificationData.link ? {
-        //   link: notificationData.link,
-        // } : undefined,
+        fcmOptions: {
+          link: `https://qvyldr.web.app/notifications/${snapshot.ref.id}`,
+        },
       },
       tokens: tokens,
     } as MulticastMessage);

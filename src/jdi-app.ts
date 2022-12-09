@@ -1,5 +1,5 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement, nothing, render} from "lit";
+import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {choose} from 'lit/directives/choose.js';
 import {when} from 'lit/directives/when.js';
@@ -48,6 +48,14 @@ export class JDIApp extends LitElement {
   currentRoute: routeData;
 
   private defaultPath: string = "/reminders";
+
+  private routes: { [pattern: string]: { renderFn: (params?: Record<string, string>) => TemplateResult } } = {
+    "/reminders/:id": {renderFn: this.renderReminders},
+    "/settings": {renderFn: this.renderSettings},
+    "/devices": {renderFn: this.renderDevices},
+    "/notifications/:id": {renderFn: this.renderNotifications},
+    "/notifications/:id/open": {renderFn: this.renderNotificationRedirect},
+  }
 
   static override styles = css`
     :host {
@@ -156,7 +164,7 @@ export class JDIApp extends LitElement {
   renderNotifications(args?: { [key: string]: string }) {
     return html`
       <h2>Notification history</h2>
-      <notification-list .accountId="${this.userId}" .selectedId="${args?.id}"></notification-list>
+      <notification-list .collection="notifications" .accountId="${this.userId}" .selectedId="${args?.id}"></notification-list>
     `;
   }
 
@@ -190,6 +198,7 @@ export class JDIApp extends LitElement {
   }
 
   renderAppContent() {
+    let pathname = (new URL(document.location.href)).pathname;
     try {
       return html`
         ${choose(this.currentRoute?.view, [
