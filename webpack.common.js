@@ -1,6 +1,12 @@
 const path = require("path");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const firebase = require("firebase/package.json");
+
+function inject_module_versions(content) {
+  return content.toString()
+    .replaceAll('__FIREBASE_SDK_VERSION__', firebase.version);
+}
 
 module.exports = {
   entry: {
@@ -43,6 +49,9 @@ module.exports = {
           from: path.join("src", "*.{js,json,webmanifest}"),
           to: path.join(__dirname, "firebase", "public", "[name][ext]"), // TODO(evy): figure out how to properly handle the dot in [ext]
           toType: "template",
+          transform: function (content, path) {
+            return inject_module_versions(content)
+          },
         },
         {
           from: path.join("src", "images"),
