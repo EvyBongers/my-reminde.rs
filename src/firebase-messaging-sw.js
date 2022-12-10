@@ -34,7 +34,7 @@ messaging.onMessage(messaging, (payload) => {
     data: payload.data,
     // dir?: NotificationDirection;
     // icon?: string;
-    image: payload.notification.image ?? "/firebase-logo.png",
+    image: payload.notification.image ?? "/images/icon-256x256.png",
     // lang?: string;
     renotify: true,
     requireInteraction: true,
