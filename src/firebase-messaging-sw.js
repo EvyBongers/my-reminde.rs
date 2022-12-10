@@ -20,7 +20,7 @@ messaging.onMessage(messaging, (payload) => {
   console.log("[firebase-messaging-sw.js] Received message ", payload);
 
   // Customize notification here
-  const notificationTitle = `[Foreground] ${payload.notification.title}`;
+  const notificationTitle = `[Service worker] ${payload.notification.title}`;
   const notificationOptions = {
     actions: payload.data.link ? [
       {
