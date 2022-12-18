@@ -19,14 +19,8 @@ const messaging = firebase.messaging(app);
 self.addEventListener('notificationclick', (event) => {
   console.log("Notification click registered", event);
   let data = event.notification.data.FCM_MSG?.data ?? event.notification.data;
-  switch (event.action) {
-    case "":
-      console.log(`Opening notification: /notifications/${data.notificationId}`);
-      clients.openWindow(`/notifications/${data.notificationId}`);
-      break;
-    default:
-      console.log(`Opening url: ${event.action}`);
-      clients.openWindow(event.action);
-  }
+  let url = event.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
+  console.log(`Opening url: ${url}`);
+  self.clients.openWindow(url);
   event.notification.close();
 });
