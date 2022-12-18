@@ -16,42 +16,6 @@ const app = firebase.initializeApp(firebaseConfig);
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = firebase.messaging(app);
 
-messaging.onMessage(messaging, (payload) => {
-  console.log("[firebase-messaging-sw.js] Received message ", payload);
-
-  // Customize notification here
-  const notificationTitle = `[Service worker] ${payload.notification.title}`;
-  const notificationOptions = {
-    actions: payload.data.link ? [
-      {
-        title: "Open",
-        action: "open",
-        icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAx0lEQVR4Ae2ZsRGDMBTFuKyRDMIiDJgCNoMqmYACfu/KqBDcPd291kgFjT3cmhBC+NSW2lY7Lq2Fn9Mh/wcf1AMWLu8GrI8O6D6AM9V2PwDK3yoAyO9+AJOf/AAmP/gBQN4PAPJ+AJAXA7i8GMDl7QAuDwABXF4N4PJ+AJf3A7i88RNzeT+Ay/sBXN4P4PJ+wMjk/YBX7QvktYAmAshbAU3ECGTNAEACEgBIALjcFbby63V3M3/g8ParvYUnJrytNnfIhxCCwAnGmUVXQgo6RQAAAABJRU5ErkJggg==",
-      },
-    ] : [],
-    // badge?: string;
-    body: payload.notification.body,
-    data: payload.data,
-    // dir?: NotificationDirection;
-    // icon?: string;
-    image: payload.notification.image ?? "/images/icon-256x256.png",
-    // lang?: string;
-    renotify: true,
-    requireInteraction: true,
-    // silent?: boolean;
-    tag: payload.data.reminderId,
-    // timestamp: notificationData.sent.toMillis(),
-    // vibrate?: VibratePattern;
-  };
-
-  navigator.serviceWorker.getRegistration("/firebase-cloud-messaging-push-scope").then(
-    registration => {
-      if (!registration) return;
-      registration.showNotification(notificationTitle, notificationOptions)
-    }
-  );
-});
-
 self.addEventListener('notificationclick', (event) => {
   console.log("Notification click registered", event);
   let data = event.notification.data.FCM_MSG?.data ?? event.notification.data;
