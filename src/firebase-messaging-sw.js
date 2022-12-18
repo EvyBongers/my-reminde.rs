@@ -24,12 +24,9 @@ self.addEventListener('notificationclick', (event) => {
       console.log(`Opening notification: /notifications/${data.notificationId}`);
       clients.openWindow(`/notifications/${data.notificationId}`);
       break;
-    case "open":
-      console.log(`Opening notification link: /notifications/${data.notificationId}/open`);
-      clients.openWindow(`/notifications/${data.notificationId}/open`);
-      break;
     default:
-      console.log(`Unknown notification action '${event.action}'`);
+      console.log(`Opening url: ${event.action}`);
+      clients.openWindow(event.action);
   }
   event.notification.close();
 });
