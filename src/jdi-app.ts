@@ -221,7 +221,7 @@ export class JDIApp extends LitElement {
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-        ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)};
+        ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
 
         <main>
           ${when(this.userId, () => html`${this.renderAppContent()}`, () => html`${this.renderLoggedOut()}`)}

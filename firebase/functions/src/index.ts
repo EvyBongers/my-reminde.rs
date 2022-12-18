@@ -86,7 +86,7 @@ const triggerNotification = async (reminderDocumentRef: DocumentReference, remin
 };
 
 const getPushTokens = (account: AccountDocument) => {
-  return Object.entries(account.devices).map(_ => _[1].token);
+  return Object.values(account.devices).map(_ => _.token);
 };
 
 export const updateNextSend = functions.firestore.document("/accounts/{accountId}/scheduledNotifications/{reminderId}").onWrite(async (change, context) => {
@@ -118,6 +118,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
     let accountData = account.data() as AccountDocument;
     let tokens = getPushTokens(accountData);
     let batchResponse = await messaging.sendMulticast({
+      // TODO: fix opening notification on click
       webpush: {
         data: {
           notificationId: snapshot.ref.id,
@@ -134,7 +135,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
           actions: notificationData.link ? [
             {
               title: "Open",
-              action: "open",
+              action: notificationData.link,
               icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAx0lEQVR4Ae2ZsRGDMBTFuKyRDMIiDJgCNoMqmYACfu/KqBDcPd291kgFjT3cmhBC+NSW2lY7Lq2Fn9Mh/wcf1AMWLu8GrI8O6D6AM9V2PwDK3yoAyO9+AJOf/AAmP/gBQN4PAPJ+AJAXA7i8GMDl7QAuDwABXF4N4PJ+AJf3A7i88RNzeT+Ay/sBXN4P4PJ+wMjk/YBX7QvktYAmAshbAU3ECGTNAEACEgBIALjcFbby63V3M3/g8ParvYUnJrytNnfIhxCCwAnGmUVXQgo6RQAAAABJRU5ErkJggg==",
             },
           ] : [],
