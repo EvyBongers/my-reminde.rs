@@ -93,7 +93,7 @@ export class ReminderItem extends Rippling(LitElement) {
         ${!this.expanded ? html`` : html`
           <main>
             <p id="body">${this.item.body}</p>
-            ${this.item? html`<p id="link"><a href="${this.item.link}">${this.item.link}</a></p>`:nothing}
+            ${this.item? html`<p id="link"><a @click="${this.openReminderLink}" href="${this.item.link}">${this.item.link}</a></p>`:nothing}
             <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
           </main>
         `}
@@ -165,6 +165,12 @@ export class ReminderItem extends Rippling(LitElement) {
     });
 
     this.shadowRoot.append(notification);
+  }
+
+  openReminderLink(e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    window.open((e.target as HTMLAnchorElement).href);
   }
 
   toggleActive(e: Event) {

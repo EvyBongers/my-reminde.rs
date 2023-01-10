@@ -79,7 +79,7 @@ export class NotificationItem extends Rippling(LitElement) {
         ${!this.expanded ? html`` : html`
           <main>
             <p id="body">${this.item?.body}</p>
-            ${this.item? html`<p id="link"><a href="${this.item.link}">${this.item.link}</a></p>`:nothing}
+            ${this.item? html`<p id="link"><a @click="${this.openNotificationLink}" href="${this.item.link}">${this.item.link}</a></p>`:nothing}
           </main>
         `}
         <footer>
@@ -120,6 +120,12 @@ export class NotificationItem extends Rippling(LitElement) {
       this.renderRoot.removeChild(dialog);
     });
     this.shadowRoot.append(dialog);
+  }
+
+  openNotificationLink(e: Event) {
+    e.stopPropagation();
+    e.preventDefault();
+    window.open((e.target as HTMLAnchorElement).href);
   }
 }
 
