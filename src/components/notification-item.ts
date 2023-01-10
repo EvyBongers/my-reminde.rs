@@ -83,7 +83,7 @@ export class NotificationItem extends Rippling(LitElement) {
           </main>
         `}
         <footer>
-          Sent: ${this.item?.sent.toLocaleString()}
+          Sent: ${( this.item?.sent.toDate().toLocaleString())}
         </footer>
       </div>
     `;
