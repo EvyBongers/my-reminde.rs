@@ -26,8 +26,10 @@ import {SingleSelectedEvent} from "@material/mwc-list";
 import {doSendNotifications} from "./functions";
 import {NavItem} from "./components/nav-bar";
 
+type RenderFn = (params?: Record<string, string>) => TemplateResult;
 type routeData = {
   view: string
+  renderFn: RenderFn
   data?: { [key: string]: string }
 };
 
@@ -99,18 +101,11 @@ export class JDIApp extends LitElement {
     }
   `;
 
-  private routes: { [pattern: string]: { renderFn: (params?: Record<string, string>) => TemplateResult } } = {
-    "/reminders/:id": {renderFn: this.renderReminders},
-    "/settings": {renderFn: this.renderSettings},
-    "/devices": {renderFn: this.renderDevices},
-    "/notifications/:id": {renderFn: this.renderNotifications},
-  }
-
-  private static routes: { [pattern: string]: routeData } = {
-    "/reminders/:id": {view: "reminders"},
-    "/settings": {view: "settings"},
-    "/devices": {view: "devices"},
-    "/notifications/:id": {view: "notifications"},
+  private routes: { [pattern: string]: routeData } = {
+    "/reminders/:id": {view: "reminders", renderFn: this.renderReminders},
+    "/settings": {view: "settings", renderFn: this.renderSettings},
+    "/devices": {view: "devices", renderFn: this.renderDevices},
+    "/notifications/:id": {view: "notifications", renderFn: this.renderNotifications},
   }
 
   private navButtons: NavItem[] = [
@@ -126,8 +121,7 @@ export class JDIApp extends LitElement {
       window.history.replaceState(window.history.state?.data, null, this.defaultPath);
     }
   }
-
-  renderDevices() {
+  renderDevices() : TemplateResult {
     return html`
       <h2>Subscribed devices</h2>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
@@ -141,7 +135,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderSettings() {
+  renderSettings() : TemplateResult {
     return html`
       <h2>Settings</h2>
       <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
@@ -159,13 +153,13 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderLoggedOut() {
+  renderLoggedOut() : TemplateResult {
     return html`
       <jdi-login></jdi-login>
     `;
   }
 
-  renderNav() {
+  renderNav() : TemplateResult {
     let activeIndex = 0;
     this.navButtons.forEach((navItem, idx) => {
       if (document.location.pathname.startsWith(navItem.uri)) {
@@ -180,7 +174,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderAppBarButtons() {
+  renderAppBarButtons() : TemplateResult {
     return html`
       <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
                        slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
@@ -188,9 +182,10 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderAppContent() {
+  renderAppContent() : TemplateResult {
     let pathname = (new URL(document.location.href)).pathname;
     try {
+      // Use this.currentRoute.renderFn?
       return html`
         ${choose(this.currentRoute?.view, [
               ['reminders', () => html`${this.renderReminders(this.currentRoute.data)}`],
@@ -207,7 +202,7 @@ export class JDIApp extends LitElement {
     }
   }
 
-  override render() {
+  override render() : TemplateResult {
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
@@ -256,11 +251,11 @@ export class JDIApp extends LitElement {
 
   private setCurrentRoute(pathname: string) {
     let routeData = ((uri: string) => {
-      for (const pattern in JDIApp.routes) {
+      for (const pattern in this.routes) {
         let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?")}$`).exec(uri);
         if (matchResult !== null) {
           return {
-            ...JDIApp.routes[pattern],
+            ...this.routes[pattern],
             data: matchResult.groups,
           };
         }
