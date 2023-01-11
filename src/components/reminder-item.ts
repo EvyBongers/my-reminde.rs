@@ -41,10 +41,6 @@ export class ReminderItem extends Rippling(LitElement) {
       padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
     }
 
-    .actions, .state {
-      display: flex;
-    }
-
     .notification {
       margin-right: auto;
       margin-top: 12px;
@@ -53,6 +49,7 @@ export class ReminderItem extends Rippling(LitElement) {
     .notification h4 {
       margin-block-start: 0;
       margin-block-end: 0;
+      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
     }
 
     .notification p {
@@ -64,6 +61,12 @@ export class ReminderItem extends Rippling(LitElement) {
       color: rgba(0, 0, 0, 0.54);
       font-size: 0.875rem;
       margin-bottom: 0;
+    }
+
+    .notification aside {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   `;
 
@@ -102,29 +105,30 @@ export class ReminderItem extends Rippling(LitElement) {
             Next: ${calculateNextSend(this.item).toLocaleString()}
           `}
         </footer>
+        <aside>
+          ${this.renderActions()}
+        </aside>
       </div>
     `;
   }
 
   private renderActions() {
     return html`
-      <div class="actions">
-        <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
-        <menu-button>
-          <mwc-list-item graphic="icon" @click="${this.toggleActive}">
-            <mwc-icon slot="graphic">${this.item.enabled ? "notifications_off" : "notifications_active"}</mwc-icon>
-            <span>${this.item.enabled ? "Disable" : "Enable"}</span>
-          </mwc-list-item>
-          <mwc-list-item graphic="icon" @click="${this.edit}">
-            <mwc-icon slot="graphic">edit</mwc-icon>
-            <span>Edit</span>
-          </mwc-list-item>
-          <mwc-list-item graphic="icon" @click="${this.delete}">
-            <mwc-icon slot="graphic">delete</mwc-icon>
-            <span>Delete</span>
-          </mwc-list-item>
-        </menu-button>
-      </div>
+      <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
+      <menu-button>
+        <mwc-list-item graphic="icon" @click="${this.toggleActive}">
+          <mwc-icon slot="graphic">${this.item.enabled ? "notifications_off" : "notifications_active"}</mwc-icon>
+          <span>${this.item.enabled ? "Disable" : "Enable"}</span>
+        </mwc-list-item>
+        <mwc-list-item graphic="icon" @click="${this.edit}">
+          <mwc-icon slot="graphic">edit</mwc-icon>
+          <span>Edit</span>
+        </mwc-list-item>
+        <mwc-list-item graphic="icon" @click="${this.delete}">
+          <mwc-icon slot="graphic">delete</mwc-icon>
+          <span>Delete</span>
+        </mwc-list-item>
+      </menu-button>
     `;
   }
 
@@ -132,7 +136,6 @@ export class ReminderItem extends Rippling(LitElement) {
     return html`
       ${this.renderState()}
       ${this.renderContent()}
-      ${this.renderActions()}
     `;
   }
 
