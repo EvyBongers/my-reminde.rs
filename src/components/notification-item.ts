@@ -34,19 +34,16 @@ export class NotificationItem extends Rippling(LitElement) {
       padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
     }
 
-    .actions {
-      display: flex;
-    }
-
     .notification {
       margin-left: 12px;
-      margin-right: auto;
+      margin-right: 12px;
       margin-top: 12px;
     }
 
     .notification h4 {
       margin-block-start: 0;
       margin-block-end: 0;
+      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
     }
 
     .notification p {
@@ -58,6 +55,12 @@ export class NotificationItem extends Rippling(LitElement) {
       color: rgba(0, 0, 0, 0.54);
       font-size: 0.875rem;
       margin-bottom: 0;
+    }
+
+    .notification aside {
+      position: absolute;
+      top: 0;
+      right: 0;
     }
   `;
 
@@ -85,23 +88,23 @@ export class NotificationItem extends Rippling(LitElement) {
         <footer>
           Sent: ${( this.item?.sent.toDate().toLocaleString())}
         </footer>
+        <aside>
+          ${this.renderActions()}
+        </aside>
       </div>
     `;
   }
 
   private renderActions() {
     return html`
-      <div class="actions">
-        <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
-        <mwc-icon-button icon="delete" @click="${this.delete}"></mwc-icon-button>
-      </div>
+      <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
+      <mwc-icon-button icon="delete" @click="${this.delete}"></mwc-icon-button>
     `;
   }
 
   override render() {
     return html`
       ${this.renderContent()}
-      ${this.renderActions()}
     `;
   }
 
