@@ -42,19 +42,27 @@ export class ReminderItem extends Rippling(LitElement) {
     }
 
     .notification {
-      margin-right: auto;
+      margin-right: 12px;
       margin-top: 12px;
+      min-width: 0;
     }
 
-    .notification h4 {
+    .notification header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
       margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
     }
 
+    .notification header:has(~ main) h4 {
+      line-height: 24px;
+      padding-bottom: 12px;
+    }
+
     .notification p {
       margin-block-start: 0.5em;
       margin-block-end: 0.5em;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .notification footer {
