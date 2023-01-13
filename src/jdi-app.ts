@@ -36,7 +36,7 @@ type routeData = {
 export class JDIApp extends LitElement {
 
   @property()
-  userId: String;
+  userId: string;
 
   @property()
   user: User;
@@ -45,7 +45,7 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @property()
-  currentRoute: routeData;
+  currentRoute: routeData | undefined;
 
   private defaultPath: string = "/reminders";
 
