@@ -1,7 +1,6 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
-import {customElement, property, query} from "lit/decorators.js";
-import {choose} from 'lit/directives/choose.js';
+import {customElement, property} from "lit/decorators.js";
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
@@ -26,7 +25,7 @@ import {SingleSelectedEvent} from "@material/mwc-list";
 import {doSendNotifications} from "./functions";
 import {NavItem} from "./components/nav-bar";
 
-type RenderFn = (params?: Record<string, string>) => TemplateResult;
+type RenderFn = (params?: { [key: string]: string }) => TemplateResult;
 type routeData = {
   view: string
   renderFn: RenderFn
@@ -121,6 +120,7 @@ export class JDIApp extends LitElement {
       window.history.replaceState(window.history.state?.data, null, this.defaultPath);
     }
   }
+
   renderDevices() : TemplateResult {
     return html`
       <h2>Subscribed devices</h2>
@@ -135,7 +135,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderSettings() : TemplateResult {
+  renderSettings(): TemplateResult {
     return html`
       <h2>Settings</h2>
       <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
@@ -153,13 +153,13 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderLoggedOut() : TemplateResult {
+  renderLoggedOut(): TemplateResult {
     return html`
       <jdi-login></jdi-login>
     `;
   }
 
-  renderNav() : TemplateResult {
+  renderNav(): TemplateResult {
     let activeIndex = 0;
     this.navButtons.forEach((navItem, idx) => {
       if (document.location.pathname.startsWith(navItem.uri)) {
@@ -174,7 +174,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderAppBarButtons() : TemplateResult {
+  renderAppBarButtons(): TemplateResult {
     return html`
       <mwc-icon-button icon="${this.pushNotificationsEnabled ? "notifications_active" : "notifications_none"}"
                        slot="actionItems" @click="${this.togglePush}"></mwc-icon-button>
@@ -182,17 +182,12 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderAppContent() : TemplateResult {
+  renderAppContent(): TemplateResult {
     let pathname = (new URL(document.location.href)).pathname;
     try {
-      // Use this.currentRoute.renderFn?
       return html`
-        ${choose(this.currentRoute?.view, [
-              ['reminders', () => html`${this.renderReminders(this.currentRoute.data)}`],
-              ['settings', () => html`${this.renderSettings()}`],
-              ['devices', () => html`${this.renderDevices()}`],
-              ['notifications', () => html`${this.renderNotifications(this.currentRoute.data)}`],
-            ],
+        ${when(this.currentRoute !== undefined,
+            () => html`${this.currentRoute.renderFn(this.currentRoute.data)}`,
             () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
       `;
     } catch (e) {
@@ -202,7 +197,7 @@ export class JDIApp extends LitElement {
     }
   }
 
-  override render() : TemplateResult {
+  override render(): TemplateResult {
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
