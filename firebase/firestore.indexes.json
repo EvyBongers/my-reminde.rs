@@ -1,7 +1,7 @@
 {
   "indexes": [
     {
-      "collectionGroup": "scheduledNotifications",
+      "collectionGroup": "reminders",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
         { "fieldPath": "enabled", "order": "ASCENDING" },
@@ -11,7 +11,7 @@
   ],
   "fieldOverrides": [
     {
-      "collectionGroup": "scheduledNotifications",
+      "collectionGroup": "reminders",
       "fieldPath": "nextSend",
       "indexes": [
         {
