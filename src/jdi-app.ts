@@ -121,17 +121,17 @@ export class JDIApp extends LitElement {
     }
   }
 
-  renderDevices() : TemplateResult {
+  renderDevices(args?: { [key: string]: string }): TemplateResult {
     return html`
       <h2>Subscribed devices</h2>
-      <jdi-devices .accountId="${this.userId}"></jdi-devices>
+      <jdi-devices .accountId="${args?.userId}"></jdi-devices>
     `;
   }
 
   renderReminders(args?: { [key: string]: string }) {
     return html`
       <h2>Reminders</h2>
-      <reminder-list .accountId="${this.userId}" .selectedId="${args?.id}"></reminder-list>
+      <reminder-list .accountId="${args?.userId}" .selectedId="${args?.id}"></reminder-list>
     `;
   }
 
@@ -149,7 +149,8 @@ export class JDIApp extends LitElement {
   renderNotifications(args?: { [key: string]: string }) {
     return html`
       <h2>Notification history</h2>
-      <notification-list .collection="notifications" .accountId="${this.userId}" .selectedId="${args?.id}"></notification-list>
+      <notification-list .collection="notifications" .accountId="${args?.userId}"
+                         .selectedId="${args?.id}"></notification-list>
     `;
   }
 
@@ -256,6 +257,10 @@ export class JDIApp extends LitElement {
         }
       }
     })(pathname);
+    routeData.data = {
+      ...routeData.data,
+      "userId": this.userId,
+    }
     this.currentRoute = routeData;
   }
 
