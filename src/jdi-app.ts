@@ -287,7 +287,7 @@ export class JDIApp extends LitElement {
   }
 
   private async sendNotification(_: Event) {
-    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.userId}/scheduledNotifications`).next()).value;
+    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.userId}/reminders`).next()).value;
     try {
       let reminderDocuments = reminders as ReminderDocument[];
       let selectedReminder: ReminderDocument;
