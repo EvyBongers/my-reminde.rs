@@ -1,5 +1,5 @@
 import {firebaseApp} from "./firebase";
-import {addDoc, collection, connectFirestoreEmulator, deleteDoc, doc, getDoc, getFirestore, onSnapshot, setDoc} from "firebase/firestore";
+import {addDoc, collection, connectFirestoreEmulator, deleteDoc, doc,DocumentData, getDoc, getFirestore, onSnapshot,QueryDocumentSnapshot, setDoc} from "firebase/firestore";
 
 export {deleteField as firestoreDelete} from 'firebase/firestore';
 
@@ -43,14 +43,14 @@ export const setDocByRef = async (docRef: any, values: any, options: any) => {
   return await setDoc(docRef, values, options);
 };
 
-export async function* loadCollection<T = any>(path: string): DataCollectionSupplier<T> {
+export async function* loadCollection<T extends DocumentData>(path: string, compareFn?: (a: QueryDocumentSnapshot<T>, b: QueryDocumentSnapshot<T>) => number): DataCollectionSupplier<T> {
   let lastCallback: (docs: any[]) => void;
   let nextItems = new Promise<T[]>((s) => {
     lastCallback = s;
   });
 
   onSnapshot(collection(db, path), (snapshot) => {
-    lastCallback(snapshot.docs.map(_ => {
+    lastCallback(snapshot.docs.sort(compareFn).map(_ => {
       let data = _.data();
       Object.defineProperty(data, '_ref', {value: _.ref});
 
