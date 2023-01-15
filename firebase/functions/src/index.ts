@@ -89,7 +89,7 @@ const getPushTokens = (account: AccountDocument) => {
   return Object.values(account.devices).map(_ => _.token);
 };
 
-export const updateNextSend = functions.firestore.document("/accounts/{accountId}/scheduledNotifications/{reminderId}").onWrite(async (change, context) => {
+export const updateNextSend = functions.firestore.document("/accounts/{accountId}/reminders/{reminderId}").onWrite(async (change, context) => {
   if (context.eventType == "google.firestore.document.delete") return;
 
   let reminderDocumentRef = change.after;
@@ -170,7 +170,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
 });
 
 export const runNotify = functions.pubsub.schedule("* * * * *").timeZone("Europe/Amsterdam").onRun(async _context => {
-  let reminders = await db.collectionGroup("scheduledNotifications")
+  let reminders = await db.collectionGroup("reminders")
   .where("nextSend", "<=", new Date())
   .where("enabled", "==", true)
   .get();

@@ -69,12 +69,12 @@ export class ReminderList extends BunnyElement {
 
   @observe("accountId")
   accountChanged(accountId: string) {
-    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId}/scheduledNotifications`);
+    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId}/reminders`);
   }
 
   public async addNotification(_: Event) {
     let notification = document.createElement("reminder-edit");
-    notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/scheduledNotifications`);
+    notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/reminders`);
     notification.addEventListener("closed", (ev: CustomEvent) => {
       console.log(`Notification add result: ${ev.detail}`);
       this.shadowRoot.removeChild(notification);
