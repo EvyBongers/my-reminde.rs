@@ -186,15 +186,3 @@ export const runNotify = functions.pubsub.schedule("* * * * *").timeZone("Europe
     await reminderDocument.ref.update({lastSent: FieldValue.serverTimestamp(), nextSend: nextSend});
   }
 });
-
-export const doMigrateReminders = functions.https.onCall(async _context => {
-  let accounts = await db.collectionGroup("accounts").get();
-  for (let accountDocSnap of accounts.docs) {
-    let accountRef = accountDocSnap.ref;
-    let reminders = await accountRef.collection("scheduledNotifications").get();
-    for (let reminderDocSnap of reminders.docs) {
-      let reminderDocumentData = reminderDocSnap.data() as ReminderDocument;
-      await accountRef.collection("reminders").add(reminderDocumentData);
-    }
-  }
-});
