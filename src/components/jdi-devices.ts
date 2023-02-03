@@ -118,7 +118,7 @@ export class JDIDevices extends BunnyElement {
     return html`
       <div class="devices-list">
         ${renderItem(this.account, item => html`
-          ${Object.entries(item.devices).sort((a: any, b: any) => a.name > b.name ? -1 : 1).map(([key, value]) => this.renderDevice(key, value))}
+          ${Object.entries(item.devices).sort((a: any, b: any) => b.name > a.name ? 1 : -1).map(([key, value]) => this.renderDevice(key, value))}
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>

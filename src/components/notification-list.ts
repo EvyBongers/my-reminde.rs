@@ -68,7 +68,7 @@ export class NotificationList extends BunnyElement {
   @observe("accountId")
   accountChanged(accountId: string) {
     this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId}/notifications`, (a: QueryDocumentSnapshot<NotificationDocument>, b: QueryDocumentSnapshot<NotificationDocument>) => {
-      return a.data().sent.toMillis() - b.data().sent.toMillis();
+      return b.data().sent.toMillis() - a.data().sent.toMillis();
     });
   }
 }
