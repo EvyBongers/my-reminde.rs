@@ -1,5 +1,6 @@
 import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
+import {QueryDocumentSnapshot} from "firebase/firestore";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
@@ -66,7 +67,9 @@ export class NotificationList extends BunnyElement {
 
   @observe("accountId")
   accountChanged(accountId: string) {
-    this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId}/notifications`);
+    this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId}/notifications`, (a: QueryDocumentSnapshot<NotificationDocument>, b: QueryDocumentSnapshot<NotificationDocument>) => {
+      return b.data().sent.toMillis() - a.data().sent.toMillis();
+    });
   }
 }
 
