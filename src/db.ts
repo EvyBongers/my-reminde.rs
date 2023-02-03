@@ -1,5 +1,17 @@
 import {firebaseApp} from "./firebase";
-import {addDoc, collection, connectFirestoreEmulator, deleteDoc, doc,DocumentData, getDoc, getFirestore, onSnapshot,QueryDocumentSnapshot, setDoc} from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  connectFirestoreEmulator,
+  deleteDoc,
+  doc,
+  DocumentData,
+  getDoc,
+  getFirestore,
+  onSnapshot,
+  QueryDocumentSnapshot,
+  setDoc
+} from "firebase/firestore";
 
 export {deleteField as firestoreDelete} from 'firebase/firestore';
 
