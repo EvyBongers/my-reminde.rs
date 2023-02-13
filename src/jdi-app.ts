@@ -146,7 +146,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderNotifications(args?: { [key: string]: string }) {
+  renderNotifications(args?: { [key: string]: string }): TemplateResult {
     return html`
       <h2>Notification history</h2>
       <notification-list .collection="notifications" .accountId="${args?.userId}"
