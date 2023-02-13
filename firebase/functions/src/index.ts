@@ -21,32 +21,35 @@ const db = getFirestore();
 const functions = region("europe-west1");
 const messaging = getMessaging();
 
-interface AccountDevice {
+interface RegisteredDevice {
   name: string;
   token: string;
 }
 
 interface AccountDocument extends DocumentData {
-  devices: { [key: string]: AccountDevice };
+  devices: { [key: string]: RegisteredDevice };
+  reminders?: { [key: string]: ReminderDocument };
+  notifications?: { [key: string]: NotificationDocument };
 }
 
-export interface ReminderDocument extends DocumentData {
+export interface ReminderBase extends DocumentData {
   title: string;
   body: string;
   link?: string;
-  enabled?: boolean;
+}
+
+export interface ReminderDocument extends ReminderBase {
+  enabled: boolean;
 
   type: string;
   cronExpression?: string;
-  nextSend?: Timestamp;
+
   lastSent?: Timestamp;
+  nextSend?: Timestamp;
 }
 
-export interface NotificationDocument extends DocumentData {
+export interface NotificationDocument extends ReminderBase {
   reminderRef: DocumentReference,
-  title: string,
-  body: string,
-  link?: string,
   sent: Timestamp,
 }
 
