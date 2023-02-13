@@ -188,7 +188,7 @@ export class JDIApp extends LitElement {
     try {
       return html`
         ${when(this.currentRoute !== undefined,
-            () => html`${this.currentRoute.renderFn(this.currentRoute.data)}`,
+            () => html`${this.currentRoute.renderFn.call(this, this.currentRoute.data)}`,
             () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
       `;
     } catch (e) {
