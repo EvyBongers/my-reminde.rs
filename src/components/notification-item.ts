@@ -1,4 +1,4 @@
-import {css, html, nothing, LitElement} from "lit";
+import {css, html, nothing, LitElement, render} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {Menu} from "@material/mwc-menu";
@@ -11,14 +11,12 @@ import {NotificationDocument} from "../../firebase/functions/src";
 import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
+import {choose} from "lit/directives/choose";
 
 @customElement("notification-item")
 export class NotificationItem extends Rippling(LitElement) {
   @property()
   item: NotificationDocument;
-
-  @property({type: Boolean})
-  protected expanded: boolean = false;
 
   static override styles = css`
     :host {
@@ -77,7 +75,24 @@ export class NotificationItem extends Rippling(LitElement) {
     await super.firstUpdated();
 
     this.addEventListener('click', _ => {
-      this.expanded = !this.expanded;
+      const shadowRoot = this.shadowRoot;
+      const dialog = document.createElement("mwc-dialog");
+      dialog.heading = this.item.title;
+      dialog.hideActions = true;
+      this.shadowRoot.append(dialog);
+      render(html`
+        <div>
+          <p>${this.item.body}</p>
+          ${this.item?.link ? html`
+          <p>
+            <a href="${this.item.link}">${this.item.link}</a>
+          </p>`:nothing}
+          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
+        </div>
+      `,
+      dialog);
+      dialog.addEventListener("click", ev => ev.stopPropagation());
+      dialog.show();
     });
   }
 
@@ -87,12 +102,6 @@ export class NotificationItem extends Rippling(LitElement) {
         <header>
           <h4 id="title">${this.item?.title}</h4>
         </header>
-        ${!this.expanded ? html`` : html`
-          <main>
-            <p id="body">${this.item?.body}</p>
-            ${this.item? html`<p id="link"><a @click="${this.openNotificationLink}" href="${this.item.link}">${this.item.link}</a></p>`:nothing}
-          </main>
-        `}
         <footer>
           Sent: ${( this.item?.sent.toDate().toLocaleString())}
         </footer>
@@ -105,7 +114,6 @@ export class NotificationItem extends Rippling(LitElement) {
 
   private renderActions() {
     return html`
-      <mwc-icon>${this.expanded ? "expand_less" : "expand_more"}</mwc-icon>
       <mwc-icon-button icon="delete" @click="${this.delete}"></mwc-icon-button>
     `;
   }
@@ -118,7 +126,7 @@ export class NotificationItem extends Rippling(LitElement) {
 
   async delete(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
+    (e.target as HTMLElement).blur();
 
     let dialog = document.createElement("confirm-dialog");
     dialog.append("Delete notification?");
@@ -131,12 +139,6 @@ export class NotificationItem extends Rippling(LitElement) {
       this.renderRoot.removeChild(dialog);
     });
     this.shadowRoot.append(dialog);
-  }
-
-  openNotificationLink(e: Event) {
-    e.stopPropagation();
-    e.preventDefault();
-    window.open((e.target as HTMLAnchorElement).href);
   }
 }
 
