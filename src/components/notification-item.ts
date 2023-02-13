@@ -72,10 +72,10 @@ export class NotificationItem extends Rippling(LitElement) {
     await super.firstUpdated();
 
     this.addEventListener('click', _ => {
+      const notificationItem = this;
       const shadowRoot = this.shadowRoot;
       const dialog = document.createElement("mwc-dialog");
       dialog.heading = this.item.title;
-      dialog.hideActions = true;
       this.shadowRoot.append(dialog);
       render(html`
         <div>
@@ -86,14 +86,27 @@ export class NotificationItem extends Rippling(LitElement) {
           </p>`:nothing}
           <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
         </div>
+        <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
       `,
       dialog);
-      dialog.addEventListener("click", ev => ev.stopPropagation());
+      dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+      dialog.addEventListener("closing", (ev: CustomEvent) => {
+        switch (ev.detail.action) {
+          case "delete":
+            notificationItem.delete(ev);
+            break;
+          default:
+            console.log(`Unknown action: ${ev.detail.action}`)
+        }
+      });
+      dialog.addEventListener("closed", (ev: CustomEvent) => {
+        shadowRoot.removeChild(dialog);
+      });
       dialog.show();
     });
   }
 
-  private renderContent() {
+  override render() {
     return html`
       <div class="notification">
         <header>
@@ -102,40 +115,14 @@ export class NotificationItem extends Rippling(LitElement) {
         <footer>
           Sent: ${( this.item?.sent.toDate().toLocaleString())}
         </footer>
-        <aside>
-          ${this.renderActions()}
-        </aside>
       </div>
-    `;
-  }
-
-  private renderActions() {
-    return html`
-      <mwc-icon-button icon="delete" @click="${this.delete}"></mwc-icon-button>
-    `;
-  }
-
-  override render() {
-    return html`
-      ${this.renderContent()}
     `;
   }
 
   async delete(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur();
-
-    let dialog = document.createElement("confirm-dialog");
-    dialog.append("Delete notification?");
-    dialog.setAttribute("confirmLabel", "Delete");
-    dialog.setAttribute("cancelLabel", "Cancel");
-    dialog.addEventListener("confirm", _ => {
-      deleteDocByRef(this.item._ref);
-    });
-    dialog.addEventListener("closed", _ => {
-      this.renderRoot.removeChild(dialog);
-    });
-    this.shadowRoot.append(dialog);
+    await deleteDocByRef(this.item._ref);
   }
 }
 
