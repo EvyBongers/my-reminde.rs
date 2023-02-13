@@ -95,6 +95,9 @@ export class NotificationItem extends Rippling(LitElement) {
           case "delete":
             notificationItem.delete(ev);
             break;
+          case "close":
+            // default action
+            break;
           default:
             console.log(`Unknown action: ${ev.detail.action}`)
         }
