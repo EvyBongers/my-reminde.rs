@@ -1,7 +1,5 @@
 import {css, html, nothing, LitElement, render} from "lit";
-import {customElement, property, query} from "lit/decorators.js";
-import {IconButton} from "@material/mwc-icon-button";
-import {Menu} from "@material/mwc-menu";
+import {customElement, property} from "lit/decorators.js";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-ripple";
@@ -11,7 +9,6 @@ import {NotificationDocument} from "../../firebase/functions/src";
 import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
-import {choose} from "lit/directives/choose";
 
 @customElement("notification-item")
 export class NotificationItem extends Rippling(LitElement) {
