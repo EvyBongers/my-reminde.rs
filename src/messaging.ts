@@ -54,7 +54,7 @@ onMessage(messaging, (payload) => {
   console.log("[messaging.ts] Received message ", payload);
 
   // Customize notification here
-  const notificationTitle = `[Foreground] ${payload.notification.title}`;
+  const notificationTitle = payload.notification.title;
   const notificationOptions = {
     actions: payload.data.link ? [
       {
@@ -68,7 +68,7 @@ onMessage(messaging, (payload) => {
     data: payload.data,
     // dir?: NotificationDirection;
     // icon?: string;
-    image: payload.notification.image ?? "/images/icon-256x256.png",
+    // image: payload.notification.image,
     // lang?: string;
     renotify: true,
     requireInteraction: true,
