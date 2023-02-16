@@ -4,17 +4,23 @@ import {initializeApp} from "firebase-admin/app";
 import {DocumentData, DocumentReference, FieldValue, getFirestore, Timestamp} from "firebase-admin/firestore";
 import {getMessaging, MulticastMessage} from "firebase-admin/messaging";
 import {parseExpression} from "cron-parser-all";
-import {readFileSync} from "fs";
+import {existsSync, readFileSync} from "fs";
 import {env} from "process";
 
+let options: { [key: string]: any } = {};
 try {
-  const serviceAccount = JSON.parse(readFileSync(env.FIREBASE_SERVICE_ACCOUNT_FILE as string, "utf8"));
-  initializeApp({
-    credential: credential.cert(serviceAccount),
-  });
+  const serviceAccountFile = env.FIREBASE_SERVICE_ACCOUNT_FILE as string;
+  if (serviceAccountFile && existsSync(serviceAccountFile)) {
+    const serviceAccount = JSON.parse(readFileSync(serviceAccountFile, "utf8"));
+    if (serviceAccount !== null) {
+      options.credential = credential.cert(serviceAccount);
+    }
+  }
 } catch (e) {
-  console.log(`Failed to read service account file (${env.FIREBASE_SERVICE_ACCOUNT_FILE})`, e);
-  initializeApp();
+  console.debug(`Failed to read service account file (${env.FIREBASE_SERVICE_ACCOUNT_FILE})`, e);
+  console.debug("Falling back on default initialization");
+} finally {
+  initializeApp(options);
 }
 
 const db = getFirestore();
