@@ -106,11 +106,11 @@ export const updateNextSend = functions.firestore.document("/accounts/{accountId
   if (reminderDocumentData.enabled === false) return;
 
   let oldReminderDocumentRef = change.before;
-  let oldreminderDocumentData = oldReminderDocumentRef.data() as ReminderDocument;
+  let oldReminderDocumentData = oldReminderDocumentRef.data() as ReminderDocument;
 
   try {
     let nextSend = calculateNextSend(reminderDocumentData);
-    if (nextSend != oldreminderDocumentData.nextSend) {
+    if (nextSend != oldReminderDocumentData.nextSend) {
       logger.info(`Updating timestamps on reminder ${reminderDocumentRef.ref}:`, {nextSend: nextSend?.toDate().toUTCString()});
       let writtenAt = await reminderDocumentRef.ref.update({nextSend: nextSend});
       logger.debug(`Reminder ${reminderDocumentRef.ref} updated at ${writtenAt.writeTime.toDate().toUTCString()}`);
