@@ -26,6 +26,8 @@ export class ReminderEdit extends LitElement {
   @property()
   collectionRef: any;
 
+  private calculatedNextSend : Date;
+
   private editResult: string;
 
   @query("mwc-dialog")
@@ -58,6 +60,7 @@ export class ReminderEdit extends LitElement {
       };
     }
     this.hasLink = this.item.link != undefined;
+    this.calculatedNextSend = calculateNextSend(this.item);
 
     this.addEventListener("click", (e: Event) => {
       e.stopPropagation();
@@ -75,7 +78,7 @@ export class ReminderEdit extends LitElement {
     })
     this.textFieldSchedule.checkValidity = () => {
       try {
-        calculateNextSend(this.item);
+        this.calculatedNextSend = calculateNextSend(this.item);
         return true;
       } catch (e) {
         this.textFieldSchedule.setCustomValidity(e.message);
@@ -121,14 +124,14 @@ export class ReminderEdit extends LitElement {
           ${choose(this.item?.type, [
                 ['cron', () => html`
                   <mwc-textfield type="text" label="Schedule" name="schedule" required
+                                 .helper="${this.calculatedNextSend?.toLocaleString()}"
                                  @input="${(e: Event) => {
                                    let field = e.target as TextField;
                                    this.item.cronExpression = field.value;
                                    field.reportValidity();
-                                   this.requestUpdate("item");
+                                   this.requestUpdate("calculatedNextSend");
                                  }}"
                                  .value="${this.item?.cronExpression ?? ""}"></mwc-textfield>
-                  ${this.renderNextOccurrence(this.item)}
                 `],
                 // ['about', () => html`<h1>About</h1>`],
               ],
@@ -138,17 +141,6 @@ export class ReminderEdit extends LitElement {
         <mwc-button slot="secondaryAction" @click="${this.cancel}" dialogAction="close">Cancel</mwc-button>
       </mwc-dialog>
     `;
-  }
-
-  private renderNextOccurrence(item: ReminderDocument) {
-    try {
-      console.log(`Calculating next occurrence for ${item.cronExpression}`);
-      return html`
-        <span>Next: ${calculateNextSend(item).toLocaleString()}</span>
-      `;
-    } catch {
-      return "";
-    }
   }
 
   cancel(_: Event) {
