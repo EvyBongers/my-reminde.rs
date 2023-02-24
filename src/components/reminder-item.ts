@@ -72,6 +72,8 @@ export class ReminderItem extends Rippling(LitElement) {
     }
 
     .notification aside {
+      display: flex;
+      flex-direction: row;
       position: absolute;
       top: 0;
       right: 0;
