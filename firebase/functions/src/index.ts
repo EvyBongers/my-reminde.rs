@@ -110,14 +110,13 @@ export const updateNextSend = functions.firestore.document("/accounts/{accountId
 
   try {
     let nextSend = calculateNextSend(reminderDocumentData);
-    if (nextSend != oldReminderDocumentData.nextSend) {
+    if (nextSend != oldReminderDocumentData?.nextSend) {
       logger.info(`Updating timestamps on reminder ${reminderDocumentRef.ref}:`, {nextSend: nextSend?.toDate().toUTCString()});
       let writtenAt = await reminderDocumentRef.ref.update({nextSend: nextSend});
       logger.debug(`Reminder ${reminderDocumentRef.ref} updated at ${writtenAt.writeTime.toDate().toUTCString()}`);
     }
   } catch (e) {
-    logger.error(`Failed to update nextSend on document ${reminderDocumentRef.ref}`);
-    logger.error((e as Error).message);
+    logger.error(`Failed to update nextSend on document ${reminderDocumentRef.ref}`, JSON.stringify(e));
   }
 });
 
