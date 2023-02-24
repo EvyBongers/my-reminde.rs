@@ -66,7 +66,7 @@ export class ReminderEdit extends LitElement {
       e.stopPropagation();
     });
     this.dialog.addEventListener("closed", (ev: CustomEvent) => {
-      if (ev.target != this.dialog){ ev.stopPropagation(); return }
+      if (ev.target != this.dialog) { ev.stopPropagation(); return; }
 
       console.log("Edit dialog is handling an event:");
       console.log(ev);
@@ -75,7 +75,7 @@ export class ReminderEdit extends LitElement {
         detail: this.editResult
       });
       this.dispatchEvent(event);
-    })
+    });
     this.textFieldSchedule.checkValidity = () => {
       try {
         this.calculatedNextSend = calculateNextSend(this.item);
@@ -108,10 +108,10 @@ export class ReminderEdit extends LitElement {
           </mwc-formfield>
           <br>
           ${this.hasLink === true ? html`
-          <mwc-textfield type="text" label="Link" icon="link" name="link" ?required="${this.hasLink}"
-                         @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
-                         .value="${this.item?.link ?? ""}"></mwc-textfield>
-          <br>` : nothing}
+            <mwc-textfield type="text" label="Link" icon="link" name="link" ?required="${this.hasLink}"
+                           @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
+                           .value="${this.item?.link ?? ""}"></mwc-textfield>
+            <br>` : nothing}
           <mwc-select name="type" label="Schedule type" icon="event" required
                       @selected="${(_: Event) => {
                         this.item.type = (_.currentTarget as HTMLSelectElement).value;
