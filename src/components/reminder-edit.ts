@@ -13,6 +13,7 @@ import {calculateNextSend} from "../helpers/Scheduling";
 import {ReminderDocument} from "../../firebase/functions/src";
 import {toastWrapper} from "../helpers/Decorators";
 import {Dialog} from "@material/mwc-dialog";
+import {TextField} from "@material/mwc-textfield";
 
 @customElement("reminder-edit")
 export class ReminderEdit extends LitElement {
@@ -29,6 +30,9 @@ export class ReminderEdit extends LitElement {
 
   @query("mwc-dialog")
   private dialog: Dialog;
+
+  @query("mwc-textfield[name='schedule']")
+  private textFieldSchedule: TextField;
 
   @state()
   private hasLink: boolean;
@@ -69,6 +73,15 @@ export class ReminderEdit extends LitElement {
       });
       this.dispatchEvent(event);
     })
+    this.textFieldSchedule.checkValidity = () => {
+      try {
+        calculateNextSend(this.item);
+        return true;
+      } catch (e) {
+        this.textFieldSchedule.setCustomValidity(e.message);
+        return false;
+      }
+    }
   }
 
   override render() {
@@ -108,8 +121,10 @@ export class ReminderEdit extends LitElement {
           ${choose(this.item?.type, [
                 ['cron', () => html`
                   <mwc-textfield type="text" label="Schedule" name="schedule" required
-                                 @input="${(_: Event) => {
-                                   this.item.cronExpression = (_.currentTarget as HTMLInputElement).value;
+                                 @input="${(e: Event) => {
+                                   let field = e.target as TextField;
+                                   this.item.cronExpression = field.value;
+                                   field.reportValidity();
                                    this.requestUpdate("item");
                                  }}"
                                  .value="${this.item?.cronExpression ?? ""}"></mwc-textfield>
