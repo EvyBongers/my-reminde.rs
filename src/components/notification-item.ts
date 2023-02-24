@@ -103,9 +103,11 @@ export class NotificationItem extends Rippling(LitElement) {
         }
       });
       dialog.addEventListener("closed", (ev: CustomEvent) => {
+        this.shouldRipple = true;
         shadowRoot.removeChild(dialog);
       });
       dialog.show();
+      this.shouldRipple = false;
     });
   }
 

@@ -177,10 +177,12 @@ export class ReminderItem extends Rippling(LitElement) {
     notification.documentRef = this.item._ref;
     notification.addEventListener("closed", (ev: CustomEvent) => {
       console.log(`Notification edit result: ${ev.detail}`);
+      this.shouldRipple = true;
       this.shadowRoot.removeChild(notification);
     });
 
     this.shadowRoot.append(notification);
+    this.shouldRipple = false;
   }
 
   openReminderLink(e: Event) {
