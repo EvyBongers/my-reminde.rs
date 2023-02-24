@@ -12,6 +12,7 @@ import {deleteDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
+import {when} from "lit/directives/when.js";
 
 @customElement("reminder-item")
 export class ReminderItem extends Rippling(LitElement) {
@@ -106,13 +107,15 @@ export class ReminderItem extends Rippling(LitElement) {
         ${!this.expanded ? html`` : html`
           <main>
             <p id="body">${this.item.body}</p>
-            ${this.item? html`<p id="link"><a @click="${this.openReminderLink}" href="${this.item.link}">${this.item.link}</a></p>`:nothing}
+            ${this.item ? html`<p id="link"><a @click="${this.openReminderLink}" href="${this.item.link}">${this.item.link}</a></p>` : nothing}
             <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
           </main>
         `}
         <footer>
           ${!this.item.enabled ? html`(disabled)` : html`
-            Next: ${this.item.nextSend?.toDate()?.toLocaleString() ?? "(unscheduled)"}
+            ${when(this.item.nextSend !== undefined && typeof this.item.nextSend.toDate === "function",
+            () => html`Next: ${this.item.nextSend?.toDate().toLocaleString()}`,
+            () => html`Scheduling...`)}
           `}
         </footer>
         <aside>
