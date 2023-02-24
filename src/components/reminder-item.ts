@@ -110,7 +110,7 @@ export class ReminderItem extends Rippling(LitElement) {
         `}
         <footer>
           ${!this.item.enabled ? html`(disabled)` : html`
-            Next: ${this.item.nextSend.toDate().toLocaleString()}
+            Next: ${this.item.nextSend?.toDate()?.toLocaleString() ?? "(unscheduled)"}
           `}
         </footer>
         <aside>
