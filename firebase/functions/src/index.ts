@@ -116,8 +116,7 @@ export const updateNextSend = functions.firestore.document("/accounts/{accountId
       logger.debug(`Reminder ${reminderDocumentRef.ref} updated at ${writtenAt.writeTime.toDate().toUTCString()}`);
     }
   } catch (e) {
-    logger.error(`Failed to update nextSend on document ${reminderDocumentRef.ref}`);
-    logger.error((e as Error).message);
+    logger.error(`Failed to update nextSend on document ${reminderDocumentRef.ref}`, JSON.stringify(e));
   }
 });
 
