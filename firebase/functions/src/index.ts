@@ -103,7 +103,7 @@ export const updateNextSend = functions.firestore.document("/accounts/{accountId
 
   let reminderDocumentRef = change.after;
   let reminderDocumentData = reminderDocumentRef.data() as ReminderDocument;
-  if (reminderDocumentData.enabled === false) return;
+  if (reminderDocumentData === undefined || reminderDocumentData.enabled === false) return;
 
   let oldReminderDocumentRef = change.before;
   let oldReminderDocumentData = oldReminderDocumentRef.data() as ReminderDocument;
