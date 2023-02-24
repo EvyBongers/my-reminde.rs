@@ -13,6 +13,7 @@ import {calculateNextSend} from "../helpers/Scheduling";
 import {ReminderDocument} from "../../firebase/functions/src";
 import {toastWrapper} from "../helpers/Decorators";
 import {Dialog} from "@material/mwc-dialog";
+import {TextField} from "@material/mwc-textfield";
 
 @customElement("reminder-edit")
 export class ReminderEdit extends LitElement {
@@ -25,10 +26,15 @@ export class ReminderEdit extends LitElement {
   @property()
   collectionRef: any;
 
+  private calculatedNextSend : Date;
+
   private editResult: string;
 
   @query("mwc-dialog")
   private dialog: Dialog;
+
+  @query("mwc-textfield[name='schedule']")
+  private textFieldSchedule: TextField;
 
   @state()
   private hasLink: boolean;
@@ -54,12 +60,13 @@ export class ReminderEdit extends LitElement {
       };
     }
     this.hasLink = this.item.link != undefined;
+    this.calculatedNextSend = calculateNextSend(this.item);
 
     this.addEventListener("click", (e: Event) => {
       e.stopPropagation();
     });
     this.dialog.addEventListener("closed", (ev: CustomEvent) => {
-      if (ev.target != this.dialog){ ev.stopPropagation(); return }
+      if (ev.target != this.dialog) { ev.stopPropagation(); return; }
 
       console.log("Edit dialog is handling an event:");
       console.log(ev);
@@ -68,7 +75,16 @@ export class ReminderEdit extends LitElement {
         detail: this.editResult
       });
       this.dispatchEvent(event);
-    })
+    });
+    this.textFieldSchedule.checkValidity = () => {
+      try {
+        this.calculatedNextSend = calculateNextSend(this.item);
+        return true;
+      } catch (e) {
+        this.textFieldSchedule.setCustomValidity(e.message);
+        return false;
+      }
+    }
   }
 
   override render() {
@@ -92,10 +108,10 @@ export class ReminderEdit extends LitElement {
           </mwc-formfield>
           <br>
           ${this.hasLink === true ? html`
-          <mwc-textfield type="text" label="Link" icon="link" name="link" ?required="${this.hasLink}"
-                         @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
-                         .value="${this.item?.link ?? ""}"></mwc-textfield>
-          <br>` : nothing}
+            <mwc-textfield type="text" label="Link" icon="link" name="link" ?required="${this.hasLink}"
+                           @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
+                           .value="${this.item?.link ?? ""}"></mwc-textfield>
+            <br>` : nothing}
           <mwc-select name="type" label="Schedule type" icon="event" required
                       @selected="${(_: Event) => {
                         this.item.type = (_.currentTarget as HTMLSelectElement).value;
@@ -108,12 +124,14 @@ export class ReminderEdit extends LitElement {
           ${choose(this.item?.type, [
                 ['cron', () => html`
                   <mwc-textfield type="text" label="Schedule" name="schedule" required
-                                 @input="${(_: Event) => {
-                                   this.item.cronExpression = (_.currentTarget as HTMLInputElement).value;
-                                   this.requestUpdate("item");
+                                 .helper="${this.calculatedNextSend?.toLocaleString()}"
+                                 @input="${(e: Event) => {
+                                   let field = e.target as TextField;
+                                   this.item.cronExpression = field.value;
+                                   field.reportValidity();
+                                   this.requestUpdate("calculatedNextSend");
                                  }}"
                                  .value="${this.item?.cronExpression ?? ""}"></mwc-textfield>
-                  ${this.renderNextOccurrence(this.item)}
                 `],
                 // ['about', () => html`<h1>About</h1>`],
               ],
@@ -123,17 +141,6 @@ export class ReminderEdit extends LitElement {
         <mwc-button slot="secondaryAction" @click="${this.cancel}" dialogAction="close">Cancel</mwc-button>
       </mwc-dialog>
     `;
-  }
-
-  private renderNextOccurrence(item: ReminderDocument) {
-    try {
-      console.log(`Calculating next occurrence for ${item.cronExpression}`);
-      return html`
-        <span>Next: ${calculateNextSend(item).toLocaleString()}</span>
-      `;
-    } catch {
-      return "";
-    }
   }
 
   cancel(_: Event) {

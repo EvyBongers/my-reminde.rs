@@ -8,9 +8,19 @@ type Constructor<T> = new (...args: any[]) => T;
 export const Rippling = <T extends Constructor<LitElement>>(superClass: T) => {
   class RippledElement extends superClass {
     @queryAsync("mwc-ripple")
-    private ripple!: Promise<Ripple | null>;
+    protected ripple!: Promise<Ripple | null>;
 
-    protected rippleHandlers = new RippleHandlers(() => this.ripple);
+    protected shouldRipple: boolean;
+
+    protected rippleHandlers = new RippleHandlers(() => {
+      if (this.shouldRipple === false) {
+        return new Promise<Ripple | null>(resolve => {
+          resolve(null);
+        })
+      } else {
+        return this.ripple;
+      }
+    });
 
     protected listeners: ({
       target: Element | Window;
