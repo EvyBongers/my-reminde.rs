@@ -75,14 +75,13 @@ export async function* loadCollection<T extends DocumentData>(path: string, comp
   });
 
   while (1) {
-    let outputItems = await nextItems;
-    yield outputItems;
+    yield await nextItems;
   }
 }
 
 export async function* loadDocument<T = any>(path: string): DataSupplier<T> {
   let lastCallback: (doc: any) => void;
-  let nextItems = new Promise<T>((s) => {
+  let nextItem = new Promise<T>((s) => {
     lastCallback = s;
   });
 
@@ -92,13 +91,12 @@ export async function* loadDocument<T = any>(path: string): DataSupplier<T> {
 
     lastCallback(data);
 
-    nextItems = new Promise<T>((s) => {
+    nextItem = new Promise<T>((s) => {
       lastCallback = s;
     });
   });
 
   while (1) {
-    let outputItems = await nextItems;
-    yield outputItems;
+    yield await nextItem;
   }
 }
