@@ -20,6 +20,9 @@ export class ReminderItem extends Rippling(LitElement) {
   item: ReminderDocument;
 
   @property({type: Boolean})
+  protected editing: boolean = false;
+
+  @property({type: Boolean})
   protected expanded: boolean = false;
 
   @query("mwc-icon-button")
@@ -88,6 +91,9 @@ export class ReminderItem extends Rippling(LitElement) {
     this.addEventListener('click', _ => {
       this.expanded = !this.expanded;
     });
+    if (this.editing) {
+      this.openEditDialog();
+    }
   }
 
   private renderState() {
@@ -172,16 +178,20 @@ export class ReminderItem extends Rippling(LitElement) {
   edit(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
-    let notification = document.createElement("reminder-edit");
-    notification.item = structuredClone(this.item);
-    notification.documentRef = this.item._ref;
-    notification.addEventListener("closed", (ev: CustomEvent) => {
+    this.openEditDialog();
+  }
+
+  openEditDialog() {
+    let dialog = document.createElement("reminder-edit");
+    dialog.item = structuredClone(this.item);
+    dialog.documentRef = this.item._ref;
+    dialog.addEventListener("closed", (ev: CustomEvent) => {
       console.log(`Notification edit result: ${ev.detail}`);
       this.shouldRipple = true;
-      this.shadowRoot.removeChild(notification);
+      this.shadowRoot.removeChild(dialog);
     });
 
-    this.shadowRoot.append(notification);
+    this.shadowRoot.append(dialog);
     this.shouldRipple = false;
   }
 
