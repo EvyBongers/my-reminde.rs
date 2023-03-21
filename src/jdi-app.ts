@@ -249,22 +249,20 @@ export class JDIApp extends LitElement {
   }
 
   private setCurrentRoute(pathname: string) {
-    let routeData = ((uri: string) => {
-      for (const pattern in this.routes) {
-        // TODO: write proper regex for substituting placeholders
-        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?").replace("/:action", "(?:/(?<action>\\w+))?")}$`).exec(uri);
-        if (matchResult !== null) {
-          return {
-            ...this.routes[pattern],
-            data: matchResult.groups,
-          };
-        }
+    let routeData = Object.entries(this.routes).map(([pattern, data]) => {
+      // TODO: write proper regex for substituting placeholders
+      let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?").replace("/:action", "(?:/(?<action>\\w+))?")}$`).exec(pathname);
+      if (matchResult !== null) {
+        return {
+          ...this.routes[pattern],
+          data: {
+            ...matchResult.groups,
+            "userId": this.userId,
+          },
+        };
       }
-    })(pathname);
-    routeData.data = {
-      ...routeData.data,
-      "userId": this.userId,
-    }
+    }, this).find(_ => _ !== undefined);
+
     this.currentRoute = routeData;
   }
 
