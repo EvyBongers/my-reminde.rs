@@ -129,9 +129,11 @@ export class JDIApp extends LitElement {
   }
 
   renderReminders(args?: { [key: string]: string }) {
+    // TODO: replace reminder-list with generic collection-list
     return html`
       <h2>Reminders</h2>
-      <reminder-list .accountId="${args?.userId}" .selectedId="${args?.id}" .action="${args?.action}"></reminder-list>
+      <reminder-list .collection="notifications" .accountId="${args?.userId}"
+                     .selectedId="${args?.id}" .action="${args?.action}"></reminder-list>
     `;
   }
 
@@ -147,6 +149,7 @@ export class JDIApp extends LitElement {
   }
 
   renderNotifications(args?: { [key: string]: string }): TemplateResult {
+    // TODO: replace notification-list with generic collection-list
     return html`
       <h2>Notification history</h2>
       <notification-list .collection="notifications" .accountId="${args?.userId}"
