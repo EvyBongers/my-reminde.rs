@@ -101,7 +101,7 @@ export class JDIApp extends LitElement {
   `;
 
   private routes: { [pattern: string]: routeData } = {
-    "/reminders/:id": {view: "reminders", renderFn: this.renderReminders},
+    "/reminders/:id/:action": {view: "reminders", renderFn: this.renderReminders},
     "/settings": {view: "settings", renderFn: this.renderSettings},
     "/devices": {view: "devices", renderFn: this.renderDevices},
     "/notifications/:id": {view: "notifications", renderFn: this.renderNotifications},
@@ -131,7 +131,7 @@ export class JDIApp extends LitElement {
   renderReminders(args?: { [key: string]: string }) {
     return html`
       <h2>Reminders</h2>
-      <reminder-list .accountId="${args?.userId}" .selectedId="${args?.id}"></reminder-list>
+      <reminder-list .accountId="${args?.userId}" .selectedId="${args?.id}" .action="${args?.action}"></reminder-list>
     `;
   }
 
@@ -248,7 +248,8 @@ export class JDIApp extends LitElement {
   private setCurrentRoute(pathname: string) {
     let routeData = ((uri: string) => {
       for (const pattern in this.routes) {
-        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?")}$`).exec(uri);
+        // TODO: write proper regex for substituting placeholders
+        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?").replace("/:action", "(?:/(?<action>\\w+))?")}$`).exec(uri);
         if (matchResult !== null) {
           return {
             ...this.routes[pattern],
