@@ -65,6 +65,7 @@ export class ReminderList extends BunnyElement {
       <div class="reminders-container">
         ${renderItems(this.reminders, item => html`
           <reminder-item .item="${item}" @NavigationEvent="${this.route}"
+                         ?deleting="${item._ref.id === this.selectedId && this.action === "delete"}"
                          ?editing="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}

@@ -19,6 +19,9 @@ export class ReminderItem extends Rippling(LitElement) {
   item: ReminderDocument;
 
   @property({type: Boolean})
+  protected deleting: boolean = false;
+
+  @property({type: Boolean})
   protected editing: boolean = false;
 
   @property({type: Boolean})
@@ -93,6 +96,9 @@ export class ReminderItem extends Rippling(LitElement) {
     if (this.editing) {
       this.openEditDialog();
     }
+    if (this.deleting) {
+      this.openDeleteDialog();
+    }
   }
 
   private renderState() {
@@ -157,10 +163,13 @@ export class ReminderItem extends Rippling(LitElement) {
     `;
   }
 
-  async delete(e: Event) {
+  delete(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
+    this.openDeleteDialog();
+  }
 
+  openDeleteDialog() {
     let dialog = document.createElement("confirm-dialog");
     dialog.append("Delete reminder?");
     dialog.setAttribute("confirmLabel", "Delete");
@@ -170,8 +179,20 @@ export class ReminderItem extends Rippling(LitElement) {
     });
     dialog.addEventListener("closed", _ => {
       this.renderRoot.removeChild(dialog);
+      let navigationEvent = new CustomEvent("NavigationEvent", {
+        detail: null,
+        cancelable: false,
+        composed: true
+      });
+      this.dispatchEvent(navigationEvent);
     });
     this.shadowRoot.append(dialog);
+    let navigationEvent = new CustomEvent("NavigationEvent", {
+      detail: `${this.item._ref.id}/delete`,
+      cancelable: false,
+      composed: true
+    });
+    this.dispatchEvent(navigationEvent);
   }
 
   edit(e: Event) {
