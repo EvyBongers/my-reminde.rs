@@ -15,6 +15,9 @@ export class NotificationItem extends Rippling(LitElement) {
   @property()
   item: NotificationDocument;
 
+  @property({type: Boolean})
+  open: boolean = false;
+
   static override styles = css`
     :host {
       cursor: pointer;
@@ -71,44 +74,10 @@ export class NotificationItem extends Rippling(LitElement) {
     await this.updateComplete;
     await super.firstUpdated();
 
-    this.addEventListener('click', _ => {
-      const notificationItem = this;
-      const shadowRoot = this.shadowRoot;
-      const dialog = document.createElement("mwc-dialog");
-      dialog.heading = this.item.title;
-      this.shadowRoot.append(dialog);
-      render(html`
-        <div>
-          <p>${this.item.body}</p>
-          ${this.item?.link ? html`
-          <p>
-            <a href="${this.item.link}">${this.item.link}</a>
-          </p>`:nothing}
-          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
-        </div>
-        <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
-      `,
-      dialog);
-      dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
-      dialog.addEventListener("closing", (ev: CustomEvent) => {
-        switch (ev.detail.action) {
-          case "delete":
-            notificationItem.delete(ev);
-            break;
-          case "close":
-            // default action
-            break;
-          default:
-            console.log(`Unknown action: ${ev.detail.action}`)
-        }
-      });
-      dialog.addEventListener("closed", (ev: CustomEvent) => {
-        this.shouldRipple = true;
-        shadowRoot.removeChild(dialog);
-      });
-      dialog.show();
-      this.shouldRipple = false;
-    });
+    this.addEventListener('click', _ => this.openDialog());
+    if (this.open) {
+      this.openDialog();
+    }
   }
 
   override render() {
@@ -122,6 +91,46 @@ export class NotificationItem extends Rippling(LitElement) {
         </footer>
       </div>
     `;
+  }
+
+  openDialog() {
+    const notificationItem = this;
+    const shadowRoot = this.shadowRoot;
+    const dialog = document.createElement("mwc-dialog");
+    dialog.heading = this.item.title;
+    this.shadowRoot.append(dialog);
+    render(html`
+        <div>
+          <p>${this.item.body}</p>
+          ${this.item?.link ? html`
+          <p>
+            <a href="${this.item.link}">${this.item.link}</a>
+          </p>`:nothing}
+          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
+        </div>
+        <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
+      `,
+      dialog);
+    dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+    dialog.addEventListener("closing", (ev: CustomEvent) => {
+      switch (ev.detail.action) {
+        case "delete":
+          notificationItem.delete(ev);
+          break;
+        case "close":
+          // default action
+          break;
+        default:
+          console.log(`Unknown action: ${ev.detail.action}`)
+      }
+    });
+    dialog.addEventListener("closed", (ev: CustomEvent) => {
+      this.shouldRipple = true;
+      shadowRoot.removeChild(dialog);
+    });
+    dialog.show();
+    this.shouldRipple = false;
+
   }
 
   async delete(e: Event) {
