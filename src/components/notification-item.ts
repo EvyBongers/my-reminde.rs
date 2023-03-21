@@ -74,7 +74,16 @@ export class NotificationItem extends Rippling(LitElement) {
     await this.updateComplete;
     await super.firstUpdated();
 
-    this.addEventListener('click', _ => this.openDialog());
+    this.addEventListener('click', _ => {
+      this.openDialog();
+      let navigationEvent = new CustomEvent("NavigationEvent", {
+        detail: this.item._ref.id,
+        bubbles: true,
+        cancelable: false,
+        composed: true
+      })
+      this.dispatchEvent(navigationEvent);
+    });
     if (this.open) {
       this.openDialog();
     }
@@ -127,6 +136,13 @@ export class NotificationItem extends Rippling(LitElement) {
     dialog.addEventListener("closed", (ev: CustomEvent) => {
       this.shouldRipple = true;
       shadowRoot.removeChild(dialog);
+      let navigationEvent = new CustomEvent("NavigationEvent", {
+        detail: null,
+        bubbles: true,
+        cancelable: false,
+        composed: true
+      })
+      this.dispatchEvent(navigationEvent);
     });
     dialog.show();
     this.shouldRipple = false;

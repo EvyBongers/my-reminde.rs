@@ -64,13 +64,25 @@ export class ReminderList extends BunnyElement {
     return html`
       <div class="reminders-container">
         ${renderItems(this.reminders, item => html`
-          <reminder-item .item="${item}" ?editing="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
+          <reminder-item .item="${item}" @NavigationEvent="${this.route}"
+                         ?editing="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
 
       <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>
     `;
+  }
+
+  private route(e: CustomEvent) {
+    e.stopPropagation();
+    let navigationEvent = new CustomEvent("NavigationEvent", {
+      detail: ["", "reminders", e.detail].filter(_ => typeof _ === "string").join("/"),
+      cancelable: false,
+      composed: true
+    })
+    console.log("Triggering navigation event", navigationEvent);
+    this.dispatchEvent(navigationEvent);
   }
 
   @observe("accountId")

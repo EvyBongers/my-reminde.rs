@@ -133,7 +133,8 @@ export class JDIApp extends LitElement {
     return html`
       <h2>Reminders</h2>
       <reminder-list .collection="notifications" .accountId="${args?.userId}"
-                     .selectedId="${args?.id}" .action="${args?.action}"></reminder-list>
+                     .selectedId="${args?.id}" .action="${args?.action}"
+                     @NavigationEvent="${this.route}"></reminder-list>
     `;
   }
 
@@ -153,7 +154,7 @@ export class JDIApp extends LitElement {
     return html`
       <h2>Notification history</h2>
       <notification-list .collection="notifications" .accountId="${args?.userId}"
-                         .selectedId="${args?.id}"></notification-list>
+                         .selectedId="${args?.id}" @NavigationEvent="${this.route}"></notification-list>
     `;
   }
 
@@ -187,7 +188,6 @@ export class JDIApp extends LitElement {
   }
 
   renderAppContent(): TemplateResult {
-    let pathname = (new URL(document.location.href)).pathname;
     try {
       return html`
         ${when(this.currentRoute !== undefined,

@@ -1,5 +1,6 @@
 import {css, html, nothing, LitElement} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
+import {when} from "lit/directives/when.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {Menu} from "@material/mwc-menu";
 import "@material/mwc-dialog";
@@ -9,10 +10,8 @@ import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {ReminderDocument} from "../../firebase/functions/src";
 import {deleteDocByRef, setDocByRef} from "../db";
-import {calculateNextSend} from "../helpers/Scheduling";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
-import {when} from "lit/directives/when.js";
 
 @customElement("reminder-item")
 export class ReminderItem extends Rippling(LitElement) {
@@ -179,6 +178,12 @@ export class ReminderItem extends Rippling(LitElement) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
     this.openEditDialog();
+    let navigationEvent = new CustomEvent("NavigationEvent", {
+      detail: `${this.item._ref.id}/edit`,
+      cancelable: false,
+      composed: true
+    });
+    this.dispatchEvent(navigationEvent);
   }
 
   openEditDialog() {
@@ -189,6 +194,12 @@ export class ReminderItem extends Rippling(LitElement) {
       console.log(`Notification edit result: ${ev.detail}`);
       this.shouldRipple = true;
       this.shadowRoot.removeChild(dialog);
+      let navigationEvent = new CustomEvent("NavigationEvent", {
+        detail: null,
+        cancelable: false,
+        composed: true
+      });
+      this.dispatchEvent(navigationEvent);
     });
 
     this.shadowRoot.append(dialog);
