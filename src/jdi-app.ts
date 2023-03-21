@@ -219,14 +219,16 @@ export class JDIApp extends LitElement {
     super.connectedCallback();
 
     onAuthStateChanged(auth, (user) => {
-      this.user = user;
-
-      if (user) {
-        this.userId = user.uid;
-        localStorage["loggedInUserId"] = user.uid;
-      } else {
+      if (!user) {
         this.userId = undefined;
         delete localStorage["loggedInUserId"];
+        window.history.pushState({}, null, "/login");
+        this.setCurrentRoute("/login");
+      } else if (this.userId !== user.uid) {
+        this.userId = user.uid;
+        localStorage["loggedInUserId"] = user.uid;
+        window.history.pushState({}, null, this.defaultPath);
+        this.setCurrentRoute(this.defaultPath);
       }
     });
 
