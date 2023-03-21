@@ -252,8 +252,8 @@ export class JDIApp extends LitElement {
 
   private setCurrentRoute(pathname: string) {
     let routeData = Object.entries(this.routes).map(([pattern, data]) => {
-      // TODO: write proper regex for substituting placeholders
-      let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?").replace("/:action", "(?:/(?<action>\\w+))?")}$`).exec(pathname);
+      const patternRegex = pattern.replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
+      let matchResult = new RegExp(`^${patternRegex}$`).exec(pathname);
       if (matchResult !== null) {
         return {
           ...this.routes[pattern],
