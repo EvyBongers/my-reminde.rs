@@ -56,7 +56,7 @@ export class ReminderItem extends Rippling(LitElement) {
     .notification header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
-      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
+      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
     .notification header:has(~ main) h4 {
@@ -118,15 +118,16 @@ export class ReminderItem extends Rippling(LitElement) {
         ${!this.expanded ? html`` : html`
           <main>
             <p id="body">${this.item.body}</p>
-            ${this.item ? html`<p id="link"><a @click="${this.openReminderLink}" href="${this.item.link}">${this.item.link}</a></p>` : nothing}
+            ${this.item ? html`<p id="link"><a @click="${this.openReminderLink}"
+                                               href="${this.item.link}">${this.item.link}</a></p>` : nothing}
             <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
           </main>
         `}
         <footer>
           ${!this.item.enabled ? html`(disabled)` : html`
             ${when(this.item.nextSend !== undefined && typeof this.item.nextSend.toDate === "function",
-            () => html`Next: ${this.item.nextSend?.toDate().toLocaleString()}`,
-            () => html`Scheduling...`)}
+                () => html`Next: ${this.item.nextSend?.toDate().toLocaleString()}`,
+                () => html`Scheduling...`)}
           `}
         </footer>
         <aside>

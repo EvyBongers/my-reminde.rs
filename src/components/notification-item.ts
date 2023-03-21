@@ -42,7 +42,7 @@ export class NotificationItem extends Rippling(LitElement) {
     .notification header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
-      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
+      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
     .notification header:has(~ main) h4 {
@@ -96,7 +96,7 @@ export class NotificationItem extends Rippling(LitElement) {
           <h4 id="title">${this.item?.title}</h4>
         </header>
         <footer>
-          Sent: ${( this.item?.sent.toDate().toLocaleString())}
+          Sent: ${(this.item?.sent.toDate().toLocaleString())}
         </footer>
       </div>
     `;
@@ -109,15 +109,15 @@ export class NotificationItem extends Rippling(LitElement) {
     dialog.heading = this.item.title;
     this.shadowRoot.append(dialog);
     render(html`
-        <div>
-          <p>${this.item.body}</p>
-          ${this.item?.link ? html`
-          <p>
-            <a href="${this.item.link}">${this.item.link}</a>
-          </p>`:nothing}
-          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
-        </div>
-        <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
+          <div>
+            <p>${this.item.body}</p>
+            ${this.item?.link ? html`
+              <p>
+                <a href="${this.item.link}">${this.item.link}</a>
+              </p>` : nothing}
+            <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
+          </div>
+          <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
       `,
       dialog);
     dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
@@ -146,7 +146,6 @@ export class NotificationItem extends Rippling(LitElement) {
     });
     dialog.show();
     this.shouldRipple = false;
-
   }
 
   async delete(e: Event) {
