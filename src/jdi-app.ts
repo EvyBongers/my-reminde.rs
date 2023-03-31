@@ -26,6 +26,9 @@ import {doSendNotifications} from "./functions";
 import {NavItem} from "./components/nav-bar";
 
 type RenderFn = (params?: { [key: string]: string }) => TemplateResult;
+type routeOptions = {
+  inPlace?: boolean
+}
 type routeData = {
   view: string
   renderFn: RenderFn
@@ -34,7 +37,6 @@ type routeData = {
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
-
   @property()
   userId: string;
 
@@ -121,7 +123,7 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
     if (window.location.pathname === "/") {
-      window.history.replaceState(window.history.state?.data, "", this.defaultPath);
+      this.setCurrentRoute(this.defaultPath, {inPlace: true});
     }
   }
 
@@ -226,12 +228,10 @@ export class JDIApp extends LitElement {
       if (!user) {
         this.userId = undefined;
         delete localStorage["loggedInUserId"];
-        window.history.pushState({}, "", "/login");
         this.setCurrentRoute("/login");
       } else if (this.userId !== user.uid) {
         this.userId = user.uid;
         localStorage["loggedInUserId"] = user.uid;
-        window.history.pushState({}, "", this.defaultPath);
         this.setCurrentRoute(this.defaultPath);
       }
     });
@@ -254,10 +254,10 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private setCurrentRoute(pathname: string) {
+  private setCurrentRoute(url: string, options?: routeOptions) {
     let routeData = Object.entries(this.routes).map(([pattern, data]) => {
       const patternRegex = pattern.replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
-      let matchResult = new RegExp(`^${patternRegex}$`).exec(pathname);
+      let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
       if (matchResult !== null) {
         return {
           ...this.routes[pattern],
@@ -269,11 +269,17 @@ export class JDIApp extends LitElement {
       }
     }, this).find(_ => _ !== undefined);
 
+    let state = {view: routeData.view, params: routeData.data};
+    if (options?.inPlace === true) {
+      history.replaceState(state, "", url);
+    } else {
+      history.pushState(state, "", url);
+    }
+
     this.currentRoute = routeData;
   }
 
   private route(e: CustomEvent) {
-    window.history.pushState({}, "", e.detail);
     this.setCurrentRoute(e.detail);
   }
 
