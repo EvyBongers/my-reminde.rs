@@ -111,6 +111,7 @@ export class JDIApp extends LitElement {
     "/settings": {view: "settings", renderFn: this.renderSettings},
     "/devices": {view: "devices", renderFn: this.renderDevices},
     "/notifications/:id": {view: "notifications", renderFn: this.renderNotifications},
+    "/login": {view: "login", renderFn: this.renderLogin}
   }
 
   private navButtons: NavItem[] = [
@@ -164,7 +165,7 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderLoggedOut(): TemplateResult {
+  renderLogin(): TemplateResult {
     return html`
       <jdi-login></jdi-login>
     `;
@@ -214,7 +215,7 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
 
         <main>
-          ${when(this.userId, () => html`${this.renderAppContent()}`, () => html`${this.renderLoggedOut()}`)}
+          ${this.renderAppContent()}
         </main>
         ${when(this.userId, () => html`${this.renderNav()}`, () => nothing)}
       </mwc-top-app-bar-fixed>
