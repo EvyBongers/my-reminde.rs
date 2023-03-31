@@ -128,10 +128,10 @@ export class JDIApp extends LitElement {
     }
   }
 
-  renderDevices(args?: { [key: string]: string }): TemplateResult {
+  renderDevices(): TemplateResult {
     return html`
       <h2>Subscribed devices</h2>
-      <jdi-devices .accountId="${args?.userId}"></jdi-devices>
+      <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
 
@@ -139,7 +139,7 @@ export class JDIApp extends LitElement {
     // TODO: replace reminder-list with generic collection-list
     return html`
       <h2>Reminders</h2>
-      <reminder-list .collection="notifications" .accountId="${args?.userId}"
+      <reminder-list .collection="notifications" .accountId="${this.userId}"
                      .selectedId="${args?.id}" .action="${args?.action}"
                      @NavigationEvent="${this.route}"></reminder-list>
     `;
@@ -160,7 +160,7 @@ export class JDIApp extends LitElement {
     // TODO: replace notification-list with generic collection-list
     return html`
       <h2>Notification history</h2>
-      <notification-list .collection="notifications" .accountId="${args?.userId}"
+      <notification-list .collection="notifications" .accountId="${this.userId}"
                          .selectedId="${args?.id}" @NavigationEvent="${this.route}"></notification-list>
     `;
   }
@@ -262,10 +262,7 @@ export class JDIApp extends LitElement {
       if (matchResult !== null) {
         return {
           ...this.routes[pattern],
-          data: {
-            ...matchResult.groups,
-            "userId": this.userId,
-          },
+          data: matchResult.groups ?? {},
         };
       }
     }, this).find(_ => _ !== undefined);
