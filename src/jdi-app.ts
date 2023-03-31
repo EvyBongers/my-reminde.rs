@@ -121,7 +121,7 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
     if (window.location.pathname === "/") {
-      window.history.replaceState(window.history.state?.data, null, this.defaultPath);
+      window.history.replaceState(window.history.state?.data, "", this.defaultPath);
     }
   }
 
@@ -226,12 +226,12 @@ export class JDIApp extends LitElement {
       if (!user) {
         this.userId = undefined;
         delete localStorage["loggedInUserId"];
-        window.history.pushState({}, null, "/login");
+        window.history.pushState({}, "", "/login");
         this.setCurrentRoute("/login");
       } else if (this.userId !== user.uid) {
         this.userId = user.uid;
         localStorage["loggedInUserId"] = user.uid;
-        window.history.pushState({}, null, this.defaultPath);
+        window.history.pushState({}, "", this.defaultPath);
         this.setCurrentRoute(this.defaultPath);
       }
     });
@@ -273,7 +273,7 @@ export class JDIApp extends LitElement {
   }
 
   private route(e: CustomEvent) {
-    window.history.pushState({}, null, e.detail);
+    window.history.pushState({}, "", e.detail);
     this.setCurrentRoute(e.detail);
   }
 
