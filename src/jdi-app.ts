@@ -44,7 +44,11 @@ export class JDIApp extends LitElement {
   @property()
   pushNotificationsEnabled: boolean;
 
-  @property()
+  @property({
+    hasChanged(newRoute: routeData, oldRoute: routeData) {
+      return newRoute?.renderFn !== oldRoute?.renderFn;
+    }
+  })
   currentRoute: routeData | undefined;
 
   private defaultPath: string = "/reminders";
