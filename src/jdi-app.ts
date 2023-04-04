@@ -138,12 +138,12 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderReminders(args?: { [key: string]: string }) {
+  renderReminders() {
     // TODO: replace reminder-list with generic collection-list
     return html`
       <h2>Reminders</h2>
       <reminder-list .collection="notifications" .accountId="${this.userId}"
-                     .selectedId="${args?.id}" .action="${args?.action}"
+                     .selectedId="${this.currentRoute.data?.id}" .action="${this.currentRoute.data?.action}"
                      @NavigationEvent="${this.route}"></reminder-list>
     `;
   }
@@ -159,12 +159,13 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderNotifications(args?: { [key: string]: string }): TemplateResult {
+  renderNotifications(): TemplateResult {
     // TODO: replace notification-list with generic collection-list
     return html`
       <h2>Notification history</h2>
       <notification-list .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${args?.id}" @NavigationEvent="${this.route}"></notification-list>
+                         .selectedId="${this.currentRoute.data?.id}"
+                         @NavigationEvent="${this.route}"></notification-list>
     `;
   }
 
@@ -208,7 +209,7 @@ export class JDIApp extends LitElement {
     try {
       return html`
         ${map(this.routes, (route: routeData) => html`
-          ${when(route === this.currentRoute, () => html`${route.renderFn.call(this, this.currentRoute.data)}`)}
+          ${when(route === this.currentRoute, () => html`${route.renderFn.call(this)}`)}
         `)}
       `;
     } catch (e) {
