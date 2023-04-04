@@ -1,6 +1,7 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
 import {customElement, property} from "lit/decorators.js";
+import {map} from 'lit/directives/map.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
@@ -113,6 +114,7 @@ export class JDIApp extends LitElement {
     {pattern: "/devices", route: "devices", renderFn: this.renderDevices},
     {pattern: "/notifications/:id", route: "notifications", renderFn: this.renderNotifications},
     {pattern: "/login", route: "login", renderFn: this.renderLogin},
+    {pattern: "/404", route: undefined, renderFn: this.render404},
   ]
 
   private navButtons: NavItem[] = [
@@ -172,6 +174,13 @@ export class JDIApp extends LitElement {
     `;
   }
 
+  render404(): TemplateResult {
+    return html`
+      <h1>Oops!</h1>
+      <p>No idea how we ended up here, but I don't know what to show.</p>
+    `;
+  }
+
   renderNav(): TemplateResult {
     let activeIndex = 0;
     this.navButtons.forEach((navItem, idx) => {
@@ -198,9 +207,9 @@ export class JDIApp extends LitElement {
   renderAppContent(): TemplateResult {
     try {
       return html`
-        ${when(this.currentRoute !== undefined,
-            () => html`${this.currentRoute.renderFn.call(this, this.currentRoute.data)}`,
-            () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
+        ${map(this.routes, (route: routeData) => html`
+          ${when(route === this.currentRoute, () => html`${route.renderFn.call(this, this.currentRoute.data)}`)}
+        `)}
       `;
     } catch (e) {
       return html`
