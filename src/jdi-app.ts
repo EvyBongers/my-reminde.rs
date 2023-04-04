@@ -30,8 +30,9 @@ type routeOptions = {
   inPlace?: boolean
 }
 type routeData = {
-  view: string
+  pattern: string
   renderFn: RenderFn
+  route: string
   data?: { [key: string]: string }
 };
 
@@ -106,13 +107,13 @@ export class JDIApp extends LitElement {
     }
   `;
 
-  private routes: { [pattern: string]: routeData } = {
-    "/reminders/:id/:action": {view: "reminders", renderFn: this.renderReminders},
-    "/settings": {view: "settings", renderFn: this.renderSettings},
-    "/devices": {view: "devices", renderFn: this.renderDevices},
-    "/notifications/:id": {view: "notifications", renderFn: this.renderNotifications},
-    "/login": {view: "login", renderFn: this.renderLogin}
-  }
+  private routes: routeData[] = [
+    {pattern: "/reminders/:id/:action", route: "reminders", renderFn: this.renderReminders},
+    {pattern: "/settings", route: "settings", renderFn: this.renderSettings},
+    {pattern: "/devices", route: "devices", renderFn: this.renderDevices},
+    {pattern: "/notifications/:id", route: "notifications", renderFn: this.renderNotifications},
+    {pattern: "/login", route: "login", renderFn: this.renderLogin},
+  ]
 
   private navButtons: NavItem[] = [
     {icon: "alarm", uri: "/reminders"},
@@ -256,25 +257,16 @@ export class JDIApp extends LitElement {
   }
 
   private setCurrentRoute(url: string, options?: routeOptions) {
-    let routeData = Object.entries(this.routes).map(([pattern, data]) => {
-      const patternRegex = pattern.replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
-      let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
-      if (matchResult !== null) {
-        return {
-          ...this.routes[pattern],
-          data: matchResult.groups ?? {},
-        };
+    let activeRoute = this.routes.map((route) => {
+        const patternRegex = (route.pattern ?? "").replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
+        let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
+        return (matchResult !== null) ? {route: route.route, data: {...route.data, ...matchResult.groups}} : undefined;
       }
-    }, this).find(_ => _ !== undefined);
+    ).find(result => result !== undefined);
 
-    let state = {view: routeData.view, params: routeData.data};
-    if (options?.inPlace === true) {
-      history.replaceState(state, "", url);
-    } else {
-      history.pushState(state, "", url);
-    }
-
-    this.currentRoute = routeData;
+    let stateFn = options?.inPlace ? history.replaceState : history.pushState;
+    stateFn.call(history, activeRoute, "", url);
+    this.currentRoute = this.routes.filter(route => route.route === activeRoute?.route).at(0);
   }
 
   private route(e: CustomEvent) {
