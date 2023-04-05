@@ -1,6 +1,6 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import {customElement, property, state} from "lit/decorators.js";
 import {map} from 'lit/directives/map.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
@@ -45,7 +45,10 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @property()
-  currentRoute: routeData | undefined;
+  currentRoute: string | undefined;
+
+  @state()
+  currentRouteData: { [key: string]: string }
 
   private defaultPath: string = "/reminders";
 
@@ -128,7 +131,7 @@ export class JDIApp extends LitElement {
     // TODO: replace reminder-list with generic collection-list
     return html`
       <reminder-list .collection="notifications" .accountId="${this.userId}"
-                     .selectedId="${this.currentRoute.data?.id}" .action="${this.currentRoute.data?.action}"
+                     .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"
                      @NavigationEvent="${this.route}"></reminder-list>
     `;
   }
@@ -142,7 +145,7 @@ export class JDIApp extends LitElement {
   renderNotifications(): TemplateResult {
     return html`
       <notification-list .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.currentRoute.data?.id}"
+                         .selectedId="${this.currentRouteData?.id}"
                          @NavigationEvent="${this.route}"></notification-list>
     `;
   }
@@ -187,7 +190,7 @@ export class JDIApp extends LitElement {
     try {
       return html`
         ${map(this.routes, (route: routeData) => html`
-          ${when(route === this.currentRoute, () => html`${route.renderFn.call(this)}`)}
+          ${when(route.route === this.currentRoute, () => html`${route.renderFn.call(this)}`)}
         `)}
       `;
     } catch (e) {
@@ -253,7 +256,9 @@ export class JDIApp extends LitElement {
 
     let stateFn = options?.inPlace ? history.replaceState : history.pushState;
     stateFn.call(history, activeRoute, "", url);
-    this.currentRoute = this.routes.filter(route => route.route === activeRoute?.route).at(0);
+
+    this.currentRoute = activeRoute?.route;
+    this.currentRouteData = activeRoute?.data;
   }
 
   private route(e: CustomEvent) {
