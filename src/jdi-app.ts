@@ -5,7 +5,6 @@ import {map} from 'lit/directives/map.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
 import "@material/mwc-formfield";
@@ -20,10 +19,7 @@ import "./components/jdi-login";
 import "./components/nav-bar";
 import "./components/notification-list";
 import "./components/reminder-list";
-import {loadCollection} from "./db";
-import {ReminderDocument} from "../firebase/functions/src";
-import {SingleSelectedEvent} from "@material/mwc-list";
-import {doSendNotifications} from "./functions";
+import "./components/settings-control";
 import {NavItem} from "./components/nav-bar";
 
 type RenderFn = (params?: { [key: string]: string }) => TemplateResult;
@@ -48,11 +44,7 @@ export class JDIApp extends LitElement {
   @property()
   pushNotificationsEnabled: boolean;
 
-  @property({
-    hasChanged(newRoute: routeData, oldRoute: routeData) {
-      return newRoute?.renderFn !== oldRoute?.renderFn;
-    }
-  })
+  @property()
   currentRoute: routeData | undefined;
 
   private defaultPath: string = "/reminders";
@@ -82,15 +74,6 @@ export class JDIApp extends LitElement {
 
     main {
       padding: 6pt 6pt calc(var(--mdc-tab-height, 0) + 6pt);
-    }
-
-    mwc-formfield {
-      display: flex;
-      height: 48px;
-    }
-
-    mwc-formfield mwc-switch {
-      z-index: -1;
     }
 
     nav {
@@ -129,11 +112,14 @@ export class JDIApp extends LitElement {
     if (window.location.pathname === "/") {
       this.setCurrentRoute(this.defaultPath, {inPlace: true});
     }
+
+    this.userId = localStorage["loggedInUserId"];
+    this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
+    this.loadPushNotificationsState();
   }
 
   renderDevices(): TemplateResult {
     return html`
-      <h2>Subscribed devices</h2>
       <jdi-devices .accountId="${this.userId}"></jdi-devices>
     `;
   }
@@ -141,7 +127,6 @@ export class JDIApp extends LitElement {
   renderReminders() {
     // TODO: replace reminder-list with generic collection-list
     return html`
-      <h2>Reminders</h2>
       <reminder-list .collection="notifications" .accountId="${this.userId}"
                      .selectedId="${this.currentRoute.data?.id}" .action="${this.currentRoute.data?.action}"
                      @NavigationEvent="${this.route}"></reminder-list>
@@ -150,19 +135,12 @@ export class JDIApp extends LitElement {
 
   renderSettings(): TemplateResult {
     return html`
-      <h2>Settings</h2>
-      <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
-        <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
-      </mwc-formfield>
-      <br>
-      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
+      <settings-control></settings-control>
     `;
   }
 
   renderNotifications(): TemplateResult {
-    // TODO: replace notification-list with generic collection-list
     return html`
-      <h2>Notification history</h2>
       <notification-list .collection="notifications" .accountId="${this.userId}"
                          .selectedId="${this.currentRoute.data?.id}"
                          @NavigationEvent="${this.route}"></notification-list>
@@ -247,11 +225,10 @@ export class JDIApp extends LitElement {
         this.setCurrentRoute(this.defaultPath);
       }
     });
+  }
 
-    this.userId = localStorage["loggedInUserId"];
-    this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
+  async firstUpdated() {
     this.setCurrentRoute(window.location.pathname);
-    this.loadPushNotificationsState();
   }
 
   private confirmLogout(_: Event) {
@@ -298,38 +275,6 @@ export class JDIApp extends LitElement {
     }
 
     await this.loadPushNotificationsState();
-  }
-
-  private async sendNotification(_: Event) {
-    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.userId}/reminders`).next()).value;
-    try {
-      let reminderDocuments = reminders as ReminderDocument[];
-      let selectedReminder: ReminderDocument;
-
-      let dialog = document.createElement("confirm-dialog");
-      dialog.setAttribute("confirmLabel", "Send");
-      dialog.setAttribute("cancelLabel", "Cancel");
-      render(html`
-        <span>Reminder to send:</span>
-        <br>
-        <mwc-list @selected="${(e: SingleSelectedEvent) => {
-          selectedReminder = reminderDocuments[e.detail.index]
-        }}">
-          ${reminderDocuments.map(_ => html`
-            <mwc-radio-list-item .data-document-ref="${_._ref}">${_.title}</mwc-radio-list-item>`)}
-        </mwc-list>
-      `, dialog);
-      dialog.addEventListener("confirm", _ => {
-        showMessage(`Sending notification ${selectedReminder.title}`, {timeoutMs: 7500});
-        doSendNotifications(selectedReminder._ref.path);
-      });
-      dialog.addEventListener("closed", _ => {
-        this.renderRoot.removeChild(dialog);
-      });
-      this.shadowRoot.append(dialog);
-    } catch (e) {
-      showMessage(`Failed to fetch notifications: ${e}`, {timeoutMs: 10000});
-    }
   }
 }
 

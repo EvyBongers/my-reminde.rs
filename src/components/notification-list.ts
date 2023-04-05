@@ -59,6 +59,7 @@ export class NotificationList extends BunnyElement {
 
   override render() {
     return html`
+      <h2>Notification history</h2>
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
           <notification-item @NavigationEvent="${this.route}" .item="${item}"

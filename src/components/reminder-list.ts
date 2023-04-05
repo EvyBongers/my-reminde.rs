@@ -62,6 +62,7 @@ export class ReminderList extends BunnyElement {
 
   override render() {
     return html`
+      <h2>Reminders</h2>
       <div class="reminders-container">
         ${renderItems(this.reminders, item => html`
           <reminder-item .item="${item}" @NavigationEvent="${this.route}"
