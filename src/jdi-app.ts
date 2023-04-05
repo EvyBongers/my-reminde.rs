@@ -1,7 +1,6 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
 import {customElement, property, state} from "lit/decorators.js";
-import {map} from 'lit/directives/map.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
@@ -22,13 +21,11 @@ import "./components/reminder-list";
 import "./components/settings-control";
 import {NavItem} from "./components/nav-bar";
 
-type RenderFn = (params?: { [key: string]: string }) => TemplateResult;
 type routeOptions = {
   inPlace?: boolean
 }
 type routeData = {
   pattern: string
-  renderFn: RenderFn
   route: string
   data?: { [key: string]: string }
 };
@@ -92,15 +89,23 @@ export class JDIApp extends LitElement {
     mwc-tab {
       background-color: inherit;
     }
+
+    [route] {
+      display: none;
+    }
+
+    [route][active] {
+      display: initial;
+    }
   `;
 
   private routes: routeData[] = [
-    {pattern: "/reminders/:id/:action", route: "reminders", renderFn: this.renderReminders},
-    {pattern: "/settings", route: "settings", renderFn: this.renderSettings},
-    {pattern: "/devices", route: "devices", renderFn: this.renderDevices},
-    {pattern: "/notifications/:id", route: "notifications", renderFn: this.renderNotifications},
-    {pattern: "/login", route: "login", renderFn: this.renderLogin},
-    {pattern: "/404", route: undefined, renderFn: this.render404},
+    {pattern: "/reminders/:id/:action", route: "reminders"},
+    {pattern: "/settings", route: "settings"},
+    {pattern: "/devices", route: "devices"},
+    {pattern: "/notifications/:id", route: "notifications"},
+    {pattern: "/login", route: "login"},
+    {pattern: "/404", route: undefined},
   ]
 
   private navButtons: NavItem[] = [
@@ -119,48 +124,6 @@ export class JDIApp extends LitElement {
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
-  }
-
-  renderDevices(): TemplateResult {
-    return html`
-      <jdi-devices .accountId="${this.userId}"></jdi-devices>
-    `;
-  }
-
-  renderReminders() {
-    // TODO: replace reminder-list with generic collection-list
-    return html`
-      <reminder-list .collection="notifications" .accountId="${this.userId}"
-                     .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"
-                     @NavigationEvent="${this.route}"></reminder-list>
-    `;
-  }
-
-  renderSettings(): TemplateResult {
-    return html`
-      <settings-control></settings-control>
-    `;
-  }
-
-  renderNotifications(): TemplateResult {
-    return html`
-      <notification-list .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.currentRouteData?.id}"
-                         @NavigationEvent="${this.route}"></notification-list>
-    `;
-  }
-
-  renderLogin(): TemplateResult {
-    return html`
-      <jdi-login></jdi-login>
-    `;
-  }
-
-  render404(): TemplateResult {
-    return html`
-      <h1>Oops!</h1>
-      <p>No idea how we ended up here, but I don't know what to show.</p>
-    `;
   }
 
   renderNav(): TemplateResult {
@@ -186,20 +149,6 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderAppContent(): TemplateResult {
-    try {
-      return html`
-        ${map(this.routes, (route: routeData) => html`
-          ${when(route.route === this.currentRoute, () => html`${route.renderFn.call(this)}`)}
-        `)}
-      `;
-    } catch (e) {
-      return html`
-        Failed to render view: ${e}
-      `;
-    }
-  }
-
   override render(): TemplateResult {
     return html`
       <mwc-top-app-bar-fixed>
@@ -207,7 +156,18 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
 
         <main>
-          ${this.renderAppContent()}
+          <jdi-login route="login"></jdi-login>
+          <reminder-list route="reminders" .collection="notifications" .accountId="${this.userId}"
+                         .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"
+                         @NavigationEvent="${this.route}"></reminder-list>
+          <settings-control route="settings" .accountId="${this.userId}"></settings-control>
+          <notification-list route="notifications" .collection="notifications" .accountId="${this.userId}"
+                             .selectedId="${this.currentRouteData?.id}" @NavigationEvent="${this.route}"></notification-list>
+          <jdi-devices route="devices" .accountId="${this.userId}"></jdi-devices>
+          <div route="404">
+            <h1>Oops!</h1>
+            <p>No idea how we ended up here, but I don't know what to show.</p>
+          </div>
         </main>
         ${when(this.userId, () => html`${this.renderNav()}`, () => nothing)}
       </mwc-top-app-bar-fixed>
@@ -257,8 +217,13 @@ export class JDIApp extends LitElement {
     let stateFn = options?.inPlace ? history.replaceState : history.pushState;
     stateFn.call(history, activeRoute, "", url);
 
-    this.currentRoute = activeRoute?.route;
+    this.currentRoute = activeRoute?.route || "404";
     this.currentRouteData = activeRoute?.data;
+
+    let activeElements = this.shadowRoot.querySelectorAll(`[route][active]`);
+    let togglingElements = this.shadowRoot.querySelectorAll(`[route='${this.currentRoute}']`);
+    activeElements.forEach(el => el.toggleAttribute("active", false));
+    togglingElements.forEach(el => el.toggleAttribute("active", true));
   }
 
   private route(e: CustomEvent) {
