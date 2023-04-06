@@ -192,6 +192,10 @@ export class JDIApp extends LitElement {
     window.addEventListener('route', (ev: RouteEvent) => {
       this.routing.call(this, ev.detail.url, ev.detail.options);
     })
+    window.addEventListener("popstate", (ev: PopStateEvent) => {
+      console.log("Invoking routed", window.location.pathname, ev.state);
+      this.routed.call(this, window.location.pathname, ev.state);
+    });
   }
 
   async firstUpdated() {
@@ -225,6 +229,11 @@ export class JDIApp extends LitElement {
 
     window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
 
+    console.log("Invoking routed", route);
+    this.routed(route);
+  }
+
+  private routed(route: Route) {
     this.currentRoute = route?.name || "404";
     this.currentRouteData = route?.data || {};
 
