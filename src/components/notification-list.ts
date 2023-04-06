@@ -62,23 +62,11 @@ export class NotificationList extends BunnyElement {
       <h2>Notification history</h2>
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
-          <notification-item @NavigationEvent="${this.route}" .item="${item}"
-                             ?open="${item._ref.id === this.selectedId}"></notification-item>
+          <notification-item .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
     `;
-  }
-
-  private route(e: CustomEvent) {
-    e.stopPropagation();
-    let navigationEvent = new CustomEvent("NavigationEvent", {
-      detail: ["", "notifications", e.detail].filter(_ => typeof _ === "string").join("/"),
-      bubbles: true,
-      cancelable: false,
-      composed: true
-    })
-    this.dispatchEvent(navigationEvent);
   }
 
   @observe("accountId")

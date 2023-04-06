@@ -21,7 +21,7 @@ import "./components/reminder-list";
 import "./components/settings-control";
 import {NavItem} from "./components/nav-bar";
 
-type routeOptions = {
+export type RouteOptions = {
   inPlace?: boolean
 }
 type routeData = {
@@ -29,6 +29,11 @@ type routeData = {
   route: string
   data?: { [key: string]: string }
 };
+export type RouteEventDetails = {
+  url: URL | string,
+  options?: RouteOptions,
+};
+export class RouteEvent extends CustomEvent<RouteEventDetails>{};
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -118,7 +123,7 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
     if (window.location.pathname === "/") {
-      this.setCurrentRoute(this.defaultPath, {inPlace: true});
+      this.routing(this.defaultPath, {inPlace: true});
     }
 
     this.userId = localStorage["loggedInUserId"];
@@ -135,8 +140,7 @@ export class JDIApp extends LitElement {
     });
     return html`
       <nav>
-        <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"
-                 @NavigationEvent="${this.route}"></nav-bar>
+        <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"></nav-bar>
       </nav>
     `;
   }
@@ -158,11 +162,10 @@ export class JDIApp extends LitElement {
         <main>
           <jdi-login route="login"></jdi-login>
           <reminder-list route="reminders" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"
-                         @NavigationEvent="${this.route}"></reminder-list>
+                         .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"></reminder-list>
           <settings-control route="settings" .accountId="${this.userId}"></settings-control>
           <notification-list route="notifications" .collection="notifications" .accountId="${this.userId}"
-                             .selectedId="${this.currentRouteData?.id}" @NavigationEvent="${this.route}"></notification-list>
+                             .selectedId="${this.currentRouteData?.id}"></notification-list>
           <jdi-devices route="devices" .accountId="${this.userId}"></jdi-devices>
           <div route="404">
             <h1>Oops!</h1>
@@ -181,17 +184,20 @@ export class JDIApp extends LitElement {
       if (!user) {
         this.userId = undefined;
         delete localStorage["loggedInUserId"];
-        this.setCurrentRoute("/login");
+        this.routing("/login", {inPlace: true});
       } else if (this.userId !== user.uid) {
         this.userId = user.uid;
         localStorage["loggedInUserId"] = user.uid;
-        this.setCurrentRoute(this.defaultPath);
+        this.routing(this.defaultPath);
       }
     });
+    window.addEventListener('route', (ev: RouteEvent) => {
+      this.routing.call(this, ev.detail.url, ev.detail.options);
+    })
   }
 
   async firstUpdated() {
-    this.setCurrentRoute(window.location.pathname);
+    this.routing(window.location.pathname);
   }
 
   private confirmLogout(_: Event) {
@@ -206,7 +212,7 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private setCurrentRoute(url: string, options?: routeOptions) {
+  private routing(url: string, options?: RouteOptions) {
     let activeRoute = this.routes.map((route) => {
         const patternRegex = (route.pattern ?? "").replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
         let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
@@ -214,20 +220,15 @@ export class JDIApp extends LitElement {
       }
     ).find(result => result !== undefined);
 
-    let stateFn = options?.inPlace ? history.replaceState : history.pushState;
-    stateFn.call(history, activeRoute, "", url);
+    window.history[options?.inPlace ? "replaceState" : "pushState"](activeRoute, "", url);
 
     this.currentRoute = activeRoute?.route || "404";
-    this.currentRouteData = activeRoute?.data;
+    this.currentRouteData = activeRoute?.data || {};
 
-    let activeElements = this.shadowRoot.querySelectorAll(`[route][active]`);
+    let activeElements = this.shadowRoot.querySelectorAll("[route][active]");
     let togglingElements = this.shadowRoot.querySelectorAll(`[route='${this.currentRoute}']`);
     activeElements.forEach(el => el.toggleAttribute("active", false));
     togglingElements.forEach(el => el.toggleAttribute("active", true));
-  }
-
-  private route(e: CustomEvent) {
-    this.setCurrentRoute(e.detail);
   }
 
   private async loadPushNotificationsState() {

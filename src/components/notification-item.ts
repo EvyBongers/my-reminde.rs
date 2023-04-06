@@ -9,6 +9,7 @@ import {NotificationDocument} from "../../firebase/functions/src";
 import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
+import {RouteEvent} from "../jdi-app";
 
 @customElement("notification-item")
 export class NotificationItem extends Rippling(LitElement) {
@@ -76,13 +77,12 @@ export class NotificationItem extends Rippling(LitElement) {
 
     this.addEventListener('click', _ => {
       this.openDialog();
-      let navigationEvent = new CustomEvent("NavigationEvent", {
-        detail: this.item._ref.id,
-        bubbles: true,
-        cancelable: false,
-        composed: true
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: `/notifications/${this.item._ref.id}`,
+        },
       })
-      this.dispatchEvent(navigationEvent);
+      window.dispatchEvent(routeEvent);
     });
     if (this.open) {
       this.openDialog();
@@ -136,13 +136,12 @@ export class NotificationItem extends Rippling(LitElement) {
     dialog.addEventListener("closed", (ev: CustomEvent) => {
       this.shouldRipple = true;
       shadowRoot.removeChild(dialog);
-      let navigationEvent = new CustomEvent("NavigationEvent", {
-        detail: null,
-        bubbles: true,
-        cancelable: false,
-        composed: true
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: "/notifications",
+        },
       })
-      this.dispatchEvent(navigationEvent);
+      window.dispatchEvent(routeEvent);
     });
     dialog.show();
     this.shouldRipple = false;

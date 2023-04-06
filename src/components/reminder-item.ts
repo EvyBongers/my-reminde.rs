@@ -9,6 +9,7 @@ import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {ReminderDocument} from "../../firebase/functions/src";
+import {RouteEvent} from "../jdi-app";
 import {deleteDocByRef, setDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
@@ -180,32 +181,32 @@ export class ReminderItem extends Rippling(LitElement) {
     });
     dialog.addEventListener("closed", _ => {
       this.renderRoot.removeChild(dialog);
-      let navigationEvent = new CustomEvent("NavigationEvent", {
-        detail: null,
-        cancelable: false,
-        composed: true
-      });
-      this.dispatchEvent(navigationEvent);
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: "/reminders",
+        },
+      })
+      window.dispatchEvent(routeEvent);
     });
     this.shadowRoot.append(dialog);
-    let navigationEvent = new CustomEvent("NavigationEvent", {
-      detail: `${this.item._ref.id}/delete`,
-      cancelable: false,
-      composed: true
+    let routeEvent = new RouteEvent("route", {
+      detail: {
+        url: `${this.item._ref.id}/delete`,
+      }
     });
-    this.dispatchEvent(navigationEvent);
+    window.dispatchEvent(routeEvent);
   }
 
   edit(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
     this.openEditDialog();
-    let navigationEvent = new CustomEvent("NavigationEvent", {
-      detail: `${this.item._ref.id}/edit`,
-      cancelable: false,
-      composed: true
-    });
-    this.dispatchEvent(navigationEvent);
+    let routeEvent = new RouteEvent("route", {
+      detail: {
+        url: `/reminders/${this.item._ref.id}/edit`,
+      },
+    })
+    window.dispatchEvent(routeEvent);
   }
 
   openEditDialog() {
@@ -216,12 +217,12 @@ export class ReminderItem extends Rippling(LitElement) {
       console.log(`Notification edit result: ${ev.detail}`);
       this.shouldRipple = true;
       this.shadowRoot.removeChild(dialog);
-      let navigationEvent = new CustomEvent("NavigationEvent", {
-        detail: null,
-        cancelable: false,
-        composed: true
-      });
-      this.dispatchEvent(navigationEvent);
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: "/reminders",
+        },
+      })
+      window.dispatchEvent(routeEvent);
     });
 
     this.shadowRoot.append(dialog);
