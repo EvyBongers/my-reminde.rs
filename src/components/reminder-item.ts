@@ -1,5 +1,6 @@
 import {css, html, nothing, LitElement} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
+import {when} from "lit/directives/when.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {Menu} from "@material/mwc-menu";
 import "@material/mwc-dialog";
@@ -8,16 +9,21 @@ import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
 import "@material/mwc-icon-button-toggle";
 import {ReminderDocument} from "../../firebase/functions/src";
+import {RouteEvent} from "../jdi-app";
 import {deleteDocByRef, setDocByRef} from "../db";
-import {calculateNextSend} from "../helpers/Scheduling";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
-import {when} from "lit/directives/when.js";
 
 @customElement("reminder-item")
 export class ReminderItem extends Rippling(LitElement) {
   @property()
   item: ReminderDocument;
+
+  @property({type: Boolean})
+  protected deleting: boolean = false;
+
+  @property({type: Boolean})
+  protected editing: boolean = false;
 
   @property({type: Boolean})
   protected expanded: boolean = false;
@@ -51,7 +57,7 @@ export class ReminderItem extends Rippling(LitElement) {
     .notification header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
-      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
+      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
     .notification header:has(~ main) h4 {
@@ -88,6 +94,12 @@ export class ReminderItem extends Rippling(LitElement) {
     this.addEventListener('click', _ => {
       this.expanded = !this.expanded;
     });
+    if (this.editing) {
+      this.openEditDialog();
+    }
+    if (this.deleting) {
+      this.openDeleteDialog();
+    }
   }
 
   private renderState() {
@@ -107,15 +119,16 @@ export class ReminderItem extends Rippling(LitElement) {
         ${!this.expanded ? html`` : html`
           <main>
             <p id="body">${this.item.body}</p>
-            ${this.item ? html`<p id="link"><a @click="${this.openReminderLink}" href="${this.item.link}">${this.item.link}</a></p>` : nothing}
+            ${this.item ? html`<p id="link"><a @click="${this.openReminderLink}"
+                                               href="${this.item.link}">${this.item.link}</a></p>` : nothing}
             <p id="schedule">Cron schedule: <code>${this.item.cronExpression}</code></p>
           </main>
         `}
         <footer>
           ${!this.item.enabled ? html`(disabled)` : html`
             ${when(this.item.nextSend !== undefined && typeof this.item.nextSend.toDate === "function",
-            () => html`Next: ${this.item.nextSend?.toDate().toLocaleString()}`,
-            () => html`Scheduling...`)}
+                () => html`Next: ${this.item.nextSend?.toDate().toLocaleString()}`,
+                () => html`Scheduling...`)}
           `}
         </footer>
         <aside>
@@ -152,10 +165,13 @@ export class ReminderItem extends Rippling(LitElement) {
     `;
   }
 
-  async delete(e: Event) {
+  delete(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
+    this.openDeleteDialog();
+  }
 
+  openDeleteDialog() {
     let dialog = document.createElement("confirm-dialog");
     dialog.append("Delete reminder?");
     dialog.setAttribute("confirmLabel", "Delete");
@@ -165,23 +181,51 @@ export class ReminderItem extends Rippling(LitElement) {
     });
     dialog.addEventListener("closed", _ => {
       this.renderRoot.removeChild(dialog);
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: "/reminders",
+        },
+      })
+      window.dispatchEvent(routeEvent);
     });
     this.shadowRoot.append(dialog);
+    let routeEvent = new RouteEvent("route", {
+      detail: {
+        url: `${this.item._ref.id}/delete`,
+      }
+    });
+    window.dispatchEvent(routeEvent);
   }
 
   edit(e: Event) {
     e.stopPropagation();
     (e.target as HTMLElement).blur()
-    let notification = document.createElement("reminder-edit");
-    notification.item = structuredClone(this.item);
-    notification.documentRef = this.item._ref;
-    notification.addEventListener("closed", (ev: CustomEvent) => {
+    this.openEditDialog();
+    let routeEvent = new RouteEvent("route", {
+      detail: {
+        url: `/reminders/${this.item._ref.id}/edit`,
+      },
+    })
+    window.dispatchEvent(routeEvent);
+  }
+
+  openEditDialog() {
+    let dialog = document.createElement("reminder-edit");
+    dialog.item = structuredClone(this.item);
+    dialog.documentRef = this.item._ref;
+    dialog.addEventListener("closed", (ev: CustomEvent) => {
       console.log(`Notification edit result: ${ev.detail}`);
       this.shouldRipple = true;
-      this.shadowRoot.removeChild(notification);
+      this.shadowRoot.removeChild(dialog);
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: "/reminders",
+        },
+      })
+      window.dispatchEvent(routeEvent);
     });
 
-    this.shadowRoot.append(notification);
+    this.shadowRoot.append(dialog);
     this.shouldRipple = false;
   }
 

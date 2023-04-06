@@ -16,6 +16,12 @@ export class ReminderList extends BunnyElement {
   @property({type: String})
   accountId: string;
 
+  @property({type: String})
+  selectedId: string;
+
+  @property({type: String})
+  action: string;
+
   static override styles = css`
     :host {
       display: block;
@@ -56,9 +62,12 @@ export class ReminderList extends BunnyElement {
 
   override render() {
     return html`
+      <h2>Reminders</h2>
       <div class="reminders-container">
         ${renderItems(this.reminders, item => html`
-          <reminder-item .item="${item}"></reminder-item>
+          <reminder-item .item="${item}"
+                         ?deleting="${item._ref.id === this.selectedId && this.action === "delete"}"
+                         ?editing="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>

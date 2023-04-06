@@ -1,10 +1,9 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import {customElement, property, state} from "lit/decorators.js";
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
-import {showMessage} from "./helpers/Snacks";
 import "@material/mwc-button";
 import "@material/mwc-fab";
 import "@material/mwc-formfield";
@@ -19,22 +18,24 @@ import "./components/jdi-login";
 import "./components/nav-bar";
 import "./components/notification-list";
 import "./components/reminder-list";
-import {loadCollection} from "./db";
-import {ReminderDocument} from "../firebase/functions/src";
-import {SingleSelectedEvent} from "@material/mwc-list";
-import {doSendNotifications} from "./functions";
+import "./components/settings-control";
 import {NavItem} from "./components/nav-bar";
 
-type RenderFn = (params?: { [key: string]: string }) => TemplateResult;
-type routeData = {
-  view: string
-  renderFn: RenderFn
+export type Route = {
+  name: string
   data?: { [key: string]: string }
 };
+export type RouteOptions = {
+  inPlace?: boolean
+}
+export type RouteEventDetails = {
+  url: URL | string,
+  options?: RouteOptions,
+};
+export class RouteEvent extends CustomEvent<RouteEventDetails>{};
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
-
   @property()
   userId: string;
 
@@ -45,7 +46,10 @@ export class JDIApp extends LitElement {
   pushNotificationsEnabled: boolean;
 
   @property()
-  currentRoute: routeData | undefined;
+  currentRoute: string | undefined;
+
+  @state()
+  currentRouteData: { [key: string]: string }
 
   private defaultPath: string = "/reminders";
 
@@ -76,15 +80,6 @@ export class JDIApp extends LitElement {
       padding: 6pt 6pt calc(var(--mdc-tab-height, 0) + 6pt);
     }
 
-    mwc-formfield {
-      display: flex;
-      height: 48px;
-    }
-
-    mwc-formfield mwc-switch {
-      z-index: -1;
-    }
-
     nav {
       --mdc-typography-button-text-transform: none;
       background-color: var(--base-background-color);
@@ -98,13 +93,22 @@ export class JDIApp extends LitElement {
     mwc-tab {
       background-color: inherit;
     }
+
+    [route] {
+      display: none;
+    }
+
+    [route][active] {
+      display: initial;
+    }
   `;
 
-  private routes: { [pattern: string]: routeData } = {
-    "/reminders/:id": {view: "reminders", renderFn: this.renderReminders},
-    "/settings": {view: "settings", renderFn: this.renderSettings},
-    "/devices": {view: "devices", renderFn: this.renderDevices},
-    "/notifications/:id": {view: "notifications", renderFn: this.renderNotifications},
+  private routes: { [pattern: string]: Route } = {
+    "/reminders/:id/:action": {name: "reminders"},
+    "/settings": {name: "settings"},
+    "/devices": {name: "devices"},
+    "/notifications/:id": {name: "notifications"},
+    "/login": {name: "login"},
   }
 
   private navButtons: NavItem[] = [
@@ -117,47 +121,12 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
     if (window.location.pathname === "/") {
-      window.history.replaceState(window.history.state?.data, null, this.defaultPath);
+      this.routing(this.defaultPath, {inPlace: true});
     }
-  }
 
-  renderDevices(args?: { [key: string]: string }): TemplateResult {
-    return html`
-      <h2>Subscribed devices</h2>
-      <jdi-devices .accountId="${args?.userId}"></jdi-devices>
-    `;
-  }
-
-  renderReminders(args?: { [key: string]: string }) {
-    return html`
-      <h2>Reminders</h2>
-      <reminder-list .accountId="${args?.userId}" .selectedId="${args?.id}"></reminder-list>
-    `;
-  }
-
-  renderSettings(): TemplateResult {
-    return html`
-      <h2>Settings</h2>
-      <mwc-formfield label="Notifications enabled" alignEnd spaceBetween @click="${this.togglePush}">
-        <mwc-switch ?selected="${this.pushNotificationsEnabled}"></mwc-switch>
-      </mwc-formfield>
-      <br>
-      <mwc-button outlined icon="send" @click="${this.sendNotification}">Send a test notification</mwc-button>
-    `;
-  }
-
-  renderNotifications(args?: { [key: string]: string }): TemplateResult {
-    return html`
-      <h2>Notification history</h2>
-      <notification-list .collection="notifications" .accountId="${args?.userId}"
-                         .selectedId="${args?.id}"></notification-list>
-    `;
-  }
-
-  renderLoggedOut(): TemplateResult {
-    return html`
-      <jdi-login></jdi-login>
-    `;
+    this.userId = localStorage["loggedInUserId"];
+    this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
+    this.loadPushNotificationsState();
   }
 
   renderNav(): TemplateResult {
@@ -169,8 +138,7 @@ export class JDIApp extends LitElement {
     });
     return html`
       <nav>
-        <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"
-                 @NavigationEvent="${this.route}"></nav-bar>
+        <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"></nav-bar>
       </nav>
     `;
   }
@@ -183,21 +151,6 @@ export class JDIApp extends LitElement {
     `;
   }
 
-  renderAppContent(): TemplateResult {
-    let pathname = (new URL(document.location.href)).pathname;
-    try {
-      return html`
-        ${when(this.currentRoute !== undefined,
-            () => html`${this.currentRoute.renderFn.call(this, this.currentRoute.data)}`,
-            () => html`<h1>Oops!</h1><p>No idea how we ended up here, but I don't know what to show.</p>`)}
-      `;
-    } catch (e) {
-      return html`
-        Failed to render view: ${e}
-      `;
-    }
-  }
-
   override render(): TemplateResult {
     return html`
       <mwc-top-app-bar-fixed>
@@ -205,7 +158,17 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
 
         <main>
-          ${when(this.userId, () => html`${this.renderAppContent()}`, () => html`${this.renderLoggedOut()}`)}
+          <jdi-login route="login"></jdi-login>
+          <reminder-list route="reminders" .collection="notifications" .accountId="${this.userId}"
+                         .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"></reminder-list>
+          <settings-control route="settings" .accountId="${this.userId}"></settings-control>
+          <notification-list route="notifications" .collection="notifications" .accountId="${this.userId}"
+                             .selectedId="${this.currentRouteData?.id}"></notification-list>
+          <jdi-devices route="devices" .accountId="${this.userId}"></jdi-devices>
+          <div route="404">
+            <h1>Oops!</h1>
+            <p>No idea how we ended up here, but I don't know what to show.</p>
+          </div>
         </main>
         ${when(this.userId, () => html`${this.renderNav()}`, () => nothing)}
       </mwc-top-app-bar-fixed>
@@ -216,21 +179,23 @@ export class JDIApp extends LitElement {
     super.connectedCallback();
 
     onAuthStateChanged(auth, (user) => {
-      this.user = user;
-
-      if (user) {
-        this.userId = user.uid;
-        localStorage["loggedInUserId"] = user.uid;
-      } else {
+      if (!user) {
         this.userId = undefined;
         delete localStorage["loggedInUserId"];
+        this.routing("/login", {inPlace: true});
+      } else if (this.userId !== user.uid) {
+        this.userId = user.uid;
+        localStorage["loggedInUserId"] = user.uid;
+        this.routing(this.defaultPath);
       }
     });
+    window.addEventListener('route', (ev: RouteEvent) => {
+      this.routing.call(this, ev.detail.url, ev.detail.options);
+    })
+  }
 
-    this.userId = localStorage["loggedInUserId"];
-    this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
-    this.setCurrentRoute(window.location.pathname);
-    this.loadPushNotificationsState();
+  async firstUpdated() {
+    this.routing(window.location.pathname);
   }
 
   private confirmLogout(_: Event) {
@@ -245,28 +210,28 @@ export class JDIApp extends LitElement {
     this.shadowRoot.append(dialog);
   }
 
-  private setCurrentRoute(pathname: string) {
-    let routeData = ((uri: string) => {
-      for (const pattern in this.routes) {
-        let matchResult = new RegExp(`^${pattern.replace("/:id", "(?:/(?<id>\\w+))?")}$`).exec(uri);
-        if (matchResult !== null) {
-          return {
-            ...this.routes[pattern],
-            data: matchResult.groups,
-          };
-        }
+  private routing(url: string, options?: RouteOptions) {
+    let route = Object.entries(this.routes).reduce((direction: Route, [pattern, route]: [string, Route]) => {
+      const patternRegex = pattern.replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
+      let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
+      if (matchResult !== null) {
+        return {
+          name: route.name,
+          data: {...route.data, ...matchResult.groups}
+        };
       }
-    })(pathname);
-    routeData.data = {
-      ...routeData.data,
-      "userId": this.userId,
-    }
-    this.currentRoute = routeData;
-  }
+      return direction;
+    }, undefined);
 
-  private route(e: CustomEvent) {
-    window.history.pushState({}, null, e.detail);
-    this.setCurrentRoute(e.detail);
+    window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
+
+    this.currentRoute = route?.name || "404";
+    this.currentRouteData = route?.data || {};
+
+    let activeElements = this.shadowRoot.querySelectorAll("[route][active]");
+    let togglingElements = this.shadowRoot.querySelectorAll(`[route='${this.currentRoute}']`);
+    activeElements.forEach(el => el.toggleAttribute("active", false));
+    togglingElements.forEach(el => el.toggleAttribute("active", true));
   }
 
   private async loadPushNotificationsState() {
@@ -284,38 +249,6 @@ export class JDIApp extends LitElement {
     }
 
     await this.loadPushNotificationsState();
-  }
-
-  private async sendNotification(_: Event) {
-    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.userId}/reminders`).next()).value;
-    try {
-      let reminderDocuments = reminders as ReminderDocument[];
-      let selectedReminder: ReminderDocument;
-
-      let dialog = document.createElement("confirm-dialog");
-      dialog.setAttribute("confirmLabel", "Send");
-      dialog.setAttribute("cancelLabel", "Cancel");
-      render(html`
-        <span>Reminder to send:</span>
-        <br>
-        <mwc-list @selected="${(e: SingleSelectedEvent) => {
-          selectedReminder = reminderDocuments[e.detail.index]
-        }}">
-          ${reminderDocuments.map(_ => html`
-            <mwc-radio-list-item .data-document-ref="${_._ref}">${_.title}</mwc-radio-list-item>`)}
-        </mwc-list>
-      `, dialog);
-      dialog.addEventListener("confirm", _ => {
-        showMessage(`Sending notification ${selectedReminder.title}`, {timeoutMs: 7500});
-        doSendNotifications(selectedReminder._ref.path);
-      });
-      dialog.addEventListener("closed", _ => {
-        this.renderRoot.removeChild(dialog);
-      });
-      this.shadowRoot.append(dialog);
-    } catch (e) {
-      showMessage(`Failed to fetch notifications: ${e}`, {timeoutMs: 10000});
-    }
   }
 }
 

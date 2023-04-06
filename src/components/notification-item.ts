@@ -9,11 +9,15 @@ import {NotificationDocument} from "../../firebase/functions/src";
 import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
+import {RouteEvent} from "../jdi-app";
 
 @customElement("notification-item")
 export class NotificationItem extends Rippling(LitElement) {
   @property()
   item: NotificationDocument;
+
+  @property({type: Boolean})
+  open: boolean = false;
 
   static override styles = css`
     :host {
@@ -39,7 +43,7 @@ export class NotificationItem extends Rippling(LitElement) {
     .notification header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
-      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */ );
+      margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
     .notification header:has(~ main) h4 {
@@ -72,43 +76,17 @@ export class NotificationItem extends Rippling(LitElement) {
     await super.firstUpdated();
 
     this.addEventListener('click', _ => {
-      const notificationItem = this;
-      const shadowRoot = this.shadowRoot;
-      const dialog = document.createElement("mwc-dialog");
-      dialog.heading = this.item.title;
-      this.shadowRoot.append(dialog);
-      render(html`
-        <div>
-          <p>${this.item.body}</p>
-          ${this.item?.link ? html`
-          <p>
-            <a href="${this.item.link}">${this.item.link}</a>
-          </p>`:nothing}
-          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
-        </div>
-        <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
-      `,
-      dialog);
-      dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
-      dialog.addEventListener("closing", (ev: CustomEvent) => {
-        switch (ev.detail.action) {
-          case "delete":
-            notificationItem.delete(ev);
-            break;
-          case "close":
-            // default action
-            break;
-          default:
-            console.log(`Unknown action: ${ev.detail.action}`)
-        }
-      });
-      dialog.addEventListener("closed", (ev: CustomEvent) => {
-        this.shouldRipple = true;
-        shadowRoot.removeChild(dialog);
-      });
-      dialog.show();
-      this.shouldRipple = false;
+      this.openDialog();
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: `/notifications/${this.item._ref.id}`,
+        },
+      })
+      window.dispatchEvent(routeEvent);
     });
+    if (this.open) {
+      this.openDialog();
+    }
   }
 
   override render() {
@@ -118,10 +96,55 @@ export class NotificationItem extends Rippling(LitElement) {
           <h4 id="title">${this.item?.title}</h4>
         </header>
         <footer>
-          Sent: ${( this.item?.sent.toDate().toLocaleString())}
+          Sent: ${(this.item?.sent.toDate().toLocaleString())}
         </footer>
       </div>
     `;
+  }
+
+  openDialog() {
+    const notificationItem = this;
+    const shadowRoot = this.shadowRoot;
+    const dialog = document.createElement("mwc-dialog");
+    dialog.heading = this.item.title;
+    this.shadowRoot.append(dialog);
+    render(html`
+          <div>
+            <p>${this.item.body}</p>
+            ${this.item?.link ? html`
+              <p>
+                <a href="${this.item.link}">${this.item.link}</a>
+              </p>` : nothing}
+            <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
+          </div>
+          <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
+      `,
+      dialog);
+    dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+    dialog.addEventListener("closing", (ev: CustomEvent) => {
+      switch (ev.detail.action) {
+        case "delete":
+          notificationItem.delete(ev);
+          break;
+        case "close":
+          // default action
+          break;
+        default:
+          console.log(`Unknown action: ${ev.detail.action}`)
+      }
+    });
+    dialog.addEventListener("closed", (ev: CustomEvent) => {
+      this.shouldRipple = true;
+      shadowRoot.removeChild(dialog);
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: "/notifications",
+        },
+      })
+      window.dispatchEvent(routeEvent);
+    });
+    dialog.show();
+    this.shouldRipple = false;
   }
 
   async delete(e: Event) {

@@ -9,7 +9,6 @@ import "@material/mwc-icon-button";
 
 @customElement("jdi-devices")
 export class JDIDevices extends BunnyElement {
-
   @property()
   account: DataSupplier<any>;
 
@@ -116,6 +115,7 @@ export class JDIDevices extends BunnyElement {
 
   override render() {
     return html`
+      <h2>Subscribed devices</h2>
       <div class="devices-list">
         ${renderItem(this.account, item => html`
           ${Object.entries(item.devices).sort((a: [string, any], b: [string, any]) => a[1].name.localeCompare(b[1].name)).map(([key, value]) => this.renderDevice(key, value))}

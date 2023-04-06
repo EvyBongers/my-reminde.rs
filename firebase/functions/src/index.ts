@@ -127,7 +127,6 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
     let accountData = account.data() as AccountDocument;
     let tokens = getPushTokens(accountData);
     let batchResponse = await messaging.sendMulticast({
-      // TODO: fix opening notification on click
       webpush: {
         data: {
           notificationId: snapshot.ref.id,

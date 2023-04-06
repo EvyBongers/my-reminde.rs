@@ -16,6 +16,9 @@ export class NotificationList extends BunnyElement {
   @property({type: String})
   accountId: string;
 
+  @property({type: String})
+  selectedId: string;
+
   static override styles = css`
     :host {
       display: block;
@@ -56,9 +59,10 @@ export class NotificationList extends BunnyElement {
 
   override render() {
     return html`
+      <h2>Notification history</h2>
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
-          <notification-item .item="${item}"></notification-item>
+          <notification-item .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>

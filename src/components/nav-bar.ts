@@ -3,6 +3,7 @@ import {customElement, property, state} from "lit/decorators.js";
 import {map} from "lit/directives/map.js";
 import "@material/mwc-tab";
 import "@material/mwc-tab-bar";
+import {RouteEvent} from "../jdi-app";
 
 export type NavItem = {
   icon: string
@@ -42,13 +43,12 @@ export class NavBar extends LitElement {
     if (this.initialNavIndexSet === false) {
       this.initialNavIndexSet = true;
     } else {
-      let navigationEvent = new CustomEvent("NavigationEvent", {
-        detail: this.navButtons[e.detail.index].uri,
-        bubbles: true,
-        cancelable: false,
-        composed: true
+      let routeEvent = new RouteEvent("route", {
+        detail: {
+          url: this.navButtons[e.detail.index].uri,
+        },
       })
-      this.dispatchEvent(navigationEvent);
+      window.dispatchEvent(routeEvent);
     }
   }
 }
