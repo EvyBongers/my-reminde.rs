@@ -21,14 +21,13 @@ import "./components/reminder-list";
 import "./components/settings-control";
 import {NavItem} from "./components/nav-bar";
 
+export type Route = {
+  name: string
+  data?: { [key: string]: string }
+};
 export type RouteOptions = {
   inPlace?: boolean
 }
-type routeData = {
-  pattern: string
-  route: string
-  data?: { [key: string]: string }
-};
 export type RouteEventDetails = {
   url: URL | string,
   options?: RouteOptions,
@@ -104,14 +103,13 @@ export class JDIApp extends LitElement {
     }
   `;
 
-  private routes: routeData[] = [
-    {pattern: "/reminders/:id/:action", route: "reminders"},
-    {pattern: "/settings", route: "settings"},
-    {pattern: "/devices", route: "devices"},
-    {pattern: "/notifications/:id", route: "notifications"},
-    {pattern: "/login", route: "login"},
-    {pattern: "/404", route: undefined},
-  ]
+  private routes: { [pattern: string]: Route } = {
+    "/reminders/:id/:action": {name: "reminders"},
+    "/settings": {name: "settings"},
+    "/devices": {name: "devices"},
+    "/notifications/:id": {name: "notifications"},
+    "/login": {name: "login"},
+  }
 
   private navButtons: NavItem[] = [
     {icon: "alarm", uri: "/reminders"},
@@ -213,17 +211,22 @@ export class JDIApp extends LitElement {
   }
 
   private routing(url: string, options?: RouteOptions) {
-    let activeRoute = this.routes.map((route) => {
-        const patternRegex = (route.pattern ?? "").replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
-        let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
-        return (matchResult !== null) ? {route: route.route, data: {...route.data, ...matchResult.groups}} : undefined;
+    let route = Object.entries(this.routes).reduce((direction: Route, [pattern, route]: [string, Route]) => {
+      const patternRegex = pattern.replaceAll(/\/:(\w+)/g, "(?:/(?<$1>\\w+))?");
+      let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
+      if (matchResult !== null) {
+        return {
+          name: route.name,
+          data: {...route.data, ...matchResult.groups}
+        };
       }
-    ).find(result => result !== undefined);
+      return direction;
+    }, undefined);
 
-    window.history[options?.inPlace ? "replaceState" : "pushState"](activeRoute, "", url);
+    window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
 
-    this.currentRoute = activeRoute?.route || "404";
-    this.currentRouteData = activeRoute?.data || {};
+    this.currentRoute = route?.name || "404";
+    this.currentRouteData = route?.data || {};
 
     let activeElements = this.shadowRoot.querySelectorAll("[route][active]");
     let togglingElements = this.shadowRoot.querySelectorAll(`[route='${this.currentRoute}']`);
