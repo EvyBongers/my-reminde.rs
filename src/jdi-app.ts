@@ -36,6 +36,8 @@ export class RouteEvent extends CustomEvent<RouteEventDetail>{};
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
+  _state: Route
+
   @property()
   userId: string;
 
@@ -44,6 +46,32 @@ export class JDIApp extends LitElement {
 
   @property()
   pushNotificationsEnabled: boolean;
+
+  @state()
+  get data(): { [key: string]: string } {
+    return history.state?.data;
+  }
+
+  set data(data: { [key: string]: string }) {
+    // TODO: Figure out how to update properties on child elements or why this doesn't work
+    //   -> asyncReplace?
+    this.requestUpdate("data", this._state.data);
+    this._state.data = data;
+  }
+
+  @state()
+  get route(): string {
+    return history.state?.route;
+  }
+
+  set route(route: string) {
+    if (this._state.route === route) {
+      return;
+    }
+
+    this.requestUpdate("data", this._state.route);
+    this._state.route = route;
+  }
 
   private defaultPath: string = "/reminders";
 
@@ -115,6 +143,7 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
 
+    this._state = { route: undefined };
     this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
@@ -149,15 +178,15 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
 
         <main>
-          <jdi-login route="login"></jdi-login>
-          <reminder-list route="reminders" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${history.state.data?.id}"
-                         .action="${history.state.data?.action}"></reminder-list>
-          <settings-control route="settings" .accountId="${this.userId}"></settings-control>
-          <notification-list route="notifications" .collection="notifications" .accountId="${this.userId}"
-                             .selectedId="${history.state.data?.id}"></notification-list>
-          <jdi-devices route="devices" .accountId="${this.userId}"></jdi-devices>
-          <div route="404">
+          <jdi-login route="login" ?active="${this.route === "login"}"></jdi-login>
+          <reminder-list route="reminders" ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
+                         .selectedId="${this.data?.id}"
+                         .action="${this.data?.action}"></reminder-list>
+          <settings-control route="settings" ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
+          <notification-list route="notifications" ?active="${this.route === "notifications"}" .collection="notifications" .accountId="${this.userId}"
+                             .selectedId="${this.data?.id}"></notification-list>
+          <jdi-devices route="devices" ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
+          <div route="404" ?active="${this.route === "404"}">
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
           </div>
@@ -187,17 +216,19 @@ export class JDIApp extends LitElement {
       this.routing.call(this, ev.detail.url, ev.detail.options);
     })
     window.addEventListener("popstate", (ev: PopStateEvent) => {
-      this.routed.call(this);
-    });
-  }
-
-  protected firstUpdated(_changedProperties: PropertyValues) {
-    super.firstUpdated(_changedProperties);
-    this.updateComplete.then((completed) => {
-      if (completed) {
-        this.routed();
+      if (ev.state) {
+        this.route = ev.state.route;
+        this.data = ev.state.data;
+      } else {
+        let routeEvent = new RouteEvent("route", {
+          detail: {
+            url: document.location.pathname,
+            options: { inPlace: true },
+          }
+        });
+        window.dispatchEvent(routeEvent);
       }
-    })
+    });
   }
 
   private confirmLogout(_: Event) {
@@ -230,17 +261,8 @@ export class JDIApp extends LitElement {
     }, undefined);
 
     window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
-
-    this.routed();
-  }
-
-  private routed() {
-    let activeElements = this.shadowRoot.querySelectorAll("[route][active]");
-    let togglingElements = this.shadowRoot.querySelectorAll(`[route='${history.state.route}']`);
-    // TODO: Figure out how to update properties on child elements or why this doesn't work
-    //   -> asyncReplace?
-    activeElements.forEach(el => el.toggleAttribute("active", false));
-    togglingElements.forEach(el => el.toggleAttribute("active", true));
+    this.route = route?.route;
+    this.data = route?.data;
   }
 
   private async loadPushNotificationsState() {
