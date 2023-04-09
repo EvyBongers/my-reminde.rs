@@ -191,7 +191,7 @@ export class ReminderItem extends Rippling(LitElement) {
     this.shadowRoot.append(dialog);
     let routeEvent = new RouteEvent("route", {
       detail: {
-        url: `${this.item._ref.id}/delete`,
+        url: `/reminders/${this.item._ref.id}/delete`,
       }
     });
     window.dispatchEvent(routeEvent);
