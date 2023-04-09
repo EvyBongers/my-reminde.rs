@@ -40,14 +40,9 @@ export class NavBar extends LitElement {
   }
 
   private navigate(e: CustomEvent) {
-    if (this.initialNavIndexSet === false) {
-      this.initialNavIndexSet = true;
-    } else {
-      let routeEvent = new RouteEvent("route", {
-        detail: {
-          url: this.navButtons[e.detail.index].uri,
-        },
-      })
+    const uri = this.navButtons[e.detail.index].uri;
+    if (window.location.pathname !== uri) {
+      let routeEvent = new RouteEvent("route", {detail: {url: uri}})
       window.dispatchEvent(routeEvent);
     }
   }
