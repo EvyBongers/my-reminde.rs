@@ -211,7 +211,9 @@ export class JDIApp extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    const appPath = (window.location.pathname === "/") ?this.defaultPath:window.location.pathname;
+
+    let redirPath = this.userId ? this.defaultPath : "/login";
+    const appPath = (window.location.pathname === "/") ? redirPath : window.location.pathname;
     this.routing(appPath, {inPlace: true});
 
     onAuthStateChanged(auth, (user) => {
