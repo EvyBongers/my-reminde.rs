@@ -37,12 +37,7 @@ export class RouteEvent extends CustomEvent<RouteEventDetail>{};
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
   _state: Route
-
-  @property()
-  userId: string;
-
-  @property()
-  user: User;
+  _user: User;
 
   @property()
   pushNotificationsEnabled: boolean;
@@ -71,6 +66,25 @@ export class JDIApp extends LitElement {
 
     this.requestUpdate("data", this._state.route);
     this._state.route = route;
+  }
+
+  @property()
+  get user(): User {
+    return this._user;
+  }
+
+  set user(user: User) {
+    this._user = user;
+    if (user === undefined) {
+      delete localStorage["loggedInUserId"];
+    } else {
+      localStorage["loggedInUserId"] = user.uid;
+    }
+  }
+
+  @property()
+  get userId(): string {
+    return localStorage["loggedInUserId"];
   }
 
   private defaultPath: string = "/reminders";
@@ -144,7 +158,6 @@ export class JDIApp extends LitElement {
     super();
 
     this._state = { route: undefined };
-    this.userId = localStorage["loggedInUserId"];
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
   }
@@ -202,13 +215,10 @@ export class JDIApp extends LitElement {
     this.routing(appPath, {inPlace: true});
 
     onAuthStateChanged(auth, (user) => {
+      this.user = user;
       if (!user) {
-        this.userId = undefined;
-        delete localStorage["loggedInUserId"];
         this.routing("/login", {inPlace: true});
       } else if (this.userId !== user.uid) {
-        this.userId = user.uid;
-        localStorage["loggedInUserId"] = user.uid;
         this.routing(this.defaultPath);
       }
     });
