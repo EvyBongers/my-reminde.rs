@@ -41,7 +41,7 @@ export class NavBar extends LitElement {
 
   private navigate(e: CustomEvent) {
     const uri = this.navButtons[e.detail.index].uri;
-    if (window.location.pathname !== uri) {
+    if (window.location.pathname !== uri && !window.location.pathname.startsWith(`${uri}/`)) {
       let routeEvent = new RouteEvent("route", {detail: {url: uri}})
       window.dispatchEvent(routeEvent);
     }
