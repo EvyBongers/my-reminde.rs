@@ -140,10 +140,10 @@ export class JDIApp extends LitElement {
   `;
 
   private routes: { [pattern: string]: Route } = {
-    "/reminders/:id/:action": {route: "reminders"},
+    "/reminders/:reminderId/:reminderAction": {route: "reminders"},
     "/settings": {route: "settings"},
     "/devices": {route: "devices"},
-    "/notifications/:id": {route: "notifications"},
+    "/notifications/:notificationId": {route: "notifications"},
     "/login": {route: "login"},
   }
 
@@ -193,11 +193,11 @@ export class JDIApp extends LitElement {
         <main>
           <jdi-login route="login" ?active="${this.route === "login"}"></jdi-login>
           <reminder-list route="reminders" ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.data?.id}"
-                         .action="${this.data?.action}"></reminder-list>
+                         .selectedId="${this.data?.reminderId}"
+                         .action="${this.data?.reminderAction}"></reminder-list>
           <settings-control route="settings" ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
           <notification-list route="notifications" ?active="${this.route === "notifications"}" .collection="notifications" .accountId="${this.userId}"
-                             .selectedId="${this.data?.id}"></notification-list>
+                             .selectedId="${this.data?.notificationId}"></notification-list>
           <jdi-devices route="devices" ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
           <div route="404" ?active="${this.route === "404"}">
             <h1>Oops!</h1>
