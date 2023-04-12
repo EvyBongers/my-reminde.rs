@@ -9,7 +9,8 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-          run_install:
+          run_install: |
+            - recursive: false
       - run: pnpm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
