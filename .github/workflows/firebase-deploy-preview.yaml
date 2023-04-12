@@ -11,6 +11,12 @@ jobs:
           version: latest
           run_install: |
             - recursive: false
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - run: |
+          cd firebase/functions
+          npm install
       - run: pnpm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
