@@ -9,12 +9,11 @@ jobs:
       - uses: pnpm/action-setup@v2
         with:
           version: latest
-          run_install: |
-            - recursive: false
       - uses: actions/setup-node@v3
         with:
           node-version: 16.x
       - run: |
+          pnpm install
           cd firebase/functions
           npm install
       - run: pnpm run build
