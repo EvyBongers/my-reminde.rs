@@ -1,0 +1,92 @@
+---
+services:
+  webpack:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: webpack
+    container_name: webpack
+    command:
+      - /usr/local/bin/run.sh
+      - webpack
+      - serve
+      - --config
+      - webpack.dev.js
+    environment:
+      - NODE_ENV=dev
+    ports:
+      - target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      - target: 8443
+        published: 8443
+        protocol: tcp
+        mode: host
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+    volumes:
+      - node-cache:/home/node/.cache
+      - .:/home/node/app
+    working_dir: /home/node/app
+
+  firebase:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+      target: firebase
+    container_name: firebase
+    command:
+      - /usr/local/bin/run.sh
+      - emulators:start
+      - --import=./.firestore-data
+      - --export-on-exit
+      - --inspect-functions
+    environment:
+      - NODE_ENV=dev
+      - GOOGLE_APPLICATION_CREDENTIALS
+    ports:
+      -  # Firebase hosting
+        target: 5000
+        published: 5000
+        protocol: tcp
+        mode: host
+      -  # Firebase functions
+        target: 5001
+        published: 5001
+        protocol: tcp
+        mode: host
+      -  # Firebase firestore
+        target: 8080
+        published: 8080
+        protocol: tcp
+        mode: host
+      -  # Firebase pubsub
+        target: 8085
+        published: 8085
+        protocol: tcp
+        mode: host
+      -  # Firebase auth
+        target: 9099
+        published: 9099
+        protocol: tcp
+        mode: host
+      -  # Firebase websocket
+        target: 9150
+        published: 9150
+        protocol: tcp
+        mode: host
+    restart: unless-stopped
+    stdin_open: true
+    stop_grace_period: 2m
+    tty: true
+    volumes:
+      - node-cache:/home/node/.cache
+      - firebase-config:/home/node/.config
+      - ./:/home/node/app
+    working_dir: /home/node/app/firebase
+
+volumes:
+  node-cache:
+  firebase-config:
