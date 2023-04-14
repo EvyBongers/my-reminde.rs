@@ -8,7 +8,9 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
       ca-certificates \
       curl \
-      dumb-init
+      dumb-init \
+      iproute2 \
+      procps
 
 ARG PNPM_VERSION=8.2.0
 
@@ -16,13 +18,13 @@ RUN mkdir -p /usr/local/bin && \
     curl -Lo /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64 && \
     chmod 755 /usr/local/bin/pnpm
 
-RUN mkdir -p /home/node/.cache /home/node/.config /home/node/app && \
-    usermod -g 100 node && \
-    chown -R $(id -u node):$(id -g node) /home/node
-
 VOLUME /home/node/.cache
 VOLUME /home/node/.config
 VOLUME /home/node/app
+
+RUN mkdir -p /home/node/.cache /home/node/.config /home/node/app && \
+    usermod -g 100 node && \
+    chown -R $(id -u node):$(id -g node) /home/node
 
 #RUN pnpm env use --global lts
 

@@ -45,7 +45,7 @@ services:
       - --inspect-functions
     environment:
       - NODE_ENV=dev
-      - GOOGLE_APPLICATION_CREDENTIALS
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase.json
     ports:
       -  # Firebase hosting
         target: 5000
@@ -78,14 +78,24 @@ services:
         protocol: tcp
         mode: host
     restart: unless-stopped
+    secrets:
+      - source: google_application_credentials
+        target: firebase.json
+        uid: "1000"
+        gid: "100"
+        mode: 0440
     stdin_open: true
     stop_grace_period: 2m
     tty: true
     volumes:
-      - node-cache:/home/node/.cache
-      - firebase-config:/home/node/.config
+      - node-cache:/home/node/.cache:rw
+      - firebase-config:/home/node/.config:rw
       - ./:/home/node/app
     working_dir: /home/node/app/firebase
+
+secrets:
+  google_application_credentials:
+    file: "${GOOGLE_APPLICATION_CREDENTIALS}"
 
 volumes:
   node-cache:

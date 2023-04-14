@@ -10,7 +10,7 @@ echo ">>> Installing firebase node modules..."
 
 echo ">>> Starting functions builder..."
 
-(cd functions && npm build --watch)
+(cd functions && npm run build --watch)
 
 echo ">>> Executing firebase emulator..."
 
