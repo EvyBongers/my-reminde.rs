@@ -43,6 +43,11 @@
     ],
     "rewrites": [
       {
+        "source": "/notifications/*/open",
+        "function": "openNotificationLink",
+        "region": "europe-west1"
+      },
+      {
         "source": "**",
         "destination": "/index.html"
       }

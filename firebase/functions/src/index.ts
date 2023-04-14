@@ -83,6 +83,32 @@ export const doSendNotifications = functions.https.onCall(
   },
 );
 
+export const openNotificationLink = functions.https.onRequest(
+  async (req, resp) => {
+    logger.debug("Headers", JSON.stringify(req.headers));
+    logger.debug("Cookies", JSON.stringify(req.cookies));
+
+    // logger.debug("Users", auth.listUsers());
+    let uid;
+    if (uid === undefined) {
+      // TODO: show a nice page
+      resp.status(200).send(JSON.stringify(Object.entries(req)));
+      return;
+    }
+
+    let notificationId = req.url.split("/")[-1];
+    let notificationDocumentRef = await db.doc(`/users/${uid}/notifications/${notificationId}`);
+    let notificationDocumentData = (await notificationDocumentRef.get()).data() as ReminderDocument;
+    if (notificationDocumentData.link === undefined) {
+      // TODO: show a nice page
+      resp.status(404);
+      return;
+    }
+
+    resp.redirect(302, notificationDocumentData.link as string);
+  },
+);
+
 const triggerNotification = async (reminderDocumentRef: DocumentReference, reminderDocumentData: ReminderDocument) => {
   let accountRef = reminderDocumentRef.parent.parent as DocumentReference;
   await accountRef.collection("notifications").add({
