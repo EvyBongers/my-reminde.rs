@@ -58,8 +58,8 @@ services:
         protocol: tcp
         mode: host
       -  # Firebase firestore
-        target: 8080
-        published: 8080
+        target: 8081
+        published: 8081
         protocol: tcp
         mode: host
       -  # Firebase pubsub

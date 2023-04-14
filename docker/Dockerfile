@@ -1,6 +1,7 @@
 FROM node:lts-slim AS base
 
 ENV DEBIAN_FRONTEND=noninteractive
+ENV PNPM_HOME=/usr/local/bin
 
 RUN apt-get update && \
     apt-get upgrade -y && \
@@ -9,18 +10,22 @@ RUN apt-get update && \
       curl \
       dumb-init
 
-RUN mkdir /home/node/.cache /home/node/.config
-
-VOLUME /home/node/.cache
-VOLUME /home/node/.config
-
 ARG PNPM_VERSION=8.2.0
 
 RUN mkdir -p /usr/local/bin && \
     curl -Lo /usr/local/bin/pnpm https://github.com/pnpm/pnpm/releases/download/v${PNPM_VERSION}/pnpm-linux-x64 && \
     chmod 755 /usr/local/bin/pnpm
 
+RUN mkdir -p /home/node/.cache /home/node/.config /home/node/app && \
+    usermod -g 100 node && \
+    chown -R $(id -u node):$(id -g node) /home/node
+
+VOLUME /home/node/.cache
+VOLUME /home/node/.config
+VOLUME /home/node/app
+
 #RUN pnpm env use --global lts
+
 
 ENTRYPOINT ["/usr/bin/dumb-init"]
 
@@ -37,8 +42,7 @@ USER node
 
 WORKDIR /home/node/app
 
-# ui, hosting, functions, firestore, pubsub, auth
-EXPOSE 4000 5000 5001 8080 8085 9099
+EXPOSE 8080 8443
 
 
 FROM base AS firebase

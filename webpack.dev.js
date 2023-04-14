@@ -7,16 +7,10 @@ const path = require("path");
 module.exports = merge(common, {
   devServer: {
     compress: true,
-    port: 8443,
+    port: 8080,
     host: "0.0.0.0",
     historyApiFallback: true,
-    server: {
-      type: "https",
-      options: {
-        key: fs.readFileSync(path.join(__dirname, "./localhost.key")),
-        cert: fs.readFileSync(path.join(__dirname, "./localhost.pem")),
-      },
-    },
+    server: "http",
     static: {
       directory: path.join(__dirname, "src"),
     },
