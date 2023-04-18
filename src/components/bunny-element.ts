@@ -1,6 +1,16 @@
 import {LitElement, PropertyValues} from "lit";
 
-type Observer = { callback: (...args: any[]) => any, properties: string[] };
+export class ChangedProperty<T = any> {
+  readonly before: T | null;
+  readonly after: T | null;
+
+  constructor(before: T | null, after: T | null) {
+    this.before = before;
+    this.after = after;
+  }
+}
+
+export type Observer = { callback: (...args: ChangedProperty[]) => any, properties: string[] };
 
 export function observe(...keys: string[]): any {
   return (_proto: any, _propName: string, _descriptor: PropertyDescriptor) => {
@@ -19,7 +29,7 @@ export class BunnyElement extends LitElement {
 
     let observers = ((this.constructor as any).__observers as Observer[]).filter(_ => _.properties.filter(_ => changedProperties.has(_)).length);
     for (let observer of observers) {
-      let callbackArgs = observer.properties.map(_ => (this as any)[_]);
+      let callbackArgs: ChangedProperty[] = observer.properties.map(propertyName => new ChangedProperty<any>(changedProperties.get(propertyName), (this as any)[propertyName]));
       observer.callback.apply(this, callbackArgs);
     }
   }

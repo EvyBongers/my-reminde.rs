@@ -3,7 +3,7 @@ import {customElement, property} from "lit/decorators.js";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
-import {BunnyElement, observe} from "./bunny-element";
+import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
@@ -77,8 +77,8 @@ export class ReminderList extends BunnyElement {
   }
 
   @observe("accountId")
-  accountChanged(accountId: string) {
-    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId}/reminders`);
+  accountChanged(accountId: ChangedProperty<string>) {
+    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId.after}/reminders`);
   }
 
   public async addNotification(_: Event) {

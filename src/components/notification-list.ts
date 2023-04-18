@@ -4,7 +4,7 @@ import {QueryDocumentSnapshot} from "firebase/firestore";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
-import {BunnyElement, observe} from "./bunny-element";
+import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {NotificationDocument} from "../../firebase/functions/src"
 import "./notification-item";
 
@@ -70,8 +70,8 @@ export class NotificationList extends BunnyElement {
   }
 
   @observe("accountId")
-  accountChanged(accountId: string) {
-    this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId}/notifications`, (a: QueryDocumentSnapshot<NotificationDocument>, b: QueryDocumentSnapshot<NotificationDocument>) => {
+  accountChanged(accountId: ChangedProperty<string>) {
+    this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId.after}/notifications`, (a: QueryDocumentSnapshot<NotificationDocument>, b: QueryDocumentSnapshot<NotificationDocument>) => {
       return b.data().sent.toMillis() - a.data().sent.toMillis();
     });
   }
