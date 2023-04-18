@@ -1,4 +1,4 @@
-import {css, html, nothing, LitElement, render} from "lit";
+import {css, html, nothing, render} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
@@ -10,14 +10,15 @@ import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
 import {RouteEvent} from "../jdi-app";
+import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 
 @customElement("notification-item")
-export class NotificationItem extends Rippling(LitElement) {
+export class NotificationItem extends Rippling(BunnyElement) {
   @property()
   item: NotificationDocument;
 
-  @property({type: Boolean})
-  open: boolean = false;
+  @property({type: Boolean, reflect: true})
+  open: boolean;
 
   static override styles = css`
     :host {
@@ -151,6 +152,17 @@ export class NotificationItem extends Rippling(LitElement) {
     e.stopPropagation();
     (e.target as HTMLElement).blur();
     await deleteDocByRef(this.item._ref);
+  }
+
+  @observe("open")
+  openStateChanged(isOpen: ChangedProperty<boolean>) {
+    if (isOpen.after) {
+      this.openDialog();
+    } else {
+      const dialog = this.shadowRoot.querySelector("mwc-dialog");
+      this.shadowRoot.removeChild(dialog);
+      this.shouldRipple = true;
+    };
   }
 }
 

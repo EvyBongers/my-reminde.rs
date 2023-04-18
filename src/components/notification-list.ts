@@ -6,6 +6,7 @@ import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {NotificationDocument} from "../../firebase/functions/src"
+import {NotificationItem} from "./notification-item";
 import "./notification-item";
 
 @customElement("notification-list")
@@ -62,11 +63,23 @@ export class NotificationList extends BunnyElement {
       <h2>Notification history</h2>
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
-          <notification-item .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
+          <notification-item id="${item._ref.id}" .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
     `;
+  }
+
+  @observe("selectedId")
+  selectedItemChanged(notificationId: ChangedProperty) {
+    if (notificationId.after === null) {
+      this.shadowRoot.querySelectorAll("notification-item[open]").forEach((notificationItem: NotificationItem) => {
+        notificationItem.removeAttribute("open");
+      });
+    } else {
+      this.shadowRoot.getElementById(notificationId.before)?.toggleAttribute("open", false);
+      this.shadowRoot.getElementById(notificationId.after)?.toggleAttribute("open", true);
+    }
   }
 
   @observe("accountId")
