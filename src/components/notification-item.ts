@@ -131,10 +131,10 @@ export class NotificationItem extends Rippling(LitElement) {
     this.shouldRipple = (ev.type === "closed");
 
     let url = this.open ? `/notifications/${this.item._ref.id}` : "/notifications";
-    let routeEvent = new RouteEvent("route", {
-      detail: {url: url,},
-    })
-    window.dispatchEvent(routeEvent);
+    if (window.location.pathname !== url) {
+      let routeEvent = new RouteEvent("route", {detail: {url: url,}})
+      window.dispatchEvent(routeEvent);
+    }
   }
 
   async delete() {
