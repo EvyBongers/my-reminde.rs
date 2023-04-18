@@ -19,10 +19,10 @@ export class ReminderItem extends Rippling(LitElement) {
   @property()
   item: ReminderDocument;
 
-  @property({type: Boolean})
+  @property({type: Boolean, reflect: true, attribute: "delete"})
   protected deleting: boolean = false;
 
-  @property({type: Boolean})
+  @property({type: Boolean, reflect: true, attribute: "edit"})
   protected editing: boolean = false;
 
   @property({type: Boolean})

@@ -7,6 +7,7 @@ import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
+import {ReminderItem} from "./reminder-item";
 
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
@@ -65,7 +66,7 @@ export class ReminderList extends BunnyElement {
       <h2>Reminders</h2>
       <div class="reminders-container">
         ${renderItems(this.reminders, item => html`
-          <reminder-item .item="${item}"
+          <reminder-item id="${item._ref.id}" .item="${item}"
                          ?deleting="${item._ref.id === this.selectedId && this.action === "delete"}"
                          ?editing="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, html`
@@ -74,6 +75,17 @@ export class ReminderList extends BunnyElement {
 
       <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>
     `;
+  }
+
+  @observe("selectedId", "action")
+  selectedItemChanged(reminderId: ChangedProperty<string>, action: ChangedProperty<string>) {
+    if (action.after === null) {
+      this.shadowRoot.querySelectorAll(`reminder-item['${action.before}']`).forEach((reminderItem: ReminderItem) => {
+        reminderItem.removeAttribute(action.before);
+      });
+    } else {
+      this.shadowRoot.getElementById(reminderId.after)?.toggleAttribute(action.after);
+    }
   }
 
   @observe("accountId")
