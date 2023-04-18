@@ -1,5 +1,6 @@
-import {css, html, nothing, render} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import {css, html, nothing, LitElement} from "lit";
+import {customElement, property, query} from "lit/decorators.js";
+import {Dialog} from "@material/mwc-dialog";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-ripple";
@@ -10,15 +11,17 @@ import {deleteDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
 import {RouteEvent} from "../jdi-app";
-import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 
 @customElement("notification-item")
-export class NotificationItem extends Rippling(BunnyElement) {
+export class NotificationItem extends Rippling(LitElement) {
   @property()
   item: NotificationDocument;
 
   @property({type: Boolean, reflect: true})
   open: boolean;
+
+  @query('mwc-dialog')
+  dialog: Dialog;
 
   static override styles = css`
     :host {
@@ -72,22 +75,17 @@ export class NotificationItem extends Rippling(BunnyElement) {
     }
   `;
 
-  async firstUpdated() {
-    await this.updateComplete;
-    await super.firstUpdated();
+  constructor() {
+    super();
 
-    this.addEventListener('click', _ => {
-      this.openDialog();
-      let routeEvent = new RouteEvent("route", {
-        detail: {
-          url: `/notifications/${this.item._ref.id}`,
-        },
-      })
-      window.dispatchEvent(routeEvent);
+    this.shouldRipple = !this.open;
+    this.addEventListener('click', () => this.dialog.show());
+    this.updateComplete.then(() => {
+      this.dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+      this.dialog.addEventListener("opening", (ev: CustomEvent) => this.dialogStateChanged.call(this, ev));
+      this.dialog.addEventListener("closing", (ev: CustomEvent) => this.dialogClosing.call(this, ev));
+      this.dialog.addEventListener("closed", (ev: CustomEvent) => this.dialogStateChanged.call(this, ev));
     });
-    if (this.open) {
-      this.openDialog();
-    }
   }
 
   override render() {
@@ -100,69 +98,47 @@ export class NotificationItem extends Rippling(BunnyElement) {
           Sent: ${(this.item?.sent.toDate().toLocaleString())}
         </footer>
       </div>
+      <mwc-dialog heading="${this.item.title}" ?open="${this.open}">
+        <div>
+          <p>${this.item.body}</p>
+          ${this.item?.link ? html`
+            <p>
+              <a href="${this.item.link}">${this.item.link}</a>
+            </p>` : nothing}
+          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
+        </div>
+        <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
+      </mwc-dialog>
     `;
   }
 
-  openDialog() {
-    const notificationItem = this;
-    const shadowRoot = this.shadowRoot;
-    const dialog = document.createElement("mwc-dialog");
-    dialog.heading = this.item.title;
-    this.shadowRoot.append(dialog);
-    render(html`
-          <div>
-            <p>${this.item.body}</p>
-            ${this.item?.link ? html`
-              <p>
-                <a href="${this.item.link}">${this.item.link}</a>
-              </p>` : nothing}
-            <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
-          </div>
-          <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
-      `,
-      dialog);
-    dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
-    dialog.addEventListener("closing", (ev: CustomEvent) => {
-      switch (ev.detail.action) {
-        case "delete":
-          notificationItem.delete(ev);
-          break;
-        case "close":
-          // default action
-          break;
-        default:
-          console.log(`Unknown action: ${ev.detail.action}`)
-      }
-    });
-    dialog.addEventListener("closed", (ev: CustomEvent) => {
-      this.shouldRipple = true;
-      shadowRoot.removeChild(dialog);
-      let routeEvent = new RouteEvent("route", {
-        detail: {
-          url: "/notifications",
-        },
-      })
-      window.dispatchEvent(routeEvent);
-    });
-    dialog.show();
-    this.shouldRipple = false;
+  dialogClosing(ev: CustomEvent) {
+    switch (ev.detail.action) {
+      case "delete":
+        this.delete();
+        break;
+      case "close":
+        // default action
+        break;
+      default:
+        console.log(`Unknown action: ${ev.detail.action}`)
+    }
   }
 
-  async delete(e: Event) {
-    e.stopPropagation();
-    (e.target as HTMLElement).blur();
+  dialogStateChanged(ev: CustomEvent) {
+    ev.stopPropagation();
+    this.open = (ev.type === "opening");
+    this.shouldRipple = (ev.type === "closed");
+
+    let url = this.open ? `/notifications/${this.item._ref.id}` : "/notifications";
+    let routeEvent = new RouteEvent("route", {
+      detail: {url: url,},
+    })
+    window.dispatchEvent(routeEvent);
+  }
+
+  async delete() {
     await deleteDocByRef(this.item._ref);
-  }
-
-  @observe("open")
-  openStateChanged(isOpen: ChangedProperty<boolean>) {
-    if (isOpen.after) {
-      this.openDialog();
-    } else {
-      const dialog = this.shadowRoot.querySelector("mwc-dialog");
-      this.shadowRoot.removeChild(dialog);
-      this.shouldRipple = true;
-    };
   }
 }
 
