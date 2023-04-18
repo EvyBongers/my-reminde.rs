@@ -23,6 +23,9 @@ export class ReminderEdit extends LitElement {
   private calculatedNextSend : Date;
   private editResult: string;
 
+  @property({type: Boolean, reflect: true})
+  open: boolean;
+
   @property()
   item: ReminderDocument;
 
@@ -104,7 +107,7 @@ export class ReminderEdit extends LitElement {
       <mwc-dialog id="editing"
                   heading="${this.documentRef ? `Editing notification: ${this.item?.title}` : "New notification"}"
                   escapeKeyAction="${this.cancel}"
-                  scrimClickAction="${this.cancel}">
+                  scrimClickAction="${this.cancel}" ?open="${this.open}">
         <div>
           <mwc-textfield type="text" label="Title" icon="title" required
                          @input="${(_: Event) => this.item.title = (_.currentTarget as HTMLInputElement).value}"

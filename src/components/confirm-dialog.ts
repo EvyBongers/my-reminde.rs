@@ -5,6 +5,9 @@ import "@material/mwc-button";
 
 @customElement("confirm-dialog")
 export class ConfirmDialog extends LitElement {
+  @property({type: Boolean, reflect: true})
+  open: boolean;
+
   @property()
   cancelLabel: string;
 
@@ -18,7 +21,7 @@ export class ConfirmDialog extends LitElement {
 
   override render() {
     return html`
-      <mwc-dialog @closed="${()=>this.dispatchEvent(this._closed)}" @opening="${()=>this.dispatchEvent(this._opening)}">
+      <mwc-dialog @closed="${()=>this.dispatchEvent(this._closed)}" @opening="${()=>this.dispatchEvent(this._opening)}" ?open="${this.open}">
         <div><slot></slot></div>
         <mwc-button slot="primaryAction" dialogAction="ok" @click="${()=>this.dispatchEvent(this._confirm)}">${this.confirmLabel}</mwc-button>
         <mwc-button slot="secondaryAction" dialogAction="close" @click="${()=>this.dispatchEvent(this._cancel)}">${this.cancelLabel}</mwc-button>

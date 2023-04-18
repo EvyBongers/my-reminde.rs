@@ -183,8 +183,8 @@ export class ReminderItem extends Rippling(LitElement) {
 
   private renderDialogs(): HTMLTemplateResult {
     return html`
-      <reminder-edit .documentRef="${this.item._ref}";></reminder-edit>
-      <confirm-dialog confirmLabel="Delete" cancelLabel="Cancel">Delete reminder?</confirm-dialog>
+      <reminder-edit .documentRef="${this.item._ref}" ?open="${this.editing}"></reminder-edit>
+      <confirm-dialog confirmLabel="Delete" cancelLabel="Cancel" ?open="${this.deleting}">Delete reminder?</confirm-dialog>
     `;
   }
 
