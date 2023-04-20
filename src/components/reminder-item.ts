@@ -1,4 +1,4 @@
-import {css, html, nothing, LitElement, HTMLTemplateResult} from "lit";
+import {css, html, nothing, LitElement, HTMLTemplateResult, PropertyValues} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {when} from "lit/directives/when.js";
 import {IconButton} from "@material/mwc-icon-button";
@@ -98,7 +98,12 @@ export class ReminderItem extends Rippling(LitElement) {
 
   constructor() {
     super();
+    this.addEventListener('click', () => {
+      this.expanded = !this.expanded;
+    });
     this.updateComplete.then(() => {
+      this.editDialog.item = structuredClone(this.item);
+
       this.deleteDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
       this.deleteDialog.addEventListener("opening", (ev: CustomEvent) => this.deleteDialogStateChanged.call(this, ev));
       this.deleteDialog.addEventListener("closed", (ev: CustomEvent) => this.deleteDialogStateChanged.call(this, ev));
@@ -106,23 +111,8 @@ export class ReminderItem extends Rippling(LitElement) {
 
       this.editDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
       this.editDialog.addEventListener("opening", (ev: CustomEvent) => this.editDialogStateChanged.call(this, ev));
-      this.editDialog.addEventListener("closed", (ev: CustomEvent) =>  this.editDialogStateChanged.call(this, ev));
+      this.editDialog.addEventListener("closed", (ev: CustomEvent) => this.editDialogStateChanged.call(this, ev));
     });
-  }
-
-  async firstUpdated() {
-    await this.updateComplete;
-    await super.firstUpdated();
-
-    this.addEventListener('click', _ => {
-      this.expanded = !this.expanded;
-    });
-    if (this.editing) {
-      this.openEditDialog();
-    }
-    if (this.deleting) {
-      this.deleteDialog.show();
-    }
   }
 
   private renderState() {
@@ -198,7 +188,8 @@ export class ReminderItem extends Rippling(LitElement) {
 
   delete(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
+    (e.target as HTMLElement).blur();
+
     this.deleteDialog.show();
   }
 
@@ -216,8 +207,10 @@ export class ReminderItem extends Rippling(LitElement) {
 
   edit(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
-    this.openEditDialog()
+    (e.target as HTMLElement).blur();
+
+    this.editDialog.item = structuredClone(this.item);
+    this.editDialog.show();
   }
 
   editDialogStateChanged(ev: CustomEvent) {
@@ -225,16 +218,11 @@ export class ReminderItem extends Rippling(LitElement) {
     this.editing = (ev.type === "opening");
     this.shouldRipple = (ev.type === "closed");
 
-    let url = this.editing ? `/reminders/${this.item._ref.id}/edit` :  "/reminders";
+    let url = this.editing ? `/reminders/${this.item._ref.id}/edit` : "/reminders";
     if (window.location.pathname !== url) {
       let routeEvent = new RouteEvent("route", {detail: {url: url,}})
       window.dispatchEvent(routeEvent);
     }
-  }
-
-  openEditDialog() {
-    this.editDialog.item = structuredClone(this.item);
-    this.editDialog.show();
   }
 
   openReminderLink(e: Event) {
