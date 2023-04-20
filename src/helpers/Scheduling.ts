@@ -2,6 +2,8 @@ import {parseExpression} from "cron-parser-all";
 import {ReminderDocument} from "../../firebase/functions/src";
 
 export const calculateNextSend = (notification: ReminderDocument) => {
+    if (notification === undefined) return
+
     switch (notification.type) {
         case "cron": {
             // TODO(ebongers): use preference in user profile
