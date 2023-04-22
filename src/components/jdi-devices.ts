@@ -6,9 +6,13 @@ import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
 import {disablePushNotifications} from "../messaging";
 import "@material/mwc-icon-button";
+import {activeRoute} from "../helpers/Decorators";
 
 @customElement("jdi-devices")
 export class JDIDevices extends BunnyElement {
+  @property({type: Boolean, reflect: true, attribute: "active"})
+  isActiveRoute: boolean;
+
   @property()
   account: DataSupplier<any>;
 
@@ -113,6 +117,7 @@ export class JDIDevices extends BunnyElement {
     `;
   }
 
+  @activeRoute()
   override render() {
     return html`
       <h2>Subscribed devices</h2>

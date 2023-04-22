@@ -1,9 +1,14 @@
 import {showMessage} from "./Snacks";
+import {nothing} from "lit";
 
 interface ToastWrapperOptions {
   successMessage?: string;
   failedMessage?: string;
   progressMessage?: string;
+}
+
+interface RouteTarget {
+  isActiveRoute: boolean;
 }
 
 export function toastWrapper(options: ToastWrapperOptions | null = null) {
@@ -36,5 +41,13 @@ export function toastWrapper(options: ToastWrapperOptions | null = null) {
         throw e;
       }
     };
+  };
+}
+
+export function activeRoute() {
+  return (target: RouteTarget, _propName: string, descriptor: PropertyDescriptor) => {
+    if (target.isActiveRoute) {
+      descriptor.value = nothing;
+    }
   };
 }

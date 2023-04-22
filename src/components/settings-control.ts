@@ -6,9 +6,13 @@ import {ReminderDocument} from "../../firebase/functions/src";
 import {SingleSelectedEvent} from "@material/mwc-list";
 import {showMessage} from "../helpers/Snacks";
 import {doSendNotifications} from "../functions";
+import {activeRoute} from "../helpers/Decorators";
 
 @customElement("settings-control")
 export class SettingsControl extends LitElement {
+  @property({type: Boolean, reflect: true, attribute: "active"})
+  isActiveRoute: boolean;
+
   @property()
   userId: string;
 
@@ -33,6 +37,7 @@ export class SettingsControl extends LitElement {
     this.loadPushNotificationsState();
   }
 
+  @activeRoute()
   override render() {
     return html`
       <h2>Settings</h2>

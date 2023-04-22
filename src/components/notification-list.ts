@@ -8,9 +8,13 @@ import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {NotificationDocument} from "../../firebase/functions/src"
 import {NotificationItem} from "./notification-item";
 import "./notification-item";
+import {activeRoute} from "../helpers/Decorators";
 
 @customElement("notification-list")
 export class NotificationList extends BunnyElement {
+  @property({type: Boolean, reflect: true, attribute: "active"})
+  isActiveRoute: boolean;
+
   @property()
   notifications: DataCollectionSupplier<NotificationDocument>;
 
@@ -58,6 +62,7 @@ export class NotificationList extends BunnyElement {
     }
   `;
 
+  @activeRoute()
   override render() {
     return html`
       <h2>Notification history</h2>
