@@ -229,11 +229,7 @@ export class JDIApp extends LitElement {
 
     onAuthStateChanged(auth, (user) => {
       this.user = user;
-      if (!user) {
-        this.routing("/login", {inPlace: true});
-      } else if (this.userId !== user.uid) {
-        this.routing(this.defaultPath);
-      }
+      this.routing(user?.uid ? this.defaultPath : "/login", {inPlace: true});
     });
     window.addEventListener('route', (ev: RouteEvent) => {
       this.routing.call(this, ev.detail.url, ev.detail.options);
