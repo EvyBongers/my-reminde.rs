@@ -253,6 +253,7 @@ export class JDIApp extends LitElement {
     dialog.append("Are you sure you want to log out?");
     dialog.setAttribute("confirmLabel", "Yes");
     dialog.setAttribute("cancelLabel", "No");
+    dialog.toggleAttribute("open", true);
     dialog.addEventListener("confirm", logout);
     dialog.addEventListener("closed", _ => {
       this.renderRoot.removeChild(dialog);
