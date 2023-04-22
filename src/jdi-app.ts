@@ -74,12 +74,18 @@ export class JDIApp extends LitElement {
   }
 
   set user(user: User) {
+    let storedUid = this.userId;
+    let storedUser = this._user;
+
     this._user = user;
-    if (user === undefined) {
+    if (!user) {
       delete localStorage["loggedInUserId"];
     } else {
       localStorage["loggedInUserId"] = user.uid;
     }
+
+    this.requestUpdate("user", storedUser);
+    this.requestUpdate("userId", storedUid);
   }
 
   @property()
