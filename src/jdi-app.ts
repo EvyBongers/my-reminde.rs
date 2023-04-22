@@ -94,9 +94,14 @@ export class JDIApp extends LitElement {
       --base-background-color: #ffffff;
       --mdc-tab-height: 48px;
       --mdc-theme-primary: #6200ee;
-      --mdc-typography-body2-font-size: 1rem;
+
+      --mdc-typography-font-family: 'Lexend', sans-serif;
+      --mdc-typography-body2-font-size: 0.9rem;
+      --mdc-typography-headline6-font-size: 1.5rem;
 
       background-color: var(--base-background-color);
+      font-family: var(--mdc-typography-font-family);
+      font-size: var(--mdc-typography-body2-font-size);
     }
 
     mwc-top-app-bar-fixed {
