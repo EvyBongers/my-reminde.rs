@@ -1,6 +1,6 @@
 import {css, html, LitElement, nothing} from "lit";
 import {customElement, property} from "lit/decorators.js";
-import {BunnyElement, observe} from "./bunny-element";
+import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {DataSupplier, loadDocument} from "../db";
 import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
@@ -126,8 +126,8 @@ export class JDIDevices extends BunnyElement {
   }
 
   @observe('accountId')
-  private async accountChanged(accountId: string) {
-    this.account = loadDocument<any>(`accounts/${accountId}`);
+  private async accountChanged(accountId: ChangedProperty) {
+    this.account = accountId.after ? loadDocument<any>(`accounts/${accountId}`) : null;
   }
 
   private async unsubscribeDevice(e: Event) {

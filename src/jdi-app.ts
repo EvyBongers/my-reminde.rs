@@ -1,5 +1,5 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement, nothing, render, TemplateResult} from "lit";
+import {css, html, LitElement, nothing, TemplateResult} from "lit";
 import {customElement, property, state} from "lit/decorators.js";
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
@@ -22,34 +22,70 @@ import "./components/settings-control";
 import {NavItem} from "./components/nav-bar";
 
 export type Route = {
-  name: string
+  route: string
   data?: { [key: string]: string }
 };
 export type RouteOptions = {
   inPlace?: boolean
 }
-export type RouteEventDetails = {
+export type RouteEventDetail = {
   url: URL | string,
   options?: RouteOptions,
 };
-export class RouteEvent extends CustomEvent<RouteEventDetails>{};
+export class RouteEvent extends CustomEvent<RouteEventDetail>{};
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
-  @property()
-  userId: string;
-
-  @property()
-  user: User;
+  _state: Route
+  _user: User;
 
   @property()
   pushNotificationsEnabled: boolean;
 
-  @property()
-  currentRoute: string | undefined;
+  @state()
+  get data(): { [key: string]: string } {
+    return history.state?.data;
+  }
+
+  set data(data: { [key: string]: string }) {
+    // TODO: Figure out how to update properties on child elements or why this doesn't work
+    //   -> asyncReplace?
+    this.requestUpdate("data", this._state.data);
+    this._state.data = data;
+  }
 
   @state()
-  currentRouteData: { [key: string]: string }
+  get route(): string {
+    return history.state?.route;
+  }
+
+  set route(route: string) {
+    if (this._state.route === route) {
+      return;
+    }
+
+    this.requestUpdate("data", this._state.route);
+    this._state.route = route;
+  }
+
+  @property()
+  get user(): User {
+    return this._user;
+  }
+
+  set user(user: User) {
+    this._user = user;
+    if (user === undefined) {
+      delete localStorage["loggedInUserId"];
+    } else {
+      localStorage["loggedInUserId"] = user.uid;
+    }
+  }
+
+  @property()
+  get userId(): string {
+    return localStorage["loggedInUserId"];
+  }
 
   private defaultPath: string = "/reminders";
 
@@ -104,11 +140,11 @@ export class JDIApp extends LitElement {
   `;
 
   private routes: { [pattern: string]: Route } = {
-    "/reminders/:id/:action": {name: "reminders"},
-    "/settings": {name: "settings"},
-    "/devices": {name: "devices"},
-    "/notifications/:id": {name: "notifications"},
-    "/login": {name: "login"},
+    "/reminders/:reminderId/:reminderAction": {route: "reminders"},
+    "/settings": {route: "settings"},
+    "/devices": {route: "devices"},
+    "/notifications/:notificationId": {route: "notifications"},
+    "/login": {route: "login"},
   }
 
   private navButtons: NavItem[] = [
@@ -120,11 +156,8 @@ export class JDIApp extends LitElement {
 
   constructor() {
     super();
-    if (window.location.pathname === "/") {
-      this.routing(this.defaultPath, {inPlace: true});
-    }
 
-    this.userId = localStorage["loggedInUserId"];
+    this._state = { route: undefined };
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
   }
@@ -158,14 +191,15 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
 
         <main>
-          <jdi-login route="login"></jdi-login>
-          <reminder-list route="reminders" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.currentRouteData?.id}" .action="${this.currentRouteData?.action}"></reminder-list>
-          <settings-control route="settings" .accountId="${this.userId}"></settings-control>
-          <notification-list route="notifications" .collection="notifications" .accountId="${this.userId}"
-                             .selectedId="${this.currentRouteData?.id}"></notification-list>
-          <jdi-devices route="devices" .accountId="${this.userId}"></jdi-devices>
-          <div route="404">
+          <jdi-login route="login" ?active="${this.route === "login"}"></jdi-login>
+          <reminder-list route="reminders" ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
+                         .selectedId="${this.data?.reminderId}"
+                         .action="${this.data?.reminderAction}"></reminder-list>
+          <settings-control route="settings" ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
+          <notification-list route="notifications" ?active="${this.route === "notifications"}" .collection="notifications" .accountId="${this.userId}"
+                             .selectedId="${this.data?.notificationId}"></notification-list>
+          <jdi-devices route="devices" ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
+          <div route="404" ?active="${this.route === "404"}">
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
           </div>
@@ -178,24 +212,35 @@ export class JDIApp extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
+    let redirPath = this.userId ? this.defaultPath : "/login";
+    const appPath = (window.location.pathname === "/") ? redirPath : window.location.pathname;
+    this.routing(appPath, {inPlace: true});
+
     onAuthStateChanged(auth, (user) => {
+      this.user = user;
       if (!user) {
-        this.userId = undefined;
-        delete localStorage["loggedInUserId"];
         this.routing("/login", {inPlace: true});
       } else if (this.userId !== user.uid) {
-        this.userId = user.uid;
-        localStorage["loggedInUserId"] = user.uid;
         this.routing(this.defaultPath);
       }
     });
     window.addEventListener('route', (ev: RouteEvent) => {
       this.routing.call(this, ev.detail.url, ev.detail.options);
     })
-  }
-
-  async firstUpdated() {
-    this.routing(window.location.pathname);
+    window.addEventListener("popstate", (ev: PopStateEvent) => {
+      if (ev.state) {
+        this.route = ev.state.route;
+        this.data = ev.state.data;
+      } else {
+        let routeEvent = new RouteEvent("route", {
+          detail: {
+            url: document.location.pathname,
+            options: { inPlace: true },
+          }
+        });
+        window.dispatchEvent(routeEvent);
+      }
+    });
   }
 
   private confirmLogout(_: Event) {
@@ -216,22 +261,20 @@ export class JDIApp extends LitElement {
       let matchResult = new RegExp(`^${patternRegex}$`).exec(url);
       if (matchResult !== null) {
         return {
-          name: route.name,
-          data: {...route.data, ...matchResult.groups}
+          ...route,
+
+          data: {
+            ...route.data,
+            ...matchResult.groups,
+          }
         };
       }
       return direction;
     }, undefined);
 
     window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
-
-    this.currentRoute = route?.name || "404";
-    this.currentRouteData = route?.data || {};
-
-    let activeElements = this.shadowRoot.querySelectorAll("[route][active]");
-    let togglingElements = this.shadowRoot.querySelectorAll(`[route='${this.currentRoute}']`);
-    activeElements.forEach(el => el.toggleAttribute("active", false));
-    togglingElements.forEach(el => el.toggleAttribute("active", true));
+    this.route = route?.route;
+    this.data = route?.data;
   }
 
   private async loadPushNotificationsState() {

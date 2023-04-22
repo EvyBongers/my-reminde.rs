@@ -3,10 +3,11 @@ import {customElement, property} from "lit/decorators.js";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
-import {BunnyElement, observe} from "./bunny-element";
+import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
+import {ReminderItem} from "./reminder-item";
 
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
@@ -65,9 +66,9 @@ export class ReminderList extends BunnyElement {
       <h2>Reminders</h2>
       <div class="reminders-container">
         ${renderItems(this.reminders, item => html`
-          <reminder-item .item="${item}"
-                         ?deleting="${item._ref.id === this.selectedId && this.action === "delete"}"
-                         ?editing="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
+          <reminder-item id="${item._ref.id}" .item="${item}"
+                         ?delete="${item._ref.id === this.selectedId && this.action === "delete"}"
+                         ?edit="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
@@ -76,16 +77,27 @@ export class ReminderList extends BunnyElement {
     `;
   }
 
+  @observe("selectedId", "action")
+  selectedItemChanged(reminderId: ChangedProperty<string>, action: ChangedProperty<string>) {
+    if (!action.after) {
+      this.shadowRoot.querySelectorAll(`reminder-item[${action.before}]`).forEach((reminderItem: ReminderItem) => {
+        reminderItem.removeAttribute(action.before);
+      });
+    } else {
+      this.shadowRoot.getElementById(reminderId.before)?.toggleAttribute(action.before, false);
+      this.shadowRoot.getElementById(reminderId.after)?.toggleAttribute(action.after, true);
+    }
+  }
+
   @observe("accountId")
-  accountChanged(accountId: string) {
-    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId}/reminders`);
+  accountChanged(accountId: ChangedProperty<string>) {
+    this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId.after}/reminders`);
   }
 
   public async addNotification(_: Event) {
     let notification = document.createElement("reminder-edit");
     notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/reminders`);
     notification.addEventListener("closed", (ev: CustomEvent) => {
-      console.log(`Notification add result: ${ev.detail}`);
       this.shadowRoot.removeChild(notification);
     });
 

@@ -4,8 +4,9 @@ import {QueryDocumentSnapshot} from "firebase/firestore";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
-import {BunnyElement, observe} from "./bunny-element";
+import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {NotificationDocument} from "../../firebase/functions/src"
+import {NotificationItem} from "./notification-item";
 import "./notification-item";
 
 @customElement("notification-list")
@@ -62,16 +63,28 @@ export class NotificationList extends BunnyElement {
       <h2>Notification history</h2>
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
-          <notification-item .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
+          <notification-item id="${item._ref.id}" .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
         `, html`
           <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
       </div>
     `;
   }
 
+  @observe("selectedId")
+  selectedItemChanged(notificationId: ChangedProperty) {
+    if (notificationId.after === null) {
+      this.shadowRoot.querySelectorAll("notification-item[open]").forEach((notificationItem: NotificationItem) => {
+        notificationItem.removeAttribute("open");
+      });
+    } else {
+      this.shadowRoot.getElementById(notificationId.before)?.toggleAttribute("open", false);
+      this.shadowRoot.getElementById(notificationId.after)?.toggleAttribute("open", true);
+    }
+  }
+
   @observe("accountId")
-  accountChanged(accountId: string) {
-    this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId}/notifications`, (a: QueryDocumentSnapshot<NotificationDocument>, b: QueryDocumentSnapshot<NotificationDocument>) => {
+  accountChanged(accountId: ChangedProperty<string>) {
+    this.notifications = loadCollection<NotificationDocument>(`accounts/${accountId.after}/notifications`, (a: QueryDocumentSnapshot<NotificationDocument>, b: QueryDocumentSnapshot<NotificationDocument>) => {
       return b.data().sent.toMillis() - a.data().sent.toMillis();
     });
   }

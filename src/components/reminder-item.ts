@@ -1,4 +1,4 @@
-import {css, html, nothing, LitElement} from "lit";
+import {css, html, nothing, LitElement, HTMLTemplateResult, PropertyValues} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import {when} from "lit/directives/when.js";
 import {IconButton} from "@material/mwc-icon-button";
@@ -13,16 +13,19 @@ import {RouteEvent} from "../jdi-app";
 import {deleteDocByRef, setDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
+import {Dialog} from "@material/mwc-dialog";
+import {ConfirmDialog} from "./confirm-dialog";
+import {ReminderEdit} from "./reminder-edit";
 
 @customElement("reminder-item")
 export class ReminderItem extends Rippling(LitElement) {
   @property()
   item: ReminderDocument;
 
-  @property({type: Boolean})
+  @property({type: Boolean, reflect: true, attribute: "delete"})
   protected deleting: boolean = false;
 
-  @property({type: Boolean})
+  @property({type: Boolean, reflect: true, attribute: "edit"})
   protected editing: boolean = false;
 
   @property({type: Boolean})
@@ -33,6 +36,12 @@ export class ReminderItem extends Rippling(LitElement) {
 
   @query("mwc-menu")
   private menu: Menu;
+
+  @query('confirm-dialog')
+  deleteDialog: ConfirmDialog;
+
+  @query('reminder-edit')
+  editDialog: ReminderEdit;
 
   static override styles = css`
     :host {
@@ -87,19 +96,23 @@ export class ReminderItem extends Rippling(LitElement) {
     }
   `;
 
-  async firstUpdated() {
-    await this.updateComplete;
-    await super.firstUpdated();
-
-    this.addEventListener('click', _ => {
+  constructor() {
+    super();
+    this.addEventListener('click', () => {
       this.expanded = !this.expanded;
     });
-    if (this.editing) {
-      this.openEditDialog();
-    }
-    if (this.deleting) {
-      this.openDeleteDialog();
-    }
+    this.updateComplete.then(() => {
+      this.editDialog.item = structuredClone(this.item);
+
+      this.deleteDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+      this.deleteDialog.addEventListener("opening", (ev: CustomEvent) => this.deleteDialogStateChanged.call(this, ev));
+      this.deleteDialog.addEventListener("closed", (ev: CustomEvent) => this.deleteDialogStateChanged.call(this, ev));
+      this.deleteDialog.addEventListener("confirm", () => deleteDocByRef(this.item._ref));
+
+      this.editDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+      this.editDialog.addEventListener("opening", (ev: CustomEvent) => this.editDialogStateChanged.call(this, ev));
+      this.editDialog.addEventListener("closed", (ev: CustomEvent) => this.editDialogStateChanged.call(this, ev));
+    });
   }
 
   private renderState() {
@@ -158,75 +171,58 @@ export class ReminderItem extends Rippling(LitElement) {
     `;
   }
 
+  private renderDialogs(): HTMLTemplateResult {
+    return html`
+      <reminder-edit .documentRef="${this.item._ref}" ?open="${this.editing}"></reminder-edit>
+      <confirm-dialog confirmLabel="Delete" cancelLabel="Cancel" ?open="${this.deleting}">Delete reminder?</confirm-dialog>
+    `;
+  }
+
   override render() {
     return html`
       ${this.renderState()}
       ${this.renderContent()}
+      ${this.renderDialogs()}
     `;
   }
 
   delete(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
-    this.openDeleteDialog();
+    (e.target as HTMLElement).blur();
+
+    this.deleteDialog.show();
   }
 
-  openDeleteDialog() {
-    let dialog = document.createElement("confirm-dialog");
-    dialog.append("Delete reminder?");
-    dialog.setAttribute("confirmLabel", "Delete");
-    dialog.setAttribute("cancelLabel", "Cancel");
-    dialog.addEventListener("confirm", _ => {
-      deleteDocByRef(this.item._ref);
-    });
-    dialog.addEventListener("closed", _ => {
-      this.renderRoot.removeChild(dialog);
-      let routeEvent = new RouteEvent("route", {
-        detail: {
-          url: "/reminders",
-        },
-      })
+  deleteDialogStateChanged(ev: CustomEvent) {
+    ev.stopPropagation();
+    this.deleting = (ev.type === "opening");
+    this.shouldRipple = (ev.type === "closed");
+
+    let url = this.deleting ? `/reminders/${this.item._ref.id}/delete` : "/reminders";
+    if (window.location.pathname !== url) {
+      let routeEvent = new RouteEvent("route", {detail: {url: url,}})
       window.dispatchEvent(routeEvent);
-    });
-    this.shadowRoot.append(dialog);
-    let routeEvent = new RouteEvent("route", {
-      detail: {
-        url: `/reminders/${this.item._ref.id}/delete`,
-      }
-    });
-    window.dispatchEvent(routeEvent);
+    }
   }
 
   edit(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
-    this.openEditDialog();
-    let routeEvent = new RouteEvent("route", {
-      detail: {
-        url: `/reminders/${this.item._ref.id}/edit`,
-      },
-    })
-    window.dispatchEvent(routeEvent);
+    (e.target as HTMLElement).blur();
+
+    this.editDialog.item = structuredClone(this.item);
+    this.editDialog.show();
   }
 
-  openEditDialog() {
-    let dialog = document.createElement("reminder-edit");
-    dialog.item = structuredClone(this.item);
-    dialog.documentRef = this.item._ref;
-    dialog.addEventListener("closed", (ev: CustomEvent) => {
-      console.log(`Notification edit result: ${ev.detail}`);
-      this.shouldRipple = true;
-      this.shadowRoot.removeChild(dialog);
-      let routeEvent = new RouteEvent("route", {
-        detail: {
-          url: "/reminders",
-        },
-      })
-      window.dispatchEvent(routeEvent);
-    });
+  editDialogStateChanged(ev: CustomEvent) {
+    ev.stopPropagation();
+    this.editing = (ev.type === "opening");
+    this.shouldRipple = (ev.type === "closed");
 
-    this.shadowRoot.append(dialog);
-    this.shouldRipple = false;
+    let url = this.editing ? `/reminders/${this.item._ref.id}/edit` : "/reminders";
+    if (window.location.pathname !== url) {
+      let routeEvent = new RouteEvent("route", {detail: {url: url,}})
+      window.dispatchEvent(routeEvent);
+    }
   }
 
   openReminderLink(e: Event) {
