@@ -53,9 +53,9 @@ export class JDILogin extends LitElement {
   }
 
   @toastWrapper({
-    successMessage: "woo logged in",
     progressMessage: "logging in",
-    failedMessage: "aaaa you suck: {{e}}",
+    successMessage: "Logged in",
+    failedMessage: "Login failed: {{e}}",
   })
   private async login() {
     await login(this.username, this.password);

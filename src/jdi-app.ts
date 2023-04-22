@@ -74,12 +74,18 @@ export class JDIApp extends LitElement {
   }
 
   set user(user: User) {
+    let storedUid = this.userId;
+    let storedUser = this._user;
+
     this._user = user;
-    if (user === undefined) {
+    if (!user) {
       delete localStorage["loggedInUserId"];
     } else {
       localStorage["loggedInUserId"] = user.uid;
     }
+
+    this.requestUpdate("user", storedUser);
+    this.requestUpdate("userId", storedUid);
   }
 
   @property()
@@ -223,11 +229,7 @@ export class JDIApp extends LitElement {
 
     onAuthStateChanged(auth, (user) => {
       this.user = user;
-      if (!user) {
-        this.routing("/login", {inPlace: true});
-      } else if (this.userId !== user.uid) {
-        this.routing(this.defaultPath);
-      }
+      this.routing(user?.uid ? this.defaultPath : "/login", {inPlace: true});
     });
     window.addEventListener('route', (ev: RouteEvent) => {
       this.routing.call(this, ev.detail.url, ev.detail.options);
@@ -253,6 +255,7 @@ export class JDIApp extends LitElement {
     dialog.append("Are you sure you want to log out?");
     dialog.setAttribute("confirmLabel", "Yes");
     dialog.setAttribute("cancelLabel", "No");
+    dialog.toggleAttribute("open", true);
     dialog.addEventListener("confirm", logout);
     dialog.addEventListener("closed", _ => {
       this.renderRoot.removeChild(dialog);
