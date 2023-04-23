@@ -19,6 +19,7 @@ import "./components/nav-bar";
 import "./components/notification-list";
 import "./components/reminder-list";
 import "./components/settings-control";
+import "./components/slotted-content";
 import {NavItem} from "./components/nav-bar";
 
 export type Route = {
@@ -207,10 +208,10 @@ export class JDIApp extends LitElement {
                              .accountId="${this.userId}"
                              .selectedId="${this.data?.notificationId}"></notification-list>
           <jdi-devices ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
-          <div route="404" ?active="${this.route === "404"}">
+          <slotted-content ?active="${this.route === "404"}">
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
-          </div>
+          </slotted-content>
         </main>
         ${when(this.userId, () => html`${this.renderNav()}`)}
       </mwc-top-app-bar-fixed>
@@ -278,7 +279,7 @@ export class JDIApp extends LitElement {
         };
       }
       return direction;
-    }, undefined);
+    }, {route: "404"});
 
     window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
     this.route = route?.route;
