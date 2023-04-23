@@ -19,9 +19,6 @@ export class NavBar extends LitElement {
   @property()
   private activeIndex: number;
 
-  @state()
-  private initialNavIndexSet: boolean = false;
-
   static override styles = css`
     :host {
       background-color: inherit;

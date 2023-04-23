@@ -1,5 +1,5 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement, nothing, TemplateResult} from "lit";
+import {css, html, LitElement, TemplateResult} from "lit";
 import {customElement, property, state} from "lit/decorators.js";
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
@@ -19,6 +19,7 @@ import "./components/nav-bar";
 import "./components/notification-list";
 import "./components/reminder-list";
 import "./components/settings-control";
+import "./components/slotted-content";
 import {NavItem} from "./components/nav-bar";
 
 export type Route = {
@@ -32,7 +33,7 @@ export type RouteEventDetail = {
   url: URL | string,
   options?: RouteOptions,
 };
-export class RouteEvent extends CustomEvent<RouteEventDetail>{};
+export class RouteEvent extends CustomEvent<RouteEventDetail>{}
 
 @customElement("jdi-app")
 export class JDIApp extends LitElement {
@@ -168,18 +169,15 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
 
-    this._state = { route: undefined };
+    this._state = {route: undefined};
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
   }
 
   renderNav(): TemplateResult {
-    let activeIndex = 0;
-    this.navButtons.forEach((navItem, idx) => {
-      if (document.location.pathname.startsWith(navItem.uri)) {
-        activeIndex = idx;
-      }
-    });
+    let activeIndex = this.navButtons.reduce<number>((idx: number, currentValue: NavItem, currentIndex: number): number => {
+      return document.location.pathname.startsWith(currentValue.uri) && idx === -1 ? currentIndex : idx;
+    }, -1);
     return html`
       <nav>
         <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"></nav-bar>
@@ -199,23 +197,22 @@ export class JDIApp extends LitElement {
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-        ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
+        ${when(this.userId, () => html`${this.renderAppBarButtons()}`)}
 
         <main>
-          <jdi-login route="login" ?active="${this.route === "login"}"></jdi-login>
-          <reminder-list route="reminders" ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.data?.reminderId}"
-                         .action="${this.data?.reminderAction}"></reminder-list>
-          <settings-control route="settings" ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
-          <notification-list route="notifications" ?active="${this.route === "notifications"}" .collection="notifications" .accountId="${this.userId}"
-                             .selectedId="${this.data?.notificationId}"></notification-list>
-          <jdi-devices route="devices" ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
-          <div route="404" ?active="${this.route === "404"}">
+          <jdi-login ?active="${this.route === "login"}"></jdi-login>
+          <reminder-list ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
+                         .selectedId="${this.data?.reminderId}" .action="${this.data?.reminderAction}"></reminder-list>
+          <settings-control ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
+          <notification-list ?active="${this.route === "notifications"}" .collection="notifications"
+                             .accountId="${this.userId}" .selectedId="${this.data?.notificationId}"></notification-list>
+          <jdi-devices ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
+          <slotted-content ?active="${this.route === "404"}">
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
-          </div>
+          </slotted-content>
         </main>
-        ${when(this.userId, () => html`${this.renderNav()}`, () => nothing)}
+        ${when(this.userId, () => html`${this.renderNav()}`)}
       </mwc-top-app-bar-fixed>
     `;
   }
@@ -228,7 +225,10 @@ export class JDIApp extends LitElement {
     this.routing(appPath, {inPlace: true});
 
     onAuthStateChanged(auth, (user) => {
+      let shouldReroute = this.userId !== user?.uid;
       this.user = user;
+
+      if (!shouldReroute) return
       this.routing(user?.uid ? this.defaultPath : "/login", {inPlace: true});
     });
     window.addEventListener('route', (ev: RouteEvent) => {
@@ -242,7 +242,7 @@ export class JDIApp extends LitElement {
         let routeEvent = new RouteEvent("route", {
           detail: {
             url: document.location.pathname,
-            options: { inPlace: true },
+            options: {inPlace: true},
           }
         });
         window.dispatchEvent(routeEvent);
@@ -278,7 +278,7 @@ export class JDIApp extends LitElement {
         };
       }
       return direction;
-    }, undefined);
+    }, {route: "404"});
 
     window.history[options?.inPlace ? "replaceState" : "pushState"](route, "", url);
     this.route = route?.route;

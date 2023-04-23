@@ -6,8 +6,10 @@ import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
 import {disablePushNotifications} from "../messaging";
 import "@material/mwc-icon-button";
+import {routeTarget} from "../helpers/Decorators";
 
 @customElement("jdi-devices")
+@routeTarget
 export class JDIDevices extends BunnyElement {
   @property()
   account: DataSupplier<any>;
@@ -127,7 +129,7 @@ export class JDIDevices extends BunnyElement {
 
   @observe('accountId')
   private async accountChanged(accountId: ChangedProperty) {
-    this.account = accountId.after ? loadDocument<any>(`accounts/${accountId}`) : null;
+    this.account = accountId.after ? loadDocument<any>(`accounts/${accountId.after}`) : null;
   }
 
   private async unsubscribeDevice(e: Event) {

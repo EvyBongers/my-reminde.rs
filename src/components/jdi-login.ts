@@ -1,13 +1,14 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {login} from "../auth";
-import {toastWrapper} from "../helpers/Decorators";
+import {routeTarget, toastWrapper} from "../helpers/Decorators";
 import "@material/mwc-button";
 import "@material/mwc-textfield";
 import "@material/mwc-icon"
 import "./jdi-form";
 
 @customElement("jdi-login")
+@routeTarget
 export class JDILogin extends LitElement {
   @property()
   username: string = "";
@@ -16,7 +17,7 @@ export class JDILogin extends LitElement {
   password: string = "";
 
   static override styles = css`
-    :host {
+    jdi-form {
       display: block;
       border: solid 1px gray;
       padding: 16px;

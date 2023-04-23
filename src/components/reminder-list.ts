@@ -8,8 +8,10 @@ import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
 import {ReminderItem} from "./reminder-item";
+import {routeTarget} from "../helpers/Decorators";
 
 @customElement("reminder-list")
+@routeTarget
 export class ReminderList extends BunnyElement {
   @property()
   reminders: DataCollectionSupplier<ReminderDocument>;
