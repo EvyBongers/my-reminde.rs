@@ -17,7 +17,7 @@ export class JDILogin extends LitElement {
   password: string = "";
 
   static override styles = css`
-    :host {
+    jdi-form {
       display: block;
       border: solid 1px gray;
       padding: 16px;
