@@ -1,14 +1,11 @@
 import {showMessage} from "./Snacks";
-import {nothing} from "lit";
+import {LitElement, nothing} from "lit";
+import {property} from "lit/decorators.js";
 
 interface ToastWrapperOptions {
   successMessage?: string;
   failedMessage?: string;
   progressMessage?: string;
-}
-
-interface RouteTarget {
-  isActiveRoute: boolean;
 }
 
 export function toastWrapper(options: ToastWrapperOptions | null = null) {
@@ -44,10 +41,32 @@ export function toastWrapper(options: ToastWrapperOptions | null = null) {
   };
 }
 
-export function activeRoute() {
-  return (target: RouteTarget, _propName: string, descriptor: PropertyDescriptor) => {
-    if (target.isActiveRoute) {
-      descriptor.value = nothing;
+class RouteTarget extends LitElement {
+  // isActiveRoute: boolean;
+  static get properties() {
+    return {
+      isActiveRoute: { type: Boolean, reflect: true, attribute: "active" }
+    };
+  }
+}
+
+declare type Constructor<T> = { new (...args: any[]): T; };
+
+export function routeTarget<T extends Constructor<LitElement>>(constructor: T): Constructor<RouteTarget> {
+  class RouteTarget extends constructor {
+    @property({type: Boolean, reflect: true, attribute: "active"})
+    isActiveRoute: boolean;
+
+    constructor(...args: any[]) {
+      super(args);
+
+      this.isActiveRoute = false;
     }
-  };
+
+    override render() {
+      return this.isActiveRoute ? super.render() : nothing;
+    }
+  }
+
+  return RouteTarget as Constructor<RouteTarget> & T;
 }

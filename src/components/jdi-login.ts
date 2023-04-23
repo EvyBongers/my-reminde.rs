@@ -1,12 +1,13 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {login} from "../auth";
-import {activeRoute, toastWrapper} from "../helpers/Decorators";
+import {routeTarget, toastWrapper} from "../helpers/Decorators";
 import "@material/mwc-button";
 import "@material/mwc-textfield";
 import "@material/mwc-icon"
 import "./jdi-form";
 
+@routeTarget
 @customElement("jdi-login")
 export class JDILogin extends LitElement {
   @property({type: Boolean, reflect: true, attribute: "active"})
@@ -32,7 +33,6 @@ export class JDILogin extends LitElement {
     }
   `;
 
-  @activeRoute()
   override render() {
     return html`
       <jdi-form @submit="${this._login}">
