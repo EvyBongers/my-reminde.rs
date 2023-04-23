@@ -1,5 +1,5 @@
 import {onAuthStateChanged, User} from "firebase/auth";
-import {css, html, LitElement, nothing, TemplateResult} from "lit";
+import {css, html, LitElement, TemplateResult} from "lit";
 import {customElement, property, state} from "lit/decorators.js";
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
@@ -168,7 +168,7 @@ export class JDIApp extends LitElement {
   constructor() {
     super();
 
-    this._state = { route: undefined };
+    this._state = {route: undefined};
     this.pushNotificationsEnabled = localStorage["pushNotificationsEnabled"];
     this.loadPushNotificationsState();
   }
@@ -196,23 +196,23 @@ export class JDIApp extends LitElement {
     return html`
       <mwc-top-app-bar-fixed>
         <div slot="title">${this.user?.displayName ? `${this.user.displayName}'s reminders` : "My reminders"}</div>
-        ${when(this.userId, () => html`${this.renderAppBarButtons()}`, () => nothing)}
+        ${when(this.userId, () => html`${this.renderAppBarButtons()}`)}
 
         <main>
-          <jdi-login route="login" ?active="${this.route === "login"}"></jdi-login>
-          <reminder-list route="reminders" ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.data?.reminderId}"
-                         .action="${this.data?.reminderAction}"></reminder-list>
-          <settings-control route="settings" ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
-          <notification-list route="notifications" ?active="${this.route === "notifications"}" .collection="notifications" .accountId="${this.userId}"
+          <jdi-login ?active="${this.route === "login"}"></jdi-login>
+          <reminder-list ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
+                         .selectedId="${this.data?.reminderId}" .action="${this.data?.reminderAction}"></reminder-list>
+          <settings-control ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
+          <notification-list ?active="${this.route === "notifications"}" .collection="notifications"
+                             .accountId="${this.userId}"
                              .selectedId="${this.data?.notificationId}"></notification-list>
-          <jdi-devices route="devices" ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
+          <jdi-devices ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
           <div route="404" ?active="${this.route === "404"}">
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
           </div>
         </main>
-        ${when(this.userId, () => html`${this.renderNav()}`, () => nothing)}
+        ${when(this.userId, () => html`${this.renderNav()}`)}
       </mwc-top-app-bar-fixed>
     `;
   }
@@ -228,7 +228,7 @@ export class JDIApp extends LitElement {
       let shouldReroute = this.userId !== user?.uid;
       this.user = user;
 
-      if(!shouldReroute) return
+      if (!shouldReroute) return
       this.routing(user?.uid ? this.defaultPath : "/login", {inPlace: true});
     });
     window.addEventListener('route', (ev: RouteEvent) => {
@@ -242,7 +242,7 @@ export class JDIApp extends LitElement {
         let routeEvent = new RouteEvent("route", {
           detail: {
             url: document.location.pathname,
-            options: { inPlace: true },
+            options: {inPlace: true},
           }
         });
         window.dispatchEvent(routeEvent);
