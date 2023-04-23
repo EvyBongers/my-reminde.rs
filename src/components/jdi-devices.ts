@@ -132,7 +132,7 @@ export class JDIDevices extends BunnyElement {
 
   @observe('accountId')
   private async accountChanged(accountId: ChangedProperty) {
-    this.account = accountId.after ? loadDocument<any>(`accounts/${accountId}`) : null;
+    this.account = accountId.after ? loadDocument<any>(`accounts/${accountId.after}`) : null;
   }
 
   private async unsubscribeDevice(e: Event) {
