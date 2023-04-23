@@ -174,12 +174,9 @@ export class JDIApp extends LitElement {
   }
 
   renderNav(): TemplateResult {
-    let activeIndex = 0;
-    this.navButtons.forEach((navItem, idx) => {
-      if (document.location.pathname.startsWith(navItem.uri)) {
-        activeIndex = idx;
-      }
-    });
+    let activeIndex = this.navButtons.reduce<number>((idx: number, currentValue: NavItem, currentIndex: number): number => {
+      return document.location.pathname.startsWith(currentValue.uri) && idx === -1 ? currentIndex : idx;
+    }, -1);
     return html`
       <nav>
         <nav-bar .activeIndex="${activeIndex}" .navButtons="${this.navButtons}"></nav-bar>
@@ -228,7 +225,10 @@ export class JDIApp extends LitElement {
     this.routing(appPath, {inPlace: true});
 
     onAuthStateChanged(auth, (user) => {
+      let shouldReroute = this.userId !== user?.uid;
       this.user = user;
+
+      if(!shouldReroute) return
       this.routing(user?.uid ? this.defaultPath : "/login", {inPlace: true});
     });
     window.addEventListener('route', (ev: RouteEvent) => {
