@@ -42,18 +42,14 @@ export function toastWrapper(options: ToastWrapperOptions | null = null) {
 }
 
 class RouteTarget extends LitElement {
-  // isActiveRoute: boolean;
-  static get properties() {
-    return {
-      isActiveRoute: { type: Boolean, reflect: true, attribute: "active" }
-    };
-  }
+  @property({type: Boolean, reflect: true, attribute: "active"})
+  isActiveRoute: boolean;
 }
 
 declare type Constructor<T> = { new (...args: any[]): T; };
 
-export function routeTarget<T extends Constructor<LitElement>>(constructor: T): Constructor<RouteTarget> {
-  class RouteTarget extends constructor {
+export function routeTarget<TBase extends Constructor<LitElement>>(base: TBase): Constructor<RouteTarget> & TBase {
+  class routeTarget extends base {
     @property({type: Boolean, reflect: true, attribute: "active"})
     isActiveRoute: boolean;
 
@@ -67,6 +63,5 @@ export function routeTarget<T extends Constructor<LitElement>>(constructor: T): 
       return this.isActiveRoute ? super.render() : nothing;
     }
   }
-
-  return RouteTarget as Constructor<RouteTarget> & T;
+  return routeTarget as Constructor<RouteTarget> & TBase;
 }

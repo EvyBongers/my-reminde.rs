@@ -8,14 +8,11 @@ import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
 import {ReminderItem} from "./reminder-item";
-import {activeRoute, routeTarget} from "../helpers/Decorators";
+import {routeTarget} from "../helpers/Decorators";
 
-@routeTarget
 @customElement("reminder-list")
+@routeTarget
 export class ReminderList extends BunnyElement {
-  @property({type: Boolean, reflect: true, attribute: "active"})
-  isActiveRoute: boolean;
-
   @property()
   reminders: DataCollectionSupplier<ReminderDocument>;
 

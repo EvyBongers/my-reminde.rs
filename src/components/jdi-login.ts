@@ -7,12 +7,9 @@ import "@material/mwc-textfield";
 import "@material/mwc-icon"
 import "./jdi-form";
 
-@routeTarget
 @customElement("jdi-login")
+@routeTarget
 export class JDILogin extends LitElement {
-  @property({type: Boolean, reflect: true, attribute: "active"})
-  isActiveRoute: boolean;
-
   @property()
   username: string = "";
 
