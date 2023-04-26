@@ -1,5 +1,9 @@
 {
   "name": "functions",
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
@@ -9,10 +13,6 @@
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
-  "engines": {
-    "node": "16"
-  },
-  "main": "lib/index.js",
   "dependencies": {
     "cron-parser-all": "^0.0.6",
     "firebase-admin": "^11.6.0",
