@@ -1,5 +1,6 @@
 import {html, TemplateResult} from "lit";
 import {asyncReplace} from "lit/directives/async-replace.js";
+import {repeat} from 'lit/directives/repeat.js';
 
 export type renderOptions = {
   loading?: TemplateResult
@@ -25,7 +26,7 @@ export const renderItems = (items: AsyncGenerator<any[]>, render: (item: any, in
 
   return asyncReplace((async function* () {
     for await(let subItems of items) {
-      yield (subItems.length === 0 && options?.placeHolder) ? options.placeHolder : subItems.map((item, index) => render(item, index));
+      yield (subItems.length === 0 && options?.placeHolder) ? options.placeHolder : html`${repeat(subItems, (item) => item._ref.id, (item, index) => render(item, index))}`;
     }
   })());
 };
