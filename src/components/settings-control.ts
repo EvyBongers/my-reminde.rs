@@ -10,7 +10,7 @@ import {doSendNotifications} from "../functions";
 @customElement("settings-control")
 export class SettingsControl extends LitElement {
   @property()
-  userId: string;
+  accountId: string;
 
   @property()
   pushNotificationsEnabled: boolean;
@@ -50,7 +50,7 @@ export class SettingsControl extends LitElement {
   }
 
   private async sendNotification(_: Event) {
-    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.userId}/reminders`).next()).value;
+    let reminders = (await loadCollection<ReminderDocument>(`accounts/${this.accountId}/reminders`).next()).value;
     try {
       let reminderDocuments = reminders as ReminderDocument[];
       let selectedReminder: ReminderDocument;
@@ -58,6 +58,7 @@ export class SettingsControl extends LitElement {
       let dialog = document.createElement("confirm-dialog");
       dialog.setAttribute("confirmLabel", "Send");
       dialog.setAttribute("cancelLabel", "Cancel");
+      dialog.toggleAttribute("open", true);
       render(html`
         <span>Reminder to send:</span>
         <br>
