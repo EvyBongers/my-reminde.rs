@@ -160,6 +160,10 @@ export class ReminderEdit extends LitElement {
                         this.item.type = (_.currentTarget as HTMLSelectElement).value;
                         this.requestUpdate("item", oldItem);
                       }}"
+                      @opening="${(ev: Event) => ev.stopPropagation()}"
+                      @opened="${(ev: Event) => ev.stopPropagation()}"
+                      @closing="${(ev: Event) => ev.stopPropagation()}"
+                      @closed="${(ev: Event) => ev.stopPropagation()}"
                       .value="${this.item?.type ?? ""}">
             <mwc-list-item graphic="icon" value="cron">Cron schedule</mwc-list-item>
           </mwc-select>
