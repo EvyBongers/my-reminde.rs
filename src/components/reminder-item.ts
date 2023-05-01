@@ -102,6 +102,7 @@ export class ReminderItem extends Rippling(LitElement) {
       this.expanded = !this.expanded;
     });
     this.updateComplete.then(() => {
+      this.shouldRipple = !(this.deleting || this.editing);
       this.editDialog.item = structuredClone(this.item);
 
       this.deleteDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
