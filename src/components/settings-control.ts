@@ -6,10 +6,8 @@ import {ReminderDocument} from "../../firebase/functions/src";
 import {SingleSelectedEvent} from "@material/mwc-list";
 import {showMessage} from "../helpers/Snacks";
 import {doSendNotifications} from "../functions";
-import {routeTarget} from "../helpers/Decorators";
 
 @customElement("settings-control")
-@routeTarget
 export class SettingsControl extends LitElement {
   @property()
   userId: string;

@@ -8,10 +8,8 @@ import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {NotificationDocument} from "../../firebase/functions/src"
 import {NotificationItem} from "./notification-item";
 import "./notification-item";
-import {routeTarget} from "../helpers/Decorators";
 
 @customElement("notification-list")
-@routeTarget
 export class NotificationList extends BunnyElement {
   @property()
   notifications: DataCollectionSupplier<NotificationDocument>;
