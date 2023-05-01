@@ -1,4 +1,4 @@
-import {TemplateResult} from "lit";
+import {html, TemplateResult} from "lit";
 import {asyncReplace} from "lit/directives/async-replace.js";
 
 export type renderOptions = {
@@ -20,8 +20,8 @@ export const navigate = (
   return defaultCase;
 };
 
-export const renderItems = (items: AsyncGenerator<any[]>, render: (item: any, index: number) => any, options?: renderOptions | any) => {
-  if (!items) return options?.loading ? options.loading : options;
+export const renderItems = (items: AsyncGenerator<any[]>, render: (item: any, index: number) => any, options?: renderOptions) => {
+  if (!items && options?.loading) return options.loading;
 
   return asyncReplace((async function* () {
     for await(let subItems of items) {
@@ -30,8 +30,8 @@ export const renderItems = (items: AsyncGenerator<any[]>, render: (item: any, in
   })());
 };
 
-export const renderItem = (items: AsyncGenerator<any>, render: (item: any) => any, options?: renderOptions | any) => {
-  if (!items) return options?.loading ? options.loading : options;
+export const renderItem = (items: AsyncGenerator<any>, render: (item: any) => any, options?: renderOptions) => {
+  if (!items && options?.loading) return options.loading;
 
   return asyncReplace((async function* () {
     for await(let item of items) {
