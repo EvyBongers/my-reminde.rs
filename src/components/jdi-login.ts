@@ -1,14 +1,13 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {login} from "../auth";
-import {routeTarget, toastWrapper} from "../helpers/Decorators";
+import {toastWrapper} from "../helpers/Decorators";
 import "@material/mwc-button";
 import "@material/mwc-textfield";
 import "@material/mwc-icon"
 import "./jdi-form";
 
 @customElement("jdi-login")
-@routeTarget
 export class JDILogin extends LitElement {
   @property()
   username: string = "";

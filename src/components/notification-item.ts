@@ -78,9 +78,9 @@ export class NotificationItem extends Rippling(LitElement) {
   constructor() {
     super();
 
-    this.shouldRipple = !this.open;
     this.addEventListener('click', () => this.dialog.show());
     this.updateComplete.then(() => {
+      this.shouldRipple = !this.open;
       this.dialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
       this.dialog.addEventListener("opening", (ev: CustomEvent) => this.dialogStateChanged.call(this, ev));
       this.dialog.addEventListener("closing", (ev: CustomEvent) => this.dialogClosing.call(this, ev));

@@ -59,9 +59,6 @@ export class ReminderEdit extends LitElement {
   constructor() {
     super();
 
-    this.hasLink = this.item?.link != undefined;
-    this.calculatedNextSend = calculateNextSend(this.item);
-
     this.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
     this.updateComplete.then(() => {
       this.dialog.addEventListener("opening", () => this.dispatchEvent(this._opening));
@@ -72,6 +69,11 @@ export class ReminderEdit extends LitElement {
 
   protected updated(_changedProperties: PropertyValues) {
     super.updated(_changedProperties);
+
+    if(_changedProperties.has("item")) {
+      this.hasLink = this.item?.link != undefined;
+      this.calculatedNextSend = calculateNextSend(this.item);
+    }
 
     this.textFieldSchedule.then((textField: TextField | null) => {
       if (!textField) return;

@@ -19,8 +19,8 @@ import "./components/nav-bar";
 import "./components/notification-list";
 import "./components/reminder-list";
 import "./components/settings-control";
-import "./components/slotted-content";
 import {NavItem} from "./components/nav-bar";
+import {navigate} from "./helpers/Rendering";
 
 export type Route = {
   route: string
@@ -200,17 +200,17 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`)}
 
         <main>
-          <jdi-login ?active="${this.route === "login"}"></jdi-login>
-          <reminder-list ?active="${this.route === "reminders"}" .collection="notifications" .accountId="${this.userId}"
-                         .selectedId="${this.data?.reminderId}" .action="${this.data?.reminderAction}"></reminder-list>
-          <settings-control ?active="${this.route === "settings"}" .accountId="${this.userId}"></settings-control>
-          <notification-list ?active="${this.route === "notifications"}" .collection="notifications"
-                             .accountId="${this.userId}" .selectedId="${this.data?.notificationId}"></notification-list>
-          <jdi-devices ?active="${this.route === "devices"}" .accountId="${this.userId}"></jdi-devices>
-          <slotted-content ?active="${this.route === "404"}">
+          ${navigate(this.route, [
+            ["login", html`<jdi-login></jdi-login>`],
+            ["reminders", html`<reminder-list .collection="notifications" .accountId="${this.userId}" .selectedId="${this.data?.reminderId}" .action="${this.data?.reminderAction}"></reminder-list>`],
+            ["settings", html`<settings-control .accountId="${this.userId}"></settings-control>`],
+            ["notifications", html`<notification-list .collection="notifications" .accountId="${this.userId}" .selectedId="${this.data?.notificationId}"></notification-list>`],
+            ["devices", html`<jdi-devices .accountId="${this.userId}"></jdi-devices>`],
+            ], html`
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
-          </slotted-content>
+            `
+          )}
         </main>
         ${when(this.userId, () => html`${this.renderNav()}`)}
       </mwc-top-app-bar-fixed>

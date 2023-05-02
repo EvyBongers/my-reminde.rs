@@ -6,10 +6,8 @@ import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
 import {disablePushNotifications} from "../messaging";
 import "@material/mwc-icon-button";
-import {routeTarget} from "../helpers/Decorators";
 
 @customElement("jdi-devices")
-@routeTarget
 export class JDIDevices extends BunnyElement {
   @property()
   account: DataSupplier<any>;
