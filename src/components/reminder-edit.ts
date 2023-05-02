@@ -1,8 +1,12 @@
+import {DocumentReference} from "firebase/firestore";
 import {css, html, LitElement, PropertyValues} from "lit";
 import {choose} from "lit/directives/choose.js";
 import {keyed} from 'lit/directives/keyed.js';
 import {when} from "lit/directives/when.js";
 import {customElement, property, query, state} from "lit/decorators.js";
+import {Dialog} from "@material/mwc-dialog";
+import {TextField} from "@material/mwc-textfield";
+import {Select} from "@material/mwc-select";
 import "@material/mwc-checkbox";
 import "@material/mwc-dialog";
 import "@material/mwc-icon";
@@ -12,20 +16,12 @@ import "@material/mwc-ripple";
 import "@material/mwc-select";
 import {addDocByRef, setDocByRef} from "../db";
 import {calculateNextSend} from "../helpers/Scheduling";
-import {ReminderDocument} from "../../firebase/functions/src";
 import {toastWrapper} from "../helpers/Decorators";
-import {Dialog} from "@material/mwc-dialog";
-import {TextField} from "@material/mwc-textfield";
-import {Select} from "@material/mwc-select";
+import {ReminderDocument} from "../../firebase/functions/src";
 
 @customElement("reminder-edit")
 export class ReminderEdit extends LitElement {
-  private _save: Event = new Event("save");
-  private _cancel: Event = new Event("cancel");
-  private _closed: Event = new Event("closed");
-  private _opening: Event = new Event("opening");
-
-  private calculatedNextSend : Date;
+  private calculatedNextSend: Date;
 
   @property({type: Boolean, reflect: true})
   open: boolean;
@@ -47,6 +43,9 @@ export class ReminderEdit extends LitElement {
 
   @query("mwc-textfield[name='schedule']")
   private textFieldSchedule: TextField;
+
+  @query("mwc-select, mwc-textfield")
+  private formFields: (Select | TextField)[];
 
   @state()
   private hasLink: boolean;
@@ -76,14 +75,19 @@ export class ReminderEdit extends LitElement {
 
     this.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
     this.updateComplete.then(() => {
-      this.dialog.addEventListener("opening", () => this.dispatchEvent(this._opening));
-      this.dialog.addEventListener("closed",  () => this.dispatchEvent(this._closed));
+      this.dialog.addEventListener("opening", (ev: CustomEvent) => this.dispatchEvent(new CustomEvent(ev.type)));
+      this.dialog.addEventListener("closed", (ev: CustomEvent) => this.dispatchEvent(new CustomEvent(ev.type, {detail: {action: ev.detail.action}})));
       this.dialog.addEventListener("closing", (ev: CustomEvent) => this.dialogClosing.call(this, ev));
 
       this.selectSchedule.addEventListener("opening", (ev: Event) => ev.stopPropagation());
       this.selectSchedule.addEventListener("opened", (ev: Event) => ev.stopPropagation());
       this.selectSchedule.addEventListener("closing", (ev: Event) => ev.stopPropagation());
       this.selectSchedule.addEventListener("closed", (ev: Event) => ev.stopPropagation());
+      this.selectSchedule.addEventListener("selected", () => {
+        let oldItem = {...this.item} as ReminderDocument;
+        this.item.type = this.selectSchedule.value;
+        this.requestUpdate("item", oldItem);
+      });
     });
   }
 
@@ -154,17 +158,7 @@ export class ReminderEdit extends LitElement {
                            @input="${(_: Event) => this.item.link = (_.currentTarget as HTMLInputElement).value}"
                            .value="${this.item?.link ?? ""}"></mwc-textfield>`
           )}
-          <mwc-select name="type" label="Schedule type" icon="event" required
-                      @selected="${(_: Event) => {
-                        let oldItem = {...this.item} as ReminderDocument;
-                        this.item.type = (_.currentTarget as HTMLSelectElement).value;
-                        this.requestUpdate("item", oldItem);
-                      }}"
-                      @opening="${(ev: Event) => ev.stopPropagation()}"
-                      @opened="${(ev: Event) => ev.stopPropagation()}"
-                      @closing="${(ev: Event) => ev.stopPropagation()}"
-                      @closed="${(ev: Event) => ev.stopPropagation()}"
-                      .value="${this.item?.type ?? ""}">
+          <mwc-select name="type" label="Schedule type" icon="event" required .value="${this.item?.type ?? ""}">
             <mwc-list-item graphic="icon" value="cron">Cron schedule</mwc-list-item>
           </mwc-select>
           ${choose(this.item?.type, [
@@ -182,14 +176,15 @@ export class ReminderEdit extends LitElement {
   }
 
   dialogClosing(ev: CustomEvent) {
-    this.open = false;
     switch (ev.detail.action) {
       case "save":
-        this.save();
-        this.dispatchEvent(this._save);
+        this.save().then((ref: DocumentReference) => {
+          if(!ref) return
+          this.dispatchEvent(new CustomEvent("saved"));
+        });
         break;
       case "cancel":
-        this.dispatchEvent(this._cancel);
+        this.dispatchEvent(new CustomEvent("cancel"));
         break;
       case "close":
         // default action
@@ -197,6 +192,7 @@ export class ReminderEdit extends LitElement {
       default:
         console.log(`Unknown action: ${ev.detail.action}`)
     }
+    this.open = false;
   }
 
   clear() {
@@ -213,13 +209,15 @@ export class ReminderEdit extends LitElement {
     progressMessage: "Saving...",
     failedMessage: "Failed to save reminder: {{e}}",
   })
-  async save() {
+  async save(): Promise<DocumentReference> {
+    this.dialog.close();
     this.item.cronExpression = this.item.cronExpression.trim();
     if (this.documentRef) {
-      setDocByRef(this.documentRef, this.item, {merge: true});
+      await setDocByRef(this.documentRef, this.item, {merge: true});
+      return this.documentRef;
     } else {
       this.item.enabled = true;
-      addDocByRef(this.collectionRef, this.item);
+      return await addDocByRef(this.collectionRef, this.item);
     }
   }
 }
