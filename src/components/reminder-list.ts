@@ -9,6 +9,7 @@ import "./reminder-item";
 import "./reminder-edit";
 import {ReminderItem} from "./reminder-item";
 import {ReminderEdit} from "./reminder-edit";
+import {RouteEvent} from "../jdi-app";
 
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
@@ -69,6 +70,8 @@ export class ReminderList extends BunnyElement {
     super();
     this.updateComplete.then(() => {
       this.newReminderDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+      this.newReminderDialog.addEventListener("opening", (ev: CustomEvent) => this.newReminderDialogStateChanged.call(this, ev));
+      this.newReminderDialog.addEventListener("closed", (ev: CustomEvent) =>  this.newReminderDialogStateChanged.call(this, ev));
     });
   }
 
@@ -106,6 +109,21 @@ export class ReminderList extends BunnyElement {
     this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId.after}/reminders`);
     if (this.newReminderDialog) {
       this.newReminderDialog.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/reminders`);
+    }
+  }
+
+  newReminderDialogStateChanged(ev: CustomEvent) {
+    ev.stopPropagation();
+    this.action = (ev.type === "opening") ? "create" : undefined;
+    this.selectedId = (ev.type === "opening") ? "_" : undefined;
+    if (ev.type === "opening") {
+      this.newReminderDialog.clear();
+    }
+
+    let url = ["/reminders", this.selectedId, this.action].filter(value => value != undefined).join("/");
+    if (window.location.pathname !== url) {
+      let routeEvent = new RouteEvent("route", {detail: {url: url,}})
+      window.dispatchEvent(routeEvent);
     }
   }
 
