@@ -1,8 +1,8 @@
 import {parseExpression} from "cron-parser-all";
 import {ReminderDocument} from "../../firebase/functions/src";
 
-export const calculateNextSend = (notification: ReminderDocument) => {
-    if (notification === undefined) return
+export const calculateNextSend = (notification: Partial<ReminderDocument>) => {
+    if (notification === undefined || notification.type === undefined) return
 
     switch (notification.type) {
         case "cron": {
@@ -13,7 +13,7 @@ export const calculateNextSend = (notification: ReminderDocument) => {
         }
         default: {
             console.log(`Unknown notification type ${notification.type} on document ${notification.ref}`);
-            return null;
+            return;
         }
     }
 };
