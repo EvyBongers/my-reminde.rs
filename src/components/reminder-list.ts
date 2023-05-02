@@ -1,5 +1,5 @@
 import {css, html} from "lit";
-import {customElement, property} from "lit/decorators.js";
+import {customElement, property, query} from "lit/decorators.js";
 import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
@@ -8,6 +8,8 @@ import {ReminderDocument} from "../../firebase/functions/src"
 import "./reminder-item";
 import "./reminder-edit";
 import {ReminderItem} from "./reminder-item";
+import {ReminderEdit} from "./reminder-edit";
+import {RouteEvent} from "../jdi-app";
 
 @customElement("reminder-list")
 export class ReminderList extends BunnyElement {
@@ -22,6 +24,9 @@ export class ReminderList extends BunnyElement {
 
   @property({type: String})
   action: string;
+
+  @query("reminder-edit")
+  newReminderDialog: ReminderEdit;
 
   static override styles = css`
     :host {
@@ -61,6 +66,15 @@ export class ReminderList extends BunnyElement {
     }
   `;
 
+  constructor() {
+    super();
+    this.updateComplete.then(() => {
+      this.newReminderDialog.addEventListener("click", (ev: MouseEvent) => ev.stopPropagation());
+      this.newReminderDialog.addEventListener("opening", (ev: CustomEvent) => this.newReminderDialogStateChanged.call(this, ev));
+      this.newReminderDialog.addEventListener("closed", (ev: CustomEvent) =>  this.newReminderDialogStateChanged.call(this, ev));
+    });
+  }
+
   override render() {
     return html`
       <h2>Reminders</h2>
@@ -74,6 +88,7 @@ export class ReminderList extends BunnyElement {
       </div>
 
       <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>
+      <reminder-edit .open="${this.selectedId === "_" && this.action === "create"}"></reminder-edit>
     `;
   }
 
@@ -90,18 +105,30 @@ export class ReminderList extends BunnyElement {
   }
 
   @observe("accountId")
-  accountChanged(accountId: ChangedProperty<string>) {
+  async accountChanged(accountId: ChangedProperty<string>) {
     this.reminders = loadCollection<ReminderDocument>(`accounts/${accountId.after}/reminders`);
+    if (this.newReminderDialog) {
+      this.newReminderDialog.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/reminders`);
+    }
+  }
+
+  newReminderDialogStateChanged(ev: CustomEvent) {
+    ev.stopPropagation();
+    this.action = (ev.type === "opening") ? "create" : undefined;
+    this.selectedId = (ev.type === "opening") ? "_" : undefined;
+    if (ev.type === "opening") {
+      this.newReminderDialog.clear();
+    }
+
+    let url = ["/reminders", this.selectedId, this.action].filter(value => value != undefined).join("/");
+    if (window.location.pathname !== url) {
+      let routeEvent = new RouteEvent("route", {detail: {url: url,}})
+      window.dispatchEvent(routeEvent);
+    }
   }
 
   public async addNotification(_: Event) {
-    let notification = document.createElement("reminder-edit");
-    notification.collectionRef = await getCollectionByPath(`accounts/${this.accountId}/reminders`);
-    notification.addEventListener("closed", (ev: CustomEvent) => {
-      this.shadowRoot.removeChild(notification);
-    });
-
-    this.shadowRoot.append(notification);
+    this.newReminderDialog.show();
   }
 }
 

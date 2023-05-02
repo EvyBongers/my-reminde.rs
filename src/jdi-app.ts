@@ -1,6 +1,7 @@
 import {onAuthStateChanged, User} from "firebase/auth";
 import {css, html, LitElement, TemplateResult} from "lit";
 import {customElement, property, state} from "lit/decorators.js";
+import {guard} from 'lit/directives/guard.js';
 import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
@@ -200,7 +201,7 @@ export class JDIApp extends LitElement {
         ${when(this.userId, () => html`${this.renderAppBarButtons()}`)}
 
         <main>
-          ${navigate(this.route, [
+          ${guard([this.route], () => navigate(this.route, [
             ["login", html`<jdi-login></jdi-login>`],
             ["reminders", html`<reminder-list .collection="notifications" .accountId="${this.userId}" .selectedId="${this.data?.reminderId}" .action="${this.data?.reminderAction}"></reminder-list>`],
             ["settings", html`<settings-control .accountId="${this.userId}"></settings-control>`],
@@ -210,7 +211,7 @@ export class JDIApp extends LitElement {
             <h1>Oops!</h1>
             <p>No idea how we ended up here, but I don't know what to show.</p>
             `
-          )}
+          ))}
         </main>
         ${when(this.userId, () => html`${this.renderNav()}`)}
       </mwc-top-app-bar-fixed>
