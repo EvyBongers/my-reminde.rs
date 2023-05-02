@@ -195,6 +195,11 @@ export class ReminderEdit extends LitElement {
     }
   }
 
+  clear() {
+    this.item = {} as ReminderDocument;
+    this.hasLink = false;
+  }
+
   show() {
     this.open = true;
   }
