@@ -169,7 +169,7 @@ export class ReminderEdit extends LitElement {
             `],
           ])}
         </main>
-        <mwc-button slot="primaryAction" dialogAction="save">Save</mwc-button>
+        <mwc-button slot="primaryAction" @click="${this.validate}">Save</mwc-button>
         <mwc-button slot="secondaryAction" dialogAction="close">Cancel</mwc-button>
       </mwc-dialog>
     `;
@@ -202,6 +202,16 @@ export class ReminderEdit extends LitElement {
 
   show() {
     this.open = true;
+  }
+
+  validate() {
+    if (!this.formFields.some((field) => {
+      let isValid = field.checkValidity();
+      if (!isValid) field.reportValidity();
+      return isValid;
+    }, this)) return;
+
+    this.save();
   }
 
   @toastWrapper({
