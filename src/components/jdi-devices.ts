@@ -6,6 +6,8 @@ import {getDeviceId} from "../helpers/Device";
 import {renderItem} from "../helpers/Rendering";
 import {disablePushNotifications} from "../messaging";
 import "@material/mwc-icon-button";
+import {when} from "lit/directives/when.js";
+import {map} from "lit/directives/map.js";
 
 @customElement("jdi-devices")
 export class JDIDevices extends BunnyElement {
@@ -117,10 +119,19 @@ export class JDIDevices extends BunnyElement {
     return html`
       <h2>Subscribed devices</h2>
       <div class="devices-list">
-        ${renderItem(this.account, item => html`
-          ${Object.entries(item.devices).sort((a: [string, any], b: [string, any]) => a[1].name.localeCompare(b[1].name)).map(([key, value]) => this.renderDevice(key, value))}
-        `, html`
-          <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
+        ${renderItem(this.account, item => {
+          return html`
+            ${when(Object.keys(item?.devices)?.length > 0,
+                () => html`${map(
+                  Object.entries(item.devices)?.sort((a: [string, any], b: [string, any]) => a[1].name.localeCompare(b[1].name)),
+                  ([key, value]) => this.renderDevice(key, value)
+                  )}`,
+                () => html`No subscribed devices`
+            )}`
+        }, {
+          loading: html`
+            <mwc-circular-progress indeterminate></mwc-circular-progress>`
+        })}
       </div>
     `;
   }

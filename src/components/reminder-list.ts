@@ -1,6 +1,7 @@
 import {css, html} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
 import "@material/mwc-circular-progress";
+import "@material/mwc-icon";
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
@@ -83,8 +84,8 @@ export class ReminderList extends BunnyElement {
           <reminder-item id="${item._ref.id}" .item="${item}"
                          ?delete="${item._ref.id === this.selectedId && this.action === "delete"}"
                          ?edit="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
-        `, html`
-          <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
+        `, {loading: html`
+          <mwc-circular-progress indeterminate></mwc-circular-progress>`, placeHolder: html`<span>Click the <mwc-icon>alarm_add</mwc-icon> button below to create your first reminder</span>`})}
       </div>
 
       <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>

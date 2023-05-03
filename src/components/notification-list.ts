@@ -64,8 +64,8 @@ export class NotificationList extends BunnyElement {
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
           <notification-item id="${item._ref.id}" .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
-        `, html`
-          <mwc-circular-progress indeterminate></mwc-circular-progress>`)}
+        `, {loading: html`
+          <mwc-circular-progress indeterminate></mwc-circular-progress>`, placeHolder: html`No open notifications`})}
       </div>
     `;
   }
