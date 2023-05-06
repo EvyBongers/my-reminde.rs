@@ -226,7 +226,7 @@ export class JDIApp extends LitElement {
     this.routing(appPath, {inPlace: true});
 
     onAuthStateChanged(auth, (user) => {
-      let shouldReroute = this.userId !== user?.uid;
+      let shouldReroute = this.userId !== user?.uid || (!user?.uid && window.location.pathname !== "/login");
       this.user = user;
 
       if (!shouldReroute) return
