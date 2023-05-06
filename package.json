@@ -2,19 +2,20 @@
   "name": "my-reminde.rs",
   "main": "index.js",
   "scripts": {
-    "firebase": "cd firebase && firebase",
+    "firebase": "cd firebase && npx firebase",
     "setup": "tmux new-session -d -s packages pnpm install; tmux split-window -v pnpm run functions-npm install; tmux attach-session -t packages",
     "update": "tmux new-session -d -s packages pnpm update; tmux split-window -v pnpm run functions-npm update; tmux attach-session -t packages",
     "upgrade": "tmux new-session -d -s packages pnpm update --latest; tmux split-window -v pnpm run functions-npm update --latest; tmux attach-session -t packages",
     "devserver": "pnpm webpack serve --config webpack.dev.js",
     "emulator": "pnpm run firebase emulators:start --export-on-exit .firestore-data --import .firestore-data --inspect-functions",
-    "functions": "cd ./firebase/functions && npm run build",
+    "functions": "cd ./firebase/functions && npm run build --",
     "build": "pnpm webpack build --config webpack.prod.js & pnpm run functions & wait",
     "deploy": "pnpm run build && pnpm run firebase deploy"
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
     "firebase": "^9.19.1",
+    "firebase-tools": "^11.30.0",
     "html-webpack-plugin": "^5.5.1",
     "ts-loader": "^9.4.2",
     "typescript": "^5.0.4",
