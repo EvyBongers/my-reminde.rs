@@ -143,13 +143,15 @@ export class JDIDevices extends BunnyElement {
 
   private async unsubscribeDevice(e: Event) {
     e.stopPropagation();
-    (e.target as HTMLElement).blur()
+    (e.target as HTMLElement).blur();
 
     const eventDataset = (e.currentTarget as HTMLElement | LitElement).dataset;
+    // TODO?: make the dialog part of the DOM
     let dialog = document.createElement("confirm-dialog");
     dialog.append(`Are you sure you want to disable reminders for ${eventDataset.deviceName}?`);
     dialog.setAttribute("confirmLabel", "Confirm");
     dialog.setAttribute("cancelLabel", "Cancel");
+    dialog.toggleAttribute("open", true);
     dialog.addEventListener("confirm", _ => {
       disablePushNotifications(eventDataset.deviceId);
     });
