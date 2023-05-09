@@ -1,3 +1,7 @@
+# Certeficates and keys
+*.pem
+*.key
+
 # Logs
 logs
 *.log
