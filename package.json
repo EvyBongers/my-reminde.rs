@@ -3,9 +3,9 @@
   "main": "index.js",
   "scripts": {
     "firebase": "cd firebase && npx firebase",
-    "setup": "tmux new-session -d -s packages pnpm install; tmux split-window -v pnpm run functions-npm install; tmux attach-session -t packages",
-    "update": "tmux new-session -d -s packages pnpm update; tmux split-window -v pnpm run functions-npm update; tmux attach-session -t packages",
-    "upgrade": "tmux new-session -d -s packages pnpm update --latest; tmux split-window -v pnpm run functions-npm update --latest; tmux attach-session -t packages",
+    "setup": "tmux new-session -d -s packages pnpm install; tmux split-window -v 'cd ./firebase/functions && npm install'; tmux attach-session -t packages",
+    "update": "tmux new-session -d -s packages pnpm update; tmux split-window -v 'cd ./firebase/functions && npm update'; tmux attach-session -t packages",
+    "upgrade": "tmux new-session -d -s packages pnpm update --latest; tmux split-window -v 'cd ./firebase/functions && npm update --latest'; tmux attach-session -t packages",
     "devserver": "pnpm webpack serve --config webpack.dev.js",
     "emulator": "pnpm run firebase emulators:start --export-on-exit .firestore-data --import .firestore-data --inspect-functions",
     "functions": "cd ./firebase/functions && npm run build --",
