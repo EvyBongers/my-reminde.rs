@@ -3,7 +3,7 @@
   "short_name": "Reminde.rs",
   "description": "The #1 reminders app that gives you all the flexibility you need",
   "scope": "/",
-  "start_url": "/",
+  "start_url": "/reminders",
   "display": "standalone",
   "orientation": "natural",
   "theme_color": "#6200ee",
