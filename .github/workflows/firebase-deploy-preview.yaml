@@ -17,10 +17,25 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 18.x
-      - run: |
+      - name: dependencies
+        run: |
           pnpm install
           cd firebase/functions
           npm install
+      - name: update webmanifest and logos
+        shell: bash
+        run: |
+          jq '.short_name |= . + " PR#${{github.event.pull_request.number}}"' src/reminders-app.webmanifest > src/reminders-app.webmanifest.preview
+          mv src/reminders-app.webmanifest.preview src/reminders-app.webmanifest
+          convert src/images/icon-512x512.png \
+            -fill "#bd0a88" -family "DejaVu Sans" \
+            -pointsize 32 -draw 'gravity North text 0,24 "PR#${{github.event.pull_request.number}}"' \
+            -pointsize 20 -draw 'gravity SouthWest text 40,48 "${{github.event.pull_request.title}}"' \
+            src/images/icon-512x512.png
+
+          convert src/images/icon-512x512.png -resize 384x384 src/images/icon-384x384.png
+          convert src/images/icon-512x512.png -resize 256x256 src/images/icon-256x256.png
+          convert src/images/icon-512x512.png -resize 192x192 src/images/icon-192x192.png
       - run: pnpm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
