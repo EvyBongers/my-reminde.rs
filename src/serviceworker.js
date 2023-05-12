@@ -108,5 +108,7 @@ self.addEventListener('notificationclick', (ev) => {
     }
   });
 
-  event.notification.close();
+  if (!ev.action) {
+    ev.notification.close();
+  }
 });
