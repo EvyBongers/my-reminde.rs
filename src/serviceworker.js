@@ -79,31 +79,34 @@ async function doFetch(event) {
   }
 }
 
-self.addEventListener('notificationclick', (event) => {
-  console.log("Notification click registered", event);
-  let data = event.notification.data.FCM_MSG?.data ?? event.notification.data;
-  let url = event.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
+self.addEventListener('notificationclick', (ev) => {
+  ev.waitUntil(async () => {
+    let data = ev.notification.data.FCM_MSG?.data ?? ev.notification.data;
+    let url = ev.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
 
-  for (let _type of ["window", "worker", "sharedworker", "all"]) {
-    for (let _includeUncontrolled of [false, true]) {
-      let options = {
-        type: _type,
-        includeUncontrolled: _includeUncontrolled,
-      }
-      console.log("Options:", options);
-      self.clients.matchAll(options).then((clientList) => {
-        console.log("Matching clients:", clientList);
-        // for (const client of clientList) {
-        //   if (client.url === "index.html") {
-        //     clients.openWindow(client);
-        //     // or do something else involving the matching client
-        //   }
-        // }
-      });
+    let windowClients = await self.clients.matchAll({type: "window"});
+
+    // Look for any window that matches the targeted URL or host
+    let client = windowClients.reduce((client, current) => {
+      if (client?.url === url) return client;
+      else if (current?.url === url) return current;
+      else if ((new URL(current?.url)).host == location.host) return current;
+      else return client;
+    });
+
+    // If none are found, open a new tab to the applicable URL and focus it
+    if (client === undefined) {
+      client = await self.clients.openWindow(url);
     }
-  }
+    // Otherwise, navigate to the correct url
+    else if (client.url !== url) {
+      await client.navigate(url);
+    }
 
-  console.log(`Opening url: ${url}`);
-  self.clients.openWindow(url);
+    if (client) {
+      client.focus();
+    }
+  });
+
   event.notification.close();
 });
