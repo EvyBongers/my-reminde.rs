@@ -106,4 +106,8 @@ self.addEventListener('notificationclick', (event) => {
   console.log(`Opening url: ${url}`);
   self.clients.openWindow(url);
   event.notification.close();
+
+  if (!ev.action) {
+    ev.notification.close();
+  }
 });
