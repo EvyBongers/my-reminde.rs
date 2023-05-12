@@ -34,10 +34,10 @@ self.addEventListener('activate', (event) => {
     if ('navigationPreload' in self.registration) {
       await self.registration.navigationPreload.enable();
     }
-  });
 
-  // Tell the active service worker to take control of the page immediately.
-  self.clients.claim();
+    // Tell the active service worker to take control of the page immediately.
+    await self.clients.claim();
+  });
 });
 
 self.addEventListener('fetch', (event) => {
