@@ -1,5 +1,6 @@
 import {initializeApp} from "https://www.gstatic.com/firebasejs/__FIREBASE_SDK_VERSION__/firebase-app.js";
 import {getMessaging} from "https://www.gstatic.com/firebasejs/__FIREBASE_SDK_VERSION__/firebase-messaging.js";
+import {deleteDoc, doc, getFirestore} from "https://www.gstatic.com/firebasejs/__FIREBASE_SDK_VERSION__/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAQeo7TxkZXoPZlB31rnbdJ4YK6J9l3lHY",
@@ -15,6 +16,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // Initialize Firebase Cloud Messaging and get a reference to the service
 const messaging = getMessaging(app);
+const db = getFirestore(app);
 
 // Incrementing OFFLINE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
@@ -82,7 +84,17 @@ async function doFetch(event) {
 self.addEventListener('notificationclick', (ev) => {
   ev.waitUntil(async () => {
     let data = ev.notification.data.FCM_MSG?.data ?? ev.notification.data;
-    let url = ev.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
+    let notificationDocPath = data.notification;
+    let notificationId = data.notification.split("/").reverse()[0];
+
+    let url = ev.action || `${location.protocol}//${location.host}/notifications/${notificationId}`;
+
+    if (url === notificationDocPath) {
+      let docRef = doc(db, notificationDocPath);
+      await deleteDoc(docRef);
+      ev.notification.close();
+      return;
+    }
 
     let windowClients = await self.clients.matchAll({type: "window"});
 
