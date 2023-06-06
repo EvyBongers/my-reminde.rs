@@ -126,11 +126,22 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
   for (let account of accounts.docs) {
     let accountData = account.data() as AccountDocument;
     let tokens = getPushTokens(accountData);
+    let actions: {title:string, action:string, icon?:string}[] = [{
+      title: "Delete",
+      action: snapshot.ref.path,
+    }];
+    if (notificationData.link) {
+      actions.splice(0, 0, {
+        title: "Open",
+        action: notificationData.link,
+        icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAx0lEQVR4Ae2ZsRGDMBTFuKyRDMIiDJgCNoMqmYACfu/KqBDcPd291kgFjT3cmhBC+NSW2lY7Lq2Fn9Mh/wcf1AMWLu8GrI8O6D6AM9V2PwDK3yoAyO9+AJOf/AAmP/gBQN4PAPJ+AJAXA7i8GMDl7QAuDwABXF4N4PJ+AJf3A7i88RNzeT+Ay/sBXN4P4PJ+wMjk/YBX7QvktYAmAshbAU3ECGTNAEACEgBIALjcFbby63V3M3/g8ParvYUnJrytNnfIhxCCwAnGmUVXQgo6RQAAAABJRU5ErkJggg==",
+      });
+    }
     let batchResponse = await messaging.sendMulticast({
       webpush: {
         data: {
-          notificationId: snapshot.ref.id,
-          reminderId: notificationData.reminderRef.id,
+          notification: snapshot.ref.path,
+          reminder: notificationData.reminderRef.path,
           link: notificationData.link,
         },
         headers: {
@@ -140,13 +151,7 @@ export const sendNotifications = functions.firestore.document("/accounts/{accoun
           Topic: notificationData.reminderRef.id,
         },
         notification: {
-          actions: notificationData.link ? [
-            {
-              title: "Open",
-              action: notificationData.link,
-              icon: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAx0lEQVR4Ae2ZsRGDMBTFuKyRDMIiDJgCNoMqmYACfu/KqBDcPd291kgFjT3cmhBC+NSW2lY7Lq2Fn9Mh/wcf1AMWLu8GrI8O6D6AM9V2PwDK3yoAyO9+AJOf/AAmP/gBQN4PAPJ+AJAXA7i8GMDl7QAuDwABXF4N4PJ+AJf3A7i88RNzeT+Ay/sBXN4P4PJ+wMjk/YBX7QvktYAmAshbAU3ECGTNAEACEgBIALjcFbby63V3M3/g8ParvYUnJrytNnfIhxCCwAnGmUVXQgo6RQAAAABJRU5ErkJggg==",
-            },
-          ] : [],
+          actions: actions,
           body: notificationData.body,
           renotify: true,
           requireInteraction: true,
