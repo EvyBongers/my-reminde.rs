@@ -15,7 +15,16 @@ async function updateDevice(deviceId: string, deviceProperties: any) {
   });
 }
 
+async function getNotificationPermission() {
+  if (!("Notification" in window) || Notification.permission === "denied") return false;
+  if (Notification.permission === "granted") return true;
+  // TODO: inform the user of upcoming permission prompt
+  return (await Notification.requestPermission() === "granted");
+}
+
 export async function enablePushNotifications() {
+  if (await getNotificationPermission() === false) return
+
   let serviceWorkerRegistration = await navigator.serviceWorker.getRegistration("/");
   let token = await getToken(messaging, {vapidKey: vapidKey, serviceWorkerRegistration: serviceWorkerRegistration})
   if (token) {
