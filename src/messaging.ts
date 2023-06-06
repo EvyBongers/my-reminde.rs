@@ -5,6 +5,7 @@ import {getDeviceId, getDeviceName} from "./helpers/Device";
 import {firestoreDelete} from "./db";
 
 const messaging = getMessaging(firebaseApp);
+const vapidKey = "BCTIaBwvVZY39ljNxvu9x18LcvqROlScyxIdqwUnVPsaMbxVG9INvKFHrXy4lldPoC-sLZo1TSA2xC8XeBKx_ug";
 
 async function updateDevice(deviceId: string, deviceProperties: any) {
   await updateAccount({
@@ -16,8 +17,7 @@ async function updateDevice(deviceId: string, deviceProperties: any) {
 
 export async function enablePushNotifications() {
   let serviceWorkerRegistration = await navigator.serviceWorker.getRegistration("/");
-  let token = await getToken(messaging, {vapidKey: "", serviceWorkerRegistration: serviceWorkerRegistration})
-
+  let token = await getToken(messaging, {vapidKey: vapidKey, serviceWorkerRegistration: serviceWorkerRegistration})
   if (token) {
     let deviceName = getDeviceName();
     if (!deviceName) return;
