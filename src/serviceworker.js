@@ -1,15 +1,20 @@
-/*
-Copyright 2015, 2019 Google Inc. All Rights Reserved.
- Licensed under the Apache License, Version 2.0 (the "License");
- you may not use this file except in compliance with the License.
- You may obtain a copy of the License at
- http://www.apache.org/licenses/LICENSE-2.0
- Unless required by applicable law or agreed to in writing, software
- distributed under the License is distributed on an "AS IS" BASIS,
- WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- See the License for the specific language governing permissions and
- limitations under the License.
-*/
+import {initializeApp} from "https://www.gstatic.com/firebasejs/__FIREBASE_SDK_VERSION__/firebase-app.js";
+import {getMessaging} from "https://www.gstatic.com/firebasejs/__FIREBASE_SDK_VERSION__/firebase-messaging.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAQeo7TxkZXoPZlB31rnbdJ4YK6J9l3lHY",
+  authDomain: "qvyldr.firebaseapp.com",
+  projectId: "qvyldr",
+  storageBucket: "qvyldr.appspot.com",
+  messagingSenderId: "452277637486",
+  appId: "1:452277637486:web:afa0d040adf5c183eef17f",
+  measurementId: "G-HYCWSGGJCF",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+// Initialize Firebase Cloud Messaging and get a reference to the service
+const messaging = getMessaging(app);
 
 // Incrementing OFFLINE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
@@ -67,4 +72,33 @@ self.addEventListener('fetch', (event) => {
       }
     });
   }
+});
+
+self.addEventListener('notificationclick', (event) => {
+  console.log("Notification click registered", event);
+  let data = event.notification.data.FCM_MSG?.data ?? event.notification.data;
+  let url = event.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
+
+  for (let _type of ["window", "worker", "sharedworker", "all"]) {
+    for (let _includeUncontrolled of [false, true]) {
+      let options = {
+        type: _type,
+        includeUncontrolled: _includeUncontrolled,
+      }
+      console.log("Options:", options);
+      self.clients.matchAll(options).then((clientList) => {
+        console.log("Matching clients:", clientList);
+        // for (const client of clientList) {
+        //   if (client.url === "index.html") {
+        //     clients.openWindow(client);
+        //     // or do something else involving the matching client
+        //   }
+        // }
+      });
+    }
+  }
+
+  console.log(`Opening url: ${url}`);
+  self.clients.openWindow(url);
+  event.notification.close();
 });
