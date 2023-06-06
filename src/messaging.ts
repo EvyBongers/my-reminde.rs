@@ -17,16 +17,17 @@ async function updateDevice(deviceId: string, deviceProperties: any) {
 export async function enablePushNotifications() {
   let serviceWorkerRegistration = await navigator.serviceWorker.getRegistration("/");
   let token = await getToken(messaging, {vapidKey: "", serviceWorkerRegistration: serviceWorkerRegistration})
-  console.log(token);
 
-  let deviceName = getDeviceName();
-  if (!deviceName) return;
+  if (token) {
+    let deviceName = getDeviceName();
+    if (!deviceName) return;
 
-  await updateDevice(getDeviceId(), {
-    name: deviceName,
-    token: token,
-    lastSeen: Date.now(),
-  });
+    await updateDevice(getDeviceId(), {
+      name: deviceName,
+      token: token,
+      lastSeen: Date.now(),
+    });
+  }
 }
 
 export async function disablePushNotifications(deviceId?: string) {
