@@ -57,37 +57,38 @@ export class ReminderItem extends Rippling(LitElement) {
       padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
     }
 
-    .notification {
+    .reminder {
       margin-right: 12px;
       margin-top: 12px;
       min-width: 0;
     }
 
-    .notification header h4 {
+    .reminder header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
       margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
-    .notification header:has(~ main) h4 {
+    .reminder header:has(~ main) h4 {
       line-height: 24px;
       padding-bottom: 12px;
     }
 
-    .notification p {
+    .reminder p {
       margin-block-start: 0.5em;
       margin-block-end: 0.5em;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
-    .notification footer {
+    .reminder footer {
       color: rgba(0, 0, 0, 0.54);
       font-size: 0.875rem;
       margin-bottom: 0;
     }
 
-    .notification aside {
+    .reminder aside {
       display: flex;
       flex-direction: row;
       position: absolute;
@@ -126,7 +127,7 @@ export class ReminderItem extends Rippling(LitElement) {
 
   private renderContent() {
     return html`
-      <div class="notification">
+      <div class="reminder">
         <header>
           <h4 id="title">${this.item.title}</h4>
         </header>
