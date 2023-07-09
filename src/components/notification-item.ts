@@ -37,23 +37,36 @@ export class NotificationItem extends Rippling(LitElement) {
       padding: calc((var(--mdc-icon-button-size, 48px) - var(--mdc-icon-size, 24px)) / 2);
     }
 
-    .notification {
+    :host > .notification {
       margin-left: 12px;
       margin-right: 12px;
       margin-top: 12px;
       min-width: 0;
     }
 
-    .notification header h4 {
+    :host > .notification header h4 {
       margin-block-start: 0;
       margin-block-end: 0;
       margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
-    .notification footer {
+    :host > .notification footer {
       color: rgba(0, 0, 0, 0.54);
       font-size: 0.875rem;
       margin-bottom: 0;
+    }
+
+    mwc-dialog > .notification {
+      margin-bottom: -20px;
+    }
+
+    mwc-dialog > .notification p {
+      margin-block-start: 0;
+    }
+
+    mwc-dialog > .notification p.footer {
+      font-size: .85em;
+      margin-block-end: 0;
     }
   `;
 
@@ -81,13 +94,13 @@ export class NotificationItem extends Rippling(LitElement) {
         </footer>
       </div>
       <mwc-dialog heading="${this.item.title}" ?open="${this.open}">
-        <div>
+        <div class="notification">
           <p>${this.item.body}</p>
           ${this.item?.link ? html`
             <p>
               <a href="${this.item.link}">${this.item.link}</a>
             </p>` : nothing}
-          <p>Sent ${this.item.sent.toDate().toLocaleString()}</p>
+          <p class="footer">Sent ${this.item.sent.toDate().toLocaleString()}</p>
         </div>
         <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
       </mwc-dialog>
