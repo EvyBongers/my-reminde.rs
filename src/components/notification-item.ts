@@ -96,15 +96,17 @@ export class NotificationItem extends Rippling(LitElement) {
       <mwc-dialog heading="${this.item.title}" ?open="${this.open}">
         <div class="notification">
           <p>${this.item.body}</p>
-          ${this.item?.link ? html`
-            <p>
-              <a href="${this.item.link}">${this.item.link}</a>
-            </p>` : nothing}
           <p class="footer">Sent ${this.item.sent.toDate().toLocaleString()}</p>
         </div>
+        ${ this.item?.link?html`<mwc-button slot="secondaryAction" @click="${this.openLink}">Open link</mwc-button>`:nothing }
         <mwc-button slot="primaryAction" dialogAction="delete">Delete</mwc-button>
       </mwc-dialog>
     `;
+  }
+
+  openLink(ev:CustomEvent) {
+    ev.stopPropagation();
+    window.open(this.item.link);
   }
 
   dialogClosing(ev: CustomEvent) {
