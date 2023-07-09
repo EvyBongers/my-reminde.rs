@@ -50,28 +50,10 @@ export class NotificationItem extends Rippling(LitElement) {
       margin-right: calc(var(--mdc-icon-size, 24px) * 2 /* Number of action buttons */);
     }
 
-    .notification header:has(~ main) h4 {
-      line-height: 24px;
-      padding-bottom: 12px;
-    }
-
-    .notification p {
-      margin-block-start: 0.5em;
-      margin-block-end: 0.5em;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     .notification footer {
       color: rgba(0, 0, 0, 0.54);
       font-size: 0.875rem;
       margin-bottom: 0;
-    }
-
-    .notification aside {
-      position: absolute;
-      top: 0;
-      right: 0;
     }
   `;
 
