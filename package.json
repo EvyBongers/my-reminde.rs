@@ -4,12 +4,12 @@
   "scripts": {
     "firebase": "cd firebase && npx firebase",
     "mkcert": "mkcert -install && mkcert -cert-file localhost.pem -key-file localhost.key localhost",
-    "setup": "pnpm run mkcert && tmux new-session -d -s packages pnpm install; tmux split-window -v 'cd ./firebase/functions && npm install'; tmux attach-session -t packages",
-    "update": "tmux new-session -d -s packages pnpm update; tmux split-window -v 'cd ./firebase/functions && npm update'; tmux attach-session -t packages",
-    "upgrade": "tmux new-session -d -s packages pnpm update --latest; tmux split-window -v 'cd ./firebase/functions && npm update --latest'; tmux attach-session -t packages",
+    "setup": "pnpm run mkcert && packages pnpm install --recursive",
+    "update": "pnpm update --recursive",
+    "upgrade": "pnpm update --recursive --latest",
     "devserver": "pnpm webpack serve --config webpack.dev.js",
     "emulator": "pnpm run firebase emulators:start --export-on-exit .firestore-data --import .firestore-data --inspect-functions",
-    "functions": "cd ./firebase/functions && npm run build --",
+    "functions": "cd ./firebase/functions && pnpm run build --",
     "build": "pnpm webpack build --config webpack.prod.js & pnpm run functions & wait",
     "deploy": "pnpm run build && pnpm run firebase deploy"
   },
