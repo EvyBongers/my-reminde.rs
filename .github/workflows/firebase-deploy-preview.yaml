@@ -3,6 +3,7 @@ name: Deploy to Firebase Hosting on PR
 
 permissions:
   checks: write
+  contents: read
 
 jobs:
   build_and_preview:
