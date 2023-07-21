@@ -5,6 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: |
-          gpg --batch --recv-keys F9EB7465
+          curl -L https://keybase.io/evy/key.asc \
+            | gpg --batch --import
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_QVYLDR }}' \
             | gpg --batch --encrypt --armor --recipient F9EB7465 --trust-model always
