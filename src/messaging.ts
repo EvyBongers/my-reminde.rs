@@ -15,7 +15,8 @@ async function updateDevice(deviceId: string, deviceProperties: any) {
 }
 
 export async function enablePushNotifications() {
-  let token = await getToken(messaging, {vapidKey: ""});
+  let serviceWorkerRegistration = await navigator.serviceWorker.getRegistration("/");
+  let token = await getToken(messaging, {vapidKey: "", serviceWorkerRegistration: serviceWorkerRegistration})
   console.log(token);
 
   let deviceName = getDeviceName();
@@ -78,7 +79,7 @@ onMessage(messaging, (payload) => {
     // vibrate?: VibratePattern;
   };
 
-  navigator.serviceWorker.getRegistration("/firebase-cloud-messaging-push-scope").then(
+  navigator.serviceWorker.getRegistration("/").then(
     registration => {
       if (!registration) return;
       registration.showNotification(notificationTitle, notificationOptions)
