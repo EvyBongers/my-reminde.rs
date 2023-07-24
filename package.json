@@ -9,7 +9,7 @@
     "upgrade": "pnpm update --recursive --latest",
     "devserver": "pnpm webpack serve --config webpack.dev.js",
     "emulator": "pnpm run firebase emulators:start --export-on-exit .firestore-data --import .firestore-data --inspect-functions",
-    "functions": "cd ./firebase/functions && pnpm run build --",
+    "functions": "cd ./firebase/functions && pnpm run build",
     "build": "pnpm webpack build --config webpack.prod.js & pnpm run functions & wait",
     "deploy": "pnpm run build && pnpm run firebase deploy"
   },
