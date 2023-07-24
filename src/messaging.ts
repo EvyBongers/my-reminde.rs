@@ -5,6 +5,7 @@ import {getDeviceId, getDeviceName} from "./helpers/Device";
 import {firestoreDelete} from "./db";
 
 const messaging = getMessaging(firebaseApp);
+const vapidKey = "BCTIaBwvVZY39ljNxvu9x18LcvqROlScyxIdqwUnVPsaMbxVG9INvKFHrXy4lldPoC-sLZo1TSA2xC8XeBKx_ug";
 
 async function updateDevice(deviceId: string, deviceProperties: any) {
   await updateAccount({
@@ -14,19 +15,28 @@ async function updateDevice(deviceId: string, deviceProperties: any) {
   });
 }
 
+async function getNotificationPermission() {
+  if (!("Notification" in window) || Notification.permission === "denied") return false;
+  if (Notification.permission === "granted") return true;
+  // TODO: inform the user of upcoming permission prompt
+  return (await Notification.requestPermission() === "granted");
+}
+
 export async function enablePushNotifications() {
+  if (await getNotificationPermission() === false) return
+
   let serviceWorkerRegistration = await navigator.serviceWorker.getRegistration("/");
-  let token = await getToken(messaging, {vapidKey: "", serviceWorkerRegistration: serviceWorkerRegistration})
-  console.log(token);
+  let token = await getToken(messaging, {vapidKey: vapidKey, serviceWorkerRegistration: serviceWorkerRegistration})
+  if (token) {
+    let deviceName = getDeviceName();
+    if (!deviceName) return;
 
-  let deviceName = getDeviceName();
-  if (!deviceName) return;
-
-  await updateDevice(getDeviceId(), {
-    name: deviceName,
-    token: token,
-    lastSeen: Date.now(),
-  });
+    await updateDevice(getDeviceId(), {
+      name: deviceName,
+      token: token,
+      lastSeen: Date.now(),
+    });
+  }
 }
 
 export async function disablePushNotifications(deviceId?: string) {
