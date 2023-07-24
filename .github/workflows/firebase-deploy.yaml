@@ -23,9 +23,7 @@ jobs:
         with:
           node-version: 18.x
       - run: |
-          pnpm install
-          cd firebase/functions
-          npm install
+          pnpm install --recursive
       - run: pnpm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:

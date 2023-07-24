@@ -19,9 +19,7 @@ jobs:
           node-version: 18.x
       - name: dependencies
         run: |
-          pnpm install
-          cd firebase/functions
-          npm install
+          pnpm install --recursive
       - name: update webmanifest and logos
         shell: bash
         run: |
