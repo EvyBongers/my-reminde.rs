@@ -12,9 +12,9 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
+const app = firebase.initializeApp(firebaseConfig);
 // Initialize Firebase Cloud Messaging and get a reference to the service
-const messaging = getMessaging(app);
+const messaging = firebase.messaging(app);
 
 // Incrementing OFFLINE_VERSION will kick off the install event and force
 // previously cached resources to be updated from the network.
