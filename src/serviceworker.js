@@ -84,28 +84,36 @@ self.addEventListener('notificationclick', (ev) => {
     let data = ev.notification.data.FCM_MSG?.data ?? ev.notification.data;
     let url = ev.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
 
-    let windowClients = await self.clients.matchAll({type: "window"});
+    self.clients.matchAll({type: "window"}).then(function (clientList) {
+      // Look for any window that matches the targeted URL or host
+      let client = clientList.reduce((_client, current) => {
+        if (_client?.url === url) return _client;
+        else if (current?.url === url) return current;
+        else if ((new URL(current?.url)).host == location.host) return current;
+        else return _client;
+      });
 
-    // Look for any window that matches the targeted URL or host
-    let client = windowClients.reduce((client, current) => {
-      if (client?.url === url) return client;
-      else if (current?.url === url) return current;
-      else if ((new URL(current?.url)).host == location.host) return current;
-      else return client;
+      // If none are found, open a new tab to the applicable URL and focus it
+      if (client === undefined) {
+        self.clients.openWindow(url).then((_client) => {
+          client = _client;
+        });
+      }
+      // Otherwise, navigate to the correct url
+      else if (client.url !== url) {
+        client.navigate(url).then((_client) => {
+          client = _client;
+        });
+      }
+
+      if (client) {
+        client.focus();
+      }
+    }).catch(function (error) {
+      throw new Error(
+        'A ServiceWorker error occurred: ' + error.message
+      );
     });
-
-    // If none are found, open a new tab to the applicable URL and focus it
-    if (client === undefined) {
-      client = await self.clients.openWindow(url);
-    }
-    // Otherwise, navigate to the correct url
-    else if (client.url !== url) {
-      await client.navigate(url);
-    }
-
-    if (client) {
-      client.focus();
-    }
   });
 
   if (!ev.action) {
