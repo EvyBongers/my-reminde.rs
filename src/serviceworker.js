@@ -93,21 +93,23 @@ self.addEventListener('notificationclick', (ev) => {
         else return _client;
       });
 
-      // If none are found, open a new tab to the applicable URL and focus it
-      if (client === undefined) {
-        self.clients.openWindow(url).then((_client) => {
-          client = _client;
-        });
-      }
-      // Otherwise, navigate to the correct url
-      else if (client.url !== url) {
-        client.navigate(url).then((_client) => {
-          client = _client;
-        });
-      }
+      // If a client was found and it supports focusing
+      if (client && 'focus' in client) {
+        // Focus existing client with matching url
+        if(client.url === url) {
+          return client.focus();
+        }
 
-      if (client) {
-        client.focus();
+        // Otherwise, navigate to the correct url
+        client.navigate(url).then((client) => {
+          if ('focus' in client) {
+            client.focus();
+          }
+        });
+      }
+      // If none are found, open a new tab to the applicable URL and focus it
+      else {
+        self.clients.openWindow(url);
       }
     }).catch(function (error) {
       throw new Error(
