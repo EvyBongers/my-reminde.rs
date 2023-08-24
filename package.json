@@ -15,15 +15,15 @@
   },
   "devDependencies": {
     "copy-webpack-plugin": "^11.0.0",
-    "firebase": "^9.19.1",
-    "firebase-tools": "^11.30.0",
-    "html-webpack-plugin": "^5.5.1",
-    "ts-loader": "^9.4.2",
-    "typescript": "^5.0.4",
-    "webpack": "^5.79.0",
-    "webpack-cli": "^5.0.1",
-    "webpack-dev-server": "^4.13.3",
-    "webpack-merge": "^5.8.0"
+    "firebase": "^10.3.0",
+    "firebase-tools": "^12.5.1",
+    "html-webpack-plugin": "^5.5.3",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^4.15.1",
+    "webpack-merge": "^5.9.0"
   },
   "dependencies": {
     "@material/mwc-button": "^0.27.0",
@@ -46,6 +46,6 @@
     "@material/mwc-textfield": "^0.27.0",
     "@material/mwc-top-app-bar-fixed": "^0.27.0",
     "cron-parser-all": "^0.0.6",
-    "lit": "^2.7.2"
+    "lit": "^2.8.0"
   }
 }
