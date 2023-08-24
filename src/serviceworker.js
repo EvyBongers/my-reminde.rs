@@ -107,16 +107,14 @@ self.addEventListener('notificationclick', (ev) => {
             return (await client.navigate(url)).focus();
           }
         } catch (error) {
-          throw new Error('A ServiceWorker error occurred: ' + error.message);
+          console.log('A ServiceWorker error occurred: ' + error.message);
         }
       }
 
       // If all fails, open the url in a new tab
       await self.clients.openWindow(url);
     } catch (error) {
-      throw new Error(
-        'A ServiceWorker error occurred: ' + error.message
-      );
+      throw new Error('A ServiceWorker error occurred: ' + error.message);
     }
   });
 
