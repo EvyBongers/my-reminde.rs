@@ -96,18 +96,21 @@ self.addEventListener('notificationclick', (ev) => {
 
       // If a client was found and it supports focusing
       if (client && 'focus' in client) {
-        // Focus existing client with matching url
-        if(client.url === url) {
-          return client.focus();
-        }
+        try {
+          // Focus existing client with matching url
+          if (client.url === url) {
+            return client.focus();
+          }
 
-        // Otherwise, navigate to the correct url
-        (await client.navigate(url)).focus();
+          // Otherwise, try navigating to the correct url
+          return (await client.navigate(url)).focus();
+        } catch (error) {
+          throw new Error('A ServiceWorker error occurred: ' + error.message);
+        }
       }
-      // If none are found, open a new tab to the applicable URL and focus it
-      else {
-        await self.clients.openWindow(url);
-      }
+
+      // If all fails, open the url in a new tab
+      await self.clients.openWindow(url);
     } catch (error) {
       throw new Error(
         'A ServiceWorker error occurred: ' + error.message
