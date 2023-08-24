@@ -103,7 +103,9 @@ self.addEventListener('notificationclick', (ev) => {
           }
 
           // Otherwise, try navigating to the correct url
-          return (await client.navigate(url)).focus();
+          if ('navigate' in client) {
+            return (await client.navigate(url)).focus();
+          }
         } catch (error) {
           throw new Error('A ServiceWorker error occurred: ' + error.message);
         }
