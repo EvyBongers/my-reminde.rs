@@ -84,7 +84,8 @@ self.addEventListener('notificationclick', (ev) => {
     let data = ev.notification.data.FCM_MSG?.data ?? ev.notification.data;
     let url = ev.action || `${location.protocol}//${location.host}/notifications/${data.notificationId}`;
 
-    self.clients.matchAll({type: "window"}).then(function (clientList) {
+    try {
+      let clientList = await self.clients.matchAll({type: "window"});
       // Look for any window that matches the targeted URL or host
       let client = clientList.reduce((_client, current) => {
         if (_client?.url === url) return _client;
@@ -101,21 +102,17 @@ self.addEventListener('notificationclick', (ev) => {
         }
 
         // Otherwise, navigate to the correct url
-        client.navigate(url).then((client) => {
-          if ('focus' in client) {
-            client.focus();
-          }
-        });
+        (await client.navigate(url)).focus();
       }
       // If none are found, open a new tab to the applicable URL and focus it
       else {
-        self.clients.openWindow(url);
+        await self.clients.openWindow(url);
       }
-    }).catch(function (error) {
+    } catch (error) {
       throw new Error(
         'A ServiceWorker error occurred: ' + error.message
       );
-    });
+    }
   });
 
   if (!ev.action) {
