@@ -137,6 +137,7 @@ export class JDIApp extends LitElement {
       bottom: 0;
       left: 0;
       right: 0;
+      z-index: 4;
     }
 
     mwc-tab {
