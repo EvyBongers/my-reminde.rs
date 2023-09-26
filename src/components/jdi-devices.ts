@@ -23,9 +23,12 @@ export class JDIDevices extends BunnyElement {
     }
 
     .devices-list {
-      border: 1px solid #d3d3d3;
       display: flex;
       flex-direction: column;
+    }
+
+    .devices-list:has(div.device) {
+      border: 1px solid #d3d3d3;
     }
 
     .devices-list mwc-circular-progress {

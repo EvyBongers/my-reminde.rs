@@ -26,9 +26,12 @@ export class NotificationList extends BunnyElement {
     }
 
     .notifications-container {
-      border: 1px solid #d3d3d3;
       display: flex;
       flex-direction: column;
+    }
+
+    .notifications-container:has(notification-item) {
+      border: 1px solid #d3d3d3;
     }
 
     .notifications-container mwc-circular-progress {

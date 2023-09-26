@@ -35,9 +35,12 @@ export class ReminderList extends BunnyElement {
     }
 
     .reminders-container {
-      border: 1px solid #d3d3d3;
       display: flex;
       flex-direction: column;
+    }
+
+    .reminders-container:has(reminder-item) {
+      border: 1px solid #d3d3d3;
     }
 
     .reminders-container mwc-circular-progress {
