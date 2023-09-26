@@ -35,6 +35,19 @@ export class JDIDevices extends BunnyElement {
       margin: 0 auto;
     }
 
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      background-color: rgba(0, 0, 0, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .device {
       display: flex;
       flex-direction: row;
@@ -133,7 +146,7 @@ export class JDIDevices extends BunnyElement {
             )}`
         }, {
           loading: html`
-            <mwc-circular-progress indeterminate></mwc-circular-progress>`
+            <div class="overlay"><mwc-circular-progress indeterminate></mwc-circular-progress></div>`
         })}
       </div>
     `;

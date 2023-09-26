@@ -34,8 +34,17 @@ export class NotificationList extends BunnyElement {
       border: 1px solid #d3d3d3;
     }
 
-    .notifications-container mwc-circular-progress {
-      margin: 0 auto;
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      background-color: rgba(0, 0, 0, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     notification-item:after {
@@ -68,7 +77,7 @@ export class NotificationList extends BunnyElement {
         ${renderItems(this.notifications, item => html`
           <notification-item id="${item._ref.id}" .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
         `, {loading: html`
-          <mwc-circular-progress indeterminate></mwc-circular-progress>`, placeHolder: html`No open notifications`})}
+          <div class="overlay"><mwc-circular-progress indeterminate></mwc-circular-progress></div>`, placeHolder: html`<span>No open notifications</span>`})}
       </div>
     `;
   }

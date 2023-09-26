@@ -47,6 +47,19 @@ export class ReminderList extends BunnyElement {
       margin: 0 auto;
     }
 
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      background-color: rgba(0, 0, 0, 0.32);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     reminder-item:after {
       border-bottom: 1px solid #d3d3d3;
       content: "";
@@ -88,7 +101,7 @@ export class ReminderList extends BunnyElement {
                          ?delete="${item._ref.id === this.selectedId && this.action === "delete"}"
                          ?edit="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, {loading: html`
-          <mwc-circular-progress indeterminate></mwc-circular-progress>`, placeHolder: html`<span>Click the <mwc-icon>alarm_add</mwc-icon> button below to create your first reminder</span>`})}
+          <div class="overlay"><mwc-circular-progress indeterminate></mwc-circular-progress></div>`, placeHolder: html`<span>Click the <mwc-icon>alarm_add</mwc-icon> button below to create your first reminder</span>`})}
       </div>
 
       <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>
