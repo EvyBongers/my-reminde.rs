@@ -8,6 +8,7 @@ import {disablePushNotifications} from "../messaging";
 import "@material/mwc-icon-button";
 import {when} from "lit/directives/when.js";
 import {map} from "lit/directives/map.js";
+import "./loading-indicator";
 
 @customElement("jdi-devices")
 export class JDIDevices extends BunnyElement {
@@ -29,23 +30,6 @@ export class JDIDevices extends BunnyElement {
 
     .devices-list:has(div.device) {
       border: 1px solid #d3d3d3;
-    }
-
-    .devices-list mwc-circular-progress {
-      margin: 0 auto;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 9999;
-      background-color: rgba(0, 0, 0, 0.32);
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .device {
@@ -145,8 +129,7 @@ export class JDIDevices extends BunnyElement {
                 () => html`No subscribed devices`
             )}`
         }, {
-          loading: html`
-            <div class="overlay"><mwc-circular-progress indeterminate></mwc-circular-progress></div>`
+          loading: html`<loading-indicator></loading-indicator>`
         })}
       </div>
     `;

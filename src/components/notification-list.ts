@@ -1,12 +1,12 @@
 import {css, html} from "lit";
 import {customElement, property} from "lit/decorators.js";
 import {QueryDocumentSnapshot} from "firebase/firestore";
-import "@material/mwc-circular-progress";
 import {DataCollectionSupplier, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
 import {NotificationDocument} from "../../firebase/functions/src"
 import {NotificationItem} from "./notification-item";
+import "./loading-indicator";
 import "./notification-item";
 
 @customElement("notification-list")
@@ -32,19 +32,6 @@ export class NotificationList extends BunnyElement {
 
     .notifications-container:has(notification-item) {
       border: 1px solid #d3d3d3;
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 9999;
-      background-color: rgba(0, 0, 0, 0.32);
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     notification-item:after {
@@ -76,8 +63,7 @@ export class NotificationList extends BunnyElement {
       <div class="notifications-container">
         ${renderItems(this.notifications, item => html`
           <notification-item id="${item._ref.id}" .item="${item}" ?open="${item._ref.id === this.selectedId}"></notification-item>
-        `, {loading: html`
-          <div class="overlay"><mwc-circular-progress indeterminate></mwc-circular-progress></div>`, placeHolder: html`<span>No open notifications</span>`})}
+        `, {loading: html`<loading-indicator></loading-indicator>`, placeHolder: html`<span>No open notifications</span>`})}
       </div>
     `;
   }
