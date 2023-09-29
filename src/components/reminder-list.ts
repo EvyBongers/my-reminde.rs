@@ -1,6 +1,7 @@
 import {css, html} from "lit";
 import {customElement, property, query} from "lit/decorators.js";
-import "@material/mwc-icon";
+import '@material/web/fab/fab';
+import '@material/web/icon/icon';
 import {DataCollectionSupplier, getCollectionByPath, loadCollection} from "../db";
 import {renderItems} from "../helpers/Rendering";
 import {BunnyElement, ChangedProperty, observe} from "./bunny-element";
@@ -58,7 +59,7 @@ export class ReminderList extends BunnyElement {
       display: none;
     }
 
-    mwc-fab {
+    md-fab {
       --mdc-icon-size: 36px;
       position: fixed;
       right: 20px;
@@ -84,10 +85,10 @@ export class ReminderList extends BunnyElement {
                          ?delete="${item._ref.id === this.selectedId && this.action === "delete"}"
                          ?edit="${item._ref.id === this.selectedId && this.action === "edit"}"></reminder-item>
         `, {loading: html`<loading-indicator></loading-indicator>`,
-        placeHolder: html`<span>Click the <mwc-icon>alarm_add</mwc-icon> button below to create your first reminder</span>`})}
+        placeHolder: html`<span>Click the <md-icon>alarm_add</md-icon> button below to create your first reminder</span>`})}
       </div>
 
-      <mwc-fab icon="alarm_add" @click="${this.addNotification}"></mwc-fab>
+      <md-fab variant="primary"><md-icon slot="icon">alarm_add</md-icon></md-fab>
       <reminder-edit .open="${this.selectedId === "_" && this.action === "create"}"></reminder-edit>
     `;
   }

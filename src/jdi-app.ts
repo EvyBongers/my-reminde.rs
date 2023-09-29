@@ -6,7 +6,6 @@ import {when} from 'lit/directives/when.js';
 import {auth, logout} from "./auth";
 import {disablePushNotifications, enablePushNotifications, isPushNotificationsEnabled} from "./messaging";
 import "@material/mwc-button";
-import "@material/mwc-fab";
 import "@material/mwc-formfield";
 import "@material/mwc-list/mwc-radio-list-item";
 import "@material/mwc-switch";

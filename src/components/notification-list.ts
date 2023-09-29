@@ -48,13 +48,6 @@ export class NotificationList extends BunnyElement {
     notification-item:last-child:after {
       display: none;
     }
-
-    mwc-fab {
-      --mdc-icon-size: 36px;
-      position: fixed;
-      right: 20px;
-      bottom: calc(var(--mdc-tab-height, 0) + 20px);
-    }
   `;
 
   override render() {

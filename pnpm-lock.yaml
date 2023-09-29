@@ -17,9 +17,6 @@ dependencies:
   '@material/mwc-dialog':
     specifier: ^0.27.0
     version: 0.27.0
-  '@material/mwc-fab':
-    specifier: ^0.27.0
-    version: 0.27.0
   '@material/mwc-formfield':
     specifier: ^0.27.0
     version: 0.27.0
@@ -62,6 +59,9 @@ dependencies:
   '@material/mwc-top-app-bar-fixed':
     specifier: ^0.27.0
     version: 0.27.0
+  '@material/web':
+    specifier: ^1.0.0
+    version: 1.0.0
   cron-parser-all:
     specifier: ^0.0.6
     version: 0.0.6
@@ -998,14 +998,6 @@ packages:
       wicg-inert: 3.1.2
     dev: false
 
-  /@material/mwc-fab@0.27.0:
-    resolution: {integrity: sha512-7XUxeO14etuXe0FQdB1Y6bg8TilbQKX/NGi9b0O6D0hkcY3Y0Vk2xyoAvQArbHRz3hGfiH1cS7FaJGRSilWcjg==}
-    dependencies:
-      '@material/mwc-ripple': 0.27.0
-      lit: 2.8.0
-      tslib: 2.6.2
-    dev: false
-
   /@material/mwc-floating-label@0.27.0:
     resolution: {integrity: sha512-uLleloTxQ6dDShcZzqgqfC8otQY8DtGMO9HFQbAEncoFAWpAehcEonsuT/IUhMORN+c5un0P5WXwcZsInJb7og==}
     dependencies:
@@ -1458,6 +1450,13 @@ packages:
     dependencies:
       '@material/feature-targeting': 14.0.0-canary.53b3cad2f.0
       '@material/theme': 14.0.0-canary.53b3cad2f.0
+      tslib: 2.6.2
+    dev: false
+
+  /@material/web@1.0.0:
+    resolution: {integrity: sha512-mNn2qzHvzJLty93NTtnkrSup+Wnte5yAtcZIx0N+WbIZPVlixA2v6wXkqHN1/SJVl0EV2tNT1qz4k0jfTQ+0lw==}
+    dependencies:
+      lit: 2.8.0
       tslib: 2.6.2
     dev: false
 
