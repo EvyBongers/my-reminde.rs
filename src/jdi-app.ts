@@ -9,8 +9,6 @@ import "@material/mwc-button";
 import "@material/mwc-formfield";
 import "@material/mwc-list/mwc-radio-list-item";
 import "@material/mwc-switch";
-import "@material/mwc-tab";
-import "@material/mwc-tab-bar";
 import "@material/mwc-top-app-bar-fixed";
 import "./components/confirm-dialog";
 import "./components/jdi-devices";
@@ -99,7 +97,7 @@ export class JDIApp extends LitElement {
   static override styles = css`
     :host {
       --base-background-color: #ffffff;
-      --mdc-tab-height: 48px;
+      --md-primary-tab-container-height: 48px;
       --mdc-theme-primary: #6200ee;
 
       --mdc-typography-font-family: 'Lexend', sans-serif;
@@ -125,7 +123,7 @@ export class JDIApp extends LitElement {
     }
 
     main {
-      padding: 6pt 6pt calc(var(--mdc-tab-height, 0) + 6pt);
+      padding: 6pt 6pt calc(var(--md-primary-tab-container-height, 0) + 6pt);
     }
 
     nav {
@@ -137,10 +135,6 @@ export class JDIApp extends LitElement {
       left: 0;
       right: 0;
       z-index: 4;
-    }
-
-    mwc-tab {
-      background-color: inherit;
     }
 
     [route] {

@@ -63,7 +63,7 @@ export class ReminderList extends BunnyElement {
       --mdc-icon-size: 36px;
       position: fixed;
       right: 20px;
-      bottom: calc(var(--mdc-tab-height, 0) + 20px);
+      bottom: calc(var(--md-primary-tab-container-height, 0) + 20px);
     }
   `;
 

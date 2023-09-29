@@ -1,8 +1,9 @@
 import {css, html, LitElement} from "lit";
 import {customElement, property, state} from "lit/decorators.js";
 import {map} from "lit/directives/map.js";
-import "@material/mwc-tab";
-import "@material/mwc-tab-bar";
+import {MdTabs} from "@material/web/tabs/tabs";
+import "@material/web/tabs/tabs";
+import "@material/web/tabs/primary-tab";
 import {RouteEvent} from "../jdi-app";
 
 export type NavItem = {
@@ -27,17 +28,17 @@ export class NavBar extends LitElement {
 
   override render() {
     return html`
-      <mwc-tab-bar activeIndex="${this.activeIndex}" @MDCTabBar:activated="${this.navigate}">
+      <md-tabs activeIndex="${this.activeIndex}" @change="${this.navigate}">
         ${map(this.navButtons, (item: NavItem, _: number) => {
           return html`
-            <mwc-tab icon="${item.icon}"></mwc-tab>`;
+            <md-primary-tab icon-only><md-icon slot="icon">${item.icon}</md-icon></md-primary-tab>`;
         })}
-      </mwc-tab-bar>
+      </md-tabs>
     `;
   }
 
-  private navigate(e: CustomEvent) {
-    const uri = this.navButtons[e.detail.index].uri;
+  private navigate(ev: Event) {
+    const uri = this.navButtons[(ev.target as MdTabs).activeTabIndex].uri;
     if (window.location.pathname !== uri && !window.location.pathname.startsWith(`${uri}/`)) {
       let routeEvent = new RouteEvent("route", {detail: {url: uri}})
       window.dispatchEvent(routeEvent);
