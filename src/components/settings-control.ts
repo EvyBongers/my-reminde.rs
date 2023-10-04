@@ -58,10 +58,9 @@ export class SettingsControl extends LitElement {
       let dialog = document.createElement("confirm-dialog");
       dialog.setAttribute("confirmLabel", "Send");
       dialog.setAttribute("cancelLabel", "Cancel");
+      dialog.setAttribute("title", "Reminder to send:");
       dialog.toggleAttribute("open", true);
       render(html`
-        <span>Reminder to send:</span>
-        <br>
         <mwc-list @selected="${(e: SingleSelectedEvent) => {
         selectedReminder = reminderDocuments[e.detail.index]
       }}">

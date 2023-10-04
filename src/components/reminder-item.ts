@@ -3,7 +3,6 @@ import {customElement, property, query} from "lit/decorators.js";
 import {when} from "lit/directives/when.js";
 import {IconButton} from "@material/mwc-icon-button";
 import {Menu} from "@material/mwc-menu";
-import "@material/mwc-dialog";
 import "@material/mwc-icon";
 import "@material/mwc-ripple";
 import "@material/mwc-icon-button";
@@ -13,7 +12,6 @@ import {RouteEvent} from "../jdi-app";
 import {deleteDocByRef, setDocByRef} from "../db";
 import {Rippling} from "../mixins/Rippling";
 import "./menu-button";
-import {Dialog} from "@material/mwc-dialog";
 import {ConfirmDialog} from "./confirm-dialog";
 import {ReminderEdit} from "./reminder-edit";
 
@@ -176,7 +174,7 @@ export class ReminderItem extends Rippling(LitElement) {
   private renderDialogs(): HTMLTemplateResult {
     return html`
       <reminder-edit .documentRef="${this.item._ref}" ?open="${this.editing}"></reminder-edit>
-      <confirm-dialog confirmLabel="Delete" cancelLabel="Cancel" ?open="${this.deleting}">Delete reminder?</confirm-dialog>
+      <confirm-dialog confirmLabel="Delete" cancelLabel="Cancel" ?open="${this.deleting}" title="Delete reminder?"></confirm-dialog>
     `;
   }
 

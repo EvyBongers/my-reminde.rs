@@ -98,6 +98,8 @@ export class JDIApp extends LitElement {
     :host {
       --base-background-color: #ffffff;
       --md-primary-tab-container-height: 48px;
+      --md-ref-typeface-plain: Lexend, sans-serif;
+
       --mdc-theme-primary: #6200ee;
 
       --mdc-typography-font-family: 'Lexend', sans-serif;
