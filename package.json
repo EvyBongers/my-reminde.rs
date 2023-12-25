@@ -4,7 +4,7 @@
   "scripts": {
     "firebase": "cd firebase && npx firebase",
     "mkcert": "mkcert -install && mkcert -cert-file localhost.pem -key-file localhost.key localhost",
-    "setup": "pnpm run mkcert && packages pnpm install --recursive",
+    "setup": "pnpm run mkcert && pnpm install --recursive",
     "update": "pnpm update --recursive",
     "upgrade": "pnpm update --recursive --latest",
     "devserver": "pnpm webpack serve --config webpack.dev.js",
