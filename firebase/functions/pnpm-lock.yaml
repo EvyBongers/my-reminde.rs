@@ -557,17 +557,29 @@ packages:
       - supports-color
     optional: true
 
-  /@grpc/grpc-js@1.10.5:
-    resolution: {integrity: sha512-9IS/wB9YESGysRzJ+OFcb/bDf7OmtLQ4l93LsT1/cJnqzTKHUJBwXm/dc0dLio4C/DMomx01dTZiQb7pau0hrw==}
+  /@grpc/grpc-js@1.10.9:
+    resolution: {integrity: sha512-5tcgUctCG0qoNyfChZifz2tJqbRbXVO9J7X6duFcOjY3HUNCxg5D0ZCK7EP9vIcZ0zRpLU9bWkyCqVCLZ46IbQ==}
     engines: {node: '>=12.10.0'}
     requiresBuild: true
     dependencies:
-      '@grpc/proto-loader': 0.7.12
+      '@grpc/proto-loader': 0.7.13
       '@js-sdsl/ordered-map': 4.4.2
     optional: true
 
   /@grpc/proto-loader@0.7.12:
     resolution: {integrity: sha512-DCVwMxqYzpUCiDMl7hQ384FqP4T3DbNpXU8pt681l3UWCip1WUiD5JrkImUwCB9a7f2cq4CUTmi5r/xIMRPY1Q==}
+    engines: {node: '>=6'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      lodash.camelcase: 4.3.0
+      long: 5.2.3
+      protobufjs: 7.2.6
+      yargs: 17.7.2
+    optional: true
+
+  /@grpc/proto-loader@0.7.13:
+    resolution: {integrity: sha512-AiXO/bfe9bmxBjxxtYxFAXGZvMaN5s8kO+jBHAJCON8rJoB5YS/D6X7ZNc6XQkuHNmyl4CYaMI1fJ/Gn27RGGw==}
     engines: {node: '>=6'}
     hasBin: true
     requiresBuild: true
@@ -2756,7 +2768,7 @@ packages:
     engines: {node: '>=14'}
     requiresBuild: true
     dependencies:
-      '@grpc/grpc-js': 1.10.5
+      '@grpc/grpc-js': 1.10.9
       '@grpc/proto-loader': 0.7.12
       '@types/long': 4.0.2
       abort-controller: 3.0.0
