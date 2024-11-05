@@ -1,5 +1,6 @@
 {
   "name": "functions",
+  "license": "GNU GPLv3",
   "engines": {
     "node": "20"
   },
